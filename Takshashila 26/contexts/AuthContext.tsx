@@ -34,7 +34,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const signIn = useCallback(() => signInWithGoogle(), []);
+  const signIn = useCallback(async () => {
+    try {
+      return await signInWithGoogle();
+    } catch (err) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : 'Sign-in failed. Check the console for details.';
+      if (typeof window !== 'undefined' && msg.includes('Firebase is not configured')) {
+        alert(
+          'Google sign-in is not configured. Add NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN, and NEXT_PUBLIC_FIREBASE_PROJECT_ID to .env.local (see .env.example).'
+        );
+      } else {
+        throw err;
+      }
+    }
+  }, []);
   const signOut = useCallback(() => authSignOut(), []);
 
   const value = useMemo<AuthContextValue>(
