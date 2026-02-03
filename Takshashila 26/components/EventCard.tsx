@@ -1,5 +1,7 @@
 'use client';
 
+import { memo } from 'react';
+import Image from 'next/image';
 import { AwardBadge } from './AwardBadge';
 
 interface EventCardProps {
@@ -11,14 +13,15 @@ interface EventCardProps {
 
 const REGISTER_URL = '/register';
 
-export default function EventCard({ name, description, image, id }: EventCardProps) {
+function EventCard({ name, description, image, id }: EventCardProps) {
   return (
     <article className="event-card">
       <div className="event-card__image">
-        <img
-          loading="lazy"
+        <Image
           src={image}
           alt={name}
+          fill
+          loading="lazy"
           sizes="(max-width: 767px) 100vw, (max-width: 991px) 50vw, 33vw"
           className="u-cover-absolute"
         />
@@ -36,3 +39,5 @@ export default function EventCard({ name, description, image, id }: EventCardPro
     </article>
   );
 }
+
+export default memo(EventCard);

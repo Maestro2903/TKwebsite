@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 
 interface HeroSectionProps {
     onShowReelClick?: () => void;
@@ -14,10 +15,34 @@ const videoSrc = videoSources[0].src; /* for data attributes / fallback */
 
 export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const sectionRef = useRef<HTMLElement>(null);
     const [playerStatus, setPlayerStatus] = useState<'idle' | 'loading' | 'ready' | 'playing' | 'paused'>('idle');
     const [playerActivated, setPlayerActivated] = useState(false);
+    const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+
+    // IntersectionObserver: only start loading video when section is near viewport
+    useEffect(() => {
+        if (typeof window === 'undefined' || !sectionRef.current) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setShouldLoadVideo(true);
+                        observer.disconnect();
+                    }
+                });
+            },
+            { rootMargin: '50px' } // Start loading 50px before entering viewport
+        );
+
+        observer.observe(sectionRef.current);
+
+        return () => observer.disconnect();
+    }, []);
 
     useEffect(() => {
+        if (!shouldLoadVideo) return;
         const video = videoRef.current;
         if (!video) return;
 
@@ -48,7 +73,7 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
             video.removeEventListener('canplay', onCanPlay);
             video.removeEventListener('error', onError);
         };
-    }, []);
+    }, [shouldLoadVideo]);
 
     const togglePlayPause = () => {
         const video = videoRef.current;
@@ -64,7 +89,7 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
     };
 
     return (
-        <section className="u-section u-min-height-screen u-zindex-3">
+        <section ref={sectionRef} className="u-section u-min-height-screen u-zindex-3">
             <div
                 data-wf--spacer--section-space="main"
                 className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
@@ -83,7 +108,7 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                 >
                     <video
                         ref={videoRef}
-                        preload="metadata"
+                        preload={shouldLoadVideo ? "metadata" : "none"}
                         width={1920}
                         height={1080}
                         playsInline
@@ -98,9 +123,12 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
 
                     {/* Hero center logo overlay */}
                     <div className="hero_center_logo" aria-hidden>
-                        <img
+                        <Image
                             src="/tk25-gold.svg"
                             alt=""
+                            width={640}
+                            height={360}
+                            priority
                             className="hero_center_logo__img"
                         />
                     </div>

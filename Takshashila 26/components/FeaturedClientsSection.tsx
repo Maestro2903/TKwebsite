@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import Image from 'next/image';
 
 export default function FeaturedClientsSection() {
     const sectionRef = useRef<HTMLElement>(null);
@@ -34,10 +35,13 @@ export default function FeaturedClientsSection() {
                             </div>
 
                             <div className="cit_about_image_wrap">
-                                <img
+                                <Image
                                     src="/images/about/chairman.jpeg"
                                     alt="CIT - Chennai Institute of Technology"
+                                    fill
+                                    loading="lazy"
                                     className="cit_about_image"
+                                    sizes="(max-width: 767px) 100vw, (max-width: 991px) 50vw, 440px"
                                 />
                             </div>
                         </div>

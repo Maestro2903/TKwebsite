@@ -1,12 +1,18 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import ShowsHero from '@/components/ShowsHero';
-import ShowsSchedule from '@/components/ShowsSchedule';
 import StickyRegisterCTA from '@/components/StickyRegisterCTA';
 import { ProshowsY2KPage } from '@/components/ProshowsY2KDecor';
 import { useLenis } from '@/hooks/useLenis';
+
+// Code-split ShowsSchedule - it imports showsData
+const ShowsSchedule = dynamic(() => import('@/components/ShowsSchedule'), {
+  loading: () => <div style={{ minHeight: '400px' }} />,
+});
 
 export default function ProshowsPage() {
   useLenis();

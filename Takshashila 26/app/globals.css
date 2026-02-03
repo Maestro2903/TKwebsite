@@ -18,7 +18,7 @@
   --_spacing---space--6: clamp(2*1rem, ((2 - ((2.5 - 2)/(var(--site--viewport-max) - var(--site--viewport-min))*var(--site--viewport-min)))*1rem + ((2.5 - 2)/(var(--site--viewport-max) - var(--site--viewport-min)))*100vw), 2.5*1rem);
   --_spacing---space--7: clamp(2.25*1rem, ((2.25 - ((3 - 2.25)/(var(--site--viewport-max) - var(--site--viewport-min))*var(--site--viewport-min)))*1rem + ((3 - 2.25)/(var(--site--viewport-max) - var(--site--viewport-min)))*100vw), 3*1rem);
   --_typography---font--primary-family: Interdisplay, Arial, sans-serif;
-  --_typography---font--display-family: 'Dirtyline 36Daysoftype 2022', Interdisplay, Arial, sans-serif;
+  --_typography---font--display-family: 'MADE Kenfolg', Interdisplay, Arial, sans-serif;
   --_typography---font--primary-regular: 400;
   --_typography---font--primary-medium: 500;
   --_typography---font--primary-bold: 700;
@@ -36,15 +36,11 @@
   font-display: swap;
 }
 
-/* Dirtyline 36Daysoftype 2022 – used ONLY for .events-hero__title and .shows-hero__title.
-   Copy font to public/assets/fonts/ (see public/assets/fonts/README-Dirtyline.md). */
+/* MADE Kenfolg – used for display headings (.events-hero__title, .shows-hero__title, etc.) */
 @font-face {
-  font-family: 'Dirtyline 36Daysoftype 2022';
-  src: local('Dirtyline 36Daysoftype 2022'),
-       url(/assets/fonts/Dirtyline36Daysoftype2022.woff2) format('woff2'),
-       url(/assets/fonts/Dirtyline36Daysoftype2022.woff) format('woff'),
-       url(/assets/fonts/Dirtyline36Daysoftype2022.ttf) format('truetype'),
-       url(/assets/fonts/Dirtyline36Daysoftype2022.otf) format('opentype');
+  font-family: 'MADE Kenfolg';
+  src: local('MADE Kenfolg'),
+       url(/assets/fonts/MADEKenfolg.otf) format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -3111,9 +3107,9 @@ html {
   letter-spacing: -0.04em;
 }
 
-/* DAY 1, DAY 2, DAY 3 labels — Dirtyline only */
+/* DAY 1, DAY 2, DAY 3 labels — MADE Kenfolg only */
 .show-day-section__label {
-  font-family: 'Dirtyline 36Daysoftype 2022', var(--_typography---font--primary-family) !important;
+  font-family: 'MADE Kenfolg', var(--_typography---font--primary-family) !important;
   font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: var(--_typography---font--primary-bold, 700);
   text-transform: uppercase;
@@ -3123,80 +3119,51 @@ html {
   padding-bottom: 0.15em;
 }
 
-/* Horizontal scroll row of cards (Saarang layout) */
-.show-day-section__cards-scroll {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  padding-left: var(--site--margin, 1rem);
-  padding-right: var(--site--margin, 1rem);
-}
-
-.show-day-section__cards-scroll::-webkit-scrollbar {
-  display: none;
-}
-
+/* Cards container: vertical flex layout */
 .show-day-section__cards {
   display: flex;
-  gap: var(--site--gutter);
-  padding-bottom: 0.5rem;
-  min-width: min-content;
-  max-width: var(--max-width--main);
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Card: fixed min-width in scroll row, snap */
-.show-day-section__cards .show-card {
-  flex: 0 0 auto;
-  min-width: min(320px, 85vw);
-  max-width: 380px;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-}
-
-@media screen and (min-width: 992px) {
-  .show-day-section__cards .show-card {
-    min-width: 320px;
-    max-width: 360px;
-  }
-}
-
-/* Single show card — our theme: dark surface, white text, subtle border */
-.show-card {
-  display: flex;
   flex-direction: column;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  transition: background 0.35s cubic-bezier(0.625, 0.05, 0, 1),
-    border-color 0.35s cubic-bezier(0.625, 0.05, 0, 1);
+  gap: var(--_spacing---section-space--main);
+  padding-top: var(--_spacing---space--4);
 }
 
-@media (hover: hover) {
-  .show-card:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.25);
-  }
-
-  .show-card:hover .show-card__visual-inner {
-    transform: scale(1.05);
-  }
+/* Proshows card: two-column layout (image + info card) */
+.show-card-proshows {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--site--gutter);
+  align-items: stretch;
 }
 
-.show-card__visual {
-  aspect-ratio: 4 / 3;
-  width: 100%;
+/* Alternate layout: image on right, info on left */
+.show-card-proshows--alternate {
+  grid-template-columns: 1fr 1fr;
+}
+
+.show-card-proshows--alternate .show-card-proshows__image {
+  order: 2;
+}
+
+.show-card-proshows--alternate .show-card-proshows__info {
+  order: 1;
+}
+
+/* Image container: consistent aspect ratio */
+.show-card-proshows__image {
   position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   flex-shrink: 0;
 }
 
-.show-card__visual-inner {
+.show-card-proshows__image-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.show-card-proshows__image-placeholder {
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -3205,41 +3172,116 @@ html {
     rgba(255, 255, 255, 0.02) 50%,
     rgba(255, 255, 255, 0.06) 100%
   );
-  transition: transform 0.735s cubic-bezier(0.625, 0.05, 0, 1);
 }
 
-.show-card__content {
+/* Info card: reusable class with consistent padding */
+.show-card-proshows__info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--_spacing---space--4);
   padding: var(--_spacing---space--5);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.75rem;
+  text-align: left;
+}
+
+/* Category/genre: small uppercase text */
+.show-card-proshows__category {
+  font-family: var(--_typography---font--primary-family);
+  font-size: 0.75rem;
+  font-weight: var(--_typography---font--primary-medium, 500);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--swatch--light-100, #fff);
+  opacity: 0.6;
+  margin: 0;
+}
+
+/* Title: large display font */
+.show-card-proshows__title {
+  font-family: var(--_typography---font--display-family);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: var(--_typography---font--primary-bold, 700);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--swatch--light-100, #fff);
+  margin: 0;
+}
+
+/* Description: body text */
+.show-card-proshows__description {
+  font-family: var(--_typography---font--primary-family);
+  font-size: clamp(0.875rem, 1.1vw, 1rem);
+  font-weight: var(--_typography---font--primary-regular, 400);
+  line-height: 1.6;
+  color: var(--swatch--light-100, #fff);
+  opacity: 0.8;
+  margin: 0;
   flex: 1;
 }
 
-.show-card__title {
-  font-family: var(--_typography---font--primary-family);
-  font-size: clamp(1rem, 1.25vw, 1.25rem);
-  font-weight: var(--_typography---font--primary-semibold, 600);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--swatch--light-100, #fff);
-  margin: 0;
-  line-height: 1.3;
+/* Meta row: date/day */
+.show-card-proshows__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--_spacing---space--3);
+  padding-top: var(--_spacing---space--3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.show-card__subtitle {
+.show-card-proshows__date {
   font-family: var(--_typography---font--primary-family);
   font-size: 0.875rem;
-  opacity: 0.6;
+  font-weight: var(--_typography---font--primary-medium, 500);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin: 0;
+  letter-spacing: 0.05em;
+  color: var(--swatch--light-100, #fff);
+  opacity: 0.6;
+}
+
+/* CTA button: full width, positioned at bottom */
+.show-card-proshows__cta {
+  margin-top: auto;
+  padding-top: var(--_spacing---space--4);
+}
+
+.show-card-proshows__btn {
+  width: 100%;
+  display: block;
+  padding: 0.875rem 1.5rem;
+  font-family: var(--_typography---font--primary-family);
+  font-size: 0.875rem;
+  font-weight: var(--_typography---font--primary-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.25rem;
   color: var(--swatch--light-100, #fff);
 }
 
-.show-card__subtitle--reveal {
-  font-style: italic;
-  opacity: 0.7;
+.show-card-proshows__btn .button_main_text {
+  color: var(--swatch--light-100, #fff);
+}
+
+/* Responsive: stack image above info card on mobile */
+@media screen and (max-width: 991px) {
+  .show-card-proshows {
+    grid-template-columns: 1fr;
+    gap: var(--_spacing---space--4);
+  }
+
+  .show-card-proshows--alternate .show-card-proshows__image,
+  .show-card-proshows--alternate .show-card-proshows__info {
+    order: 0;
+  }
+
+  .show-card-proshows__info {
+    padding: var(--_spacing---space--5);
+  }
 }
 
 /* =================================================================

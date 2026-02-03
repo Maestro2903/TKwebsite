@@ -1,13 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-    gsap.registerPlugin(ScrollTrigger);
-}
+import { useGSAP } from '@/hooks/useGSAP';
 
 // CIT sticky cards - Excellence, Industry Ready, Vision
 const SERVICES = [
@@ -48,8 +42,11 @@ const SERVICES = [
 export default function ServiceCardsSection() {
     const sectionRef = useRef<HTMLDivElement>(null);
     const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const [gsapModules, isLoading] = useGSAP();
 
     useEffect(() => {
+        if (isLoading || !gsapModules) return;
+        const { gsap, ScrollTrigger } = gsapModules;
         const ctx = gsap.context(() => {
             // Simple fade-in animation for each card as they enter viewport
             cardRefs.current.forEach((card) => {
@@ -74,7 +71,7 @@ export default function ServiceCardsSection() {
         }, sectionRef);
 
         return () => ctx.revert();
-    }, []);
+    }, [isLoading, gsapModules]);
 
     return (
         <section ref={sectionRef} className="service-cards-section u-section">

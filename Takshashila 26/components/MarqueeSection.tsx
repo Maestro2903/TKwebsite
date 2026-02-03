@@ -1,6 +1,7 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
+import Image from 'next/image';
 
 /** Optimized video: preload=metadata (saves RAM), pauses when off-screen, centered */
 function ScalingVideo() {
@@ -40,13 +41,13 @@ function ScalingVideo() {
     );
 }
 
-// Local assets
+// Local assets - memoized to prevent re-renders
 const IMAGE_URLS = {
     rect38: '/assets/marquee/rectangle38.avif',
     main: '/assets/marquee/main.avif',
     image1113: '/assets/marquee/image1113.avif',
     haniff: '/assets/marquee/haniff1.avif',
-};
+} as const;
 
 export default function MarqueeSection() {
     return (
@@ -90,19 +91,22 @@ export default function MarqueeSection() {
                     <div data-marquee-collection-target="" className="marquee-advanced__collection">
                         <p className="marquee__advanced__p">Dive Deep.</p>
                         <div className="home_marquee_image_wrap">
-                            <img
+                            <Image
                                 width={160}
-                                loading="eager"
+                                height={160}
+                                loading="lazy"
                                 alt=""
                                 src={IMAGE_URLS.rect38}
                                 className="u-cover-absolute"
+                                sizes="160px"
                             />
                         </div>
                         <p className="marquee__advanced__p">Rise High.</p>
                         <div className="home_marquee_image_wrap">
-                            <img
+                            <Image
                                 width={160}
-                                loading="eager"
+                                height={160}
+                                loading="lazy"
                                 alt=""
                                 src={IMAGE_URLS.main}
                                 sizes="160px"
@@ -114,19 +118,22 @@ export default function MarqueeSection() {
                     <div data-marquee-collection-target="" className="marquee-advanced__collection">
                         <p className="marquee__advanced__p">Dive Deep.</p>
                         <div className="home_marquee_image_wrap">
-                            <img
+                            <Image
                                 width={160}
-                                loading="eager"
+                                height={160}
+                                loading="lazy"
                                 alt=""
                                 src={IMAGE_URLS.rect38}
                                 className="u-cover-absolute"
+                                sizes="160px"
                             />
                         </div>
                         <p className="marquee__advanced__p">Rise High.</p>
                         <div className="home_marquee_image_wrap">
-                            <img
+                            <Image
                                 width={160}
-                                loading="eager"
+                                height={160}
+                                loading="lazy"
                                 alt=""
                                 src={IMAGE_URLS.main}
                                 sizes="160px"
@@ -171,19 +178,22 @@ export default function MarqueeSection() {
                     <div data-marquee-collection-target="" className="marquee-advanced__collection">
                         <p className="marquee__advanced__p">The Voyage Begins.</p>
                         <div className="home_marquee_image_wrap">
-                            <img
+                            <Image
                                 width={160}
-                                loading="eager"
+                                height={160}
+                                loading="lazy"
                                 alt=""
                                 src={IMAGE_URLS.image1113}
                                 className="u-cover-absolute"
+                                sizes="160px"
                             />
                         </div>
                         <p className="marquee__advanced__p">That&apos;s the Takshashila Spirit.</p>
                         <div className="home_marquee_image_wrap">
-                            <img
+                            <Image
                                 width={160}
-                                loading="eager"
+                                height={160}
+                                loading="lazy"
                                 alt=""
                                 src={IMAGE_URLS.haniff}
                                 sizes="160px"
@@ -195,19 +205,22 @@ export default function MarqueeSection() {
                     <div data-marquee-collection-target="" className="marquee-advanced__collection">
                         <p className="marquee__advanced__p">The Voyage Begins.</p>
                         <div className="home_marquee_image_wrap">
-                            <img
+                            <Image
                                 width={160}
-                                loading="eager"
+                                height={160}
+                                loading="lazy"
                                 alt=""
                                 src={IMAGE_URLS.image1113}
                                 className="u-cover-absolute"
+                                sizes="160px"
                             />
                         </div>
                         <p className="marquee__advanced__p">That&apos;s the Takshashila Spirit.</p>
                         <div className="home_marquee_image_wrap">
-                            <img
+                            <Image
                                 width={160}
-                                loading="eager"
+                                height={160}
+                                loading="lazy"
                                 alt=""
                                 src={IMAGE_URLS.haniff}
                                 sizes="160px"

@@ -1,30 +1,25 @@
 import { useRef, useLayoutEffect } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-// Use require to avoid GSAP Flip.d.ts vs flip.d.ts casing issue on Linux (Vercel)
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { Flip } = require('gsap/Flip') as { Flip: { getState: (el: Element | string, vars?: object) => object; from: (state: object, vars?: object) => gsap.core.Timeline } };
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-    gsap.registerPlugin(ScrollTrigger, Flip);
-}
+import { useGSAP } from '@/hooks/useGSAP';
 
 export default function ScalingVideoSection() {
     const sectionRef = useRef<HTMLElement>(null);
     const textElements = useRef<HTMLDivElement[]>([]);
     const buttonRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const [gsapModules, isLoading] = useGSAP(true); // Load Flip module
 
     useLayoutEffect(() => {
-        let flipCtx: gsap.Context;
+        if (isLoading || !gsapModules) return;
+
+        const { gsap, ScrollTrigger, Flip } = gsapModules;
+        let flipCtx: ReturnType<typeof gsap.context>;
 
         const initFlip = () => {
             // Get the video wrapper from the previous section (MarqueeSection)
             const videoWrapper = document.querySelector('[data-flip-id="scaling-video"]');
 
             // If the element doesn't exist yet, retry shortly (React hydration timing)
-            if (!videoWrapper || !wrapperRef.current) {
+            if (!videoWrapper || !wrapperRef.current || !Flip) {
                 // If we can't find the element, we might need to wait for the other component to mount
                 return;
             }
@@ -106,7 +101,7 @@ export default function ScalingVideoSection() {
             // but for a single page scroll flow, simple reversion by GSAP context is usually enough 
             // if we are navigating away. If we just scroll up, Flip handles the "scrub" backwards automatically.
         };
-    }, []);
+    }, [isLoading, gsapModules]);
 
     const addToRefs = (el: HTMLDivElement | null) => {
         if (el && !textElements.current.includes(el)) {

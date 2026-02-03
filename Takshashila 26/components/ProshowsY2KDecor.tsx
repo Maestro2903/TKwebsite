@@ -1,14 +1,16 @@
 'use client';
 
-import {
-  LiquidMetalComponent1,
-  LiquidMetalComponent2,
-  LiquidMetalComponent3,
-  LiquidMetalComponent4,
-  LiquidMetalComponent6,
-  LiquidMetalComponent7,
-  LiquidMetalComponent8,
-} from '@/y2k';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import dynamic from 'next/dynamic';
+
+// Lazy load Y2K shader components - they're heavy and should only load when in viewport
+const LiquidMetalComponent1 = dynamic(() => import('@/y2k').then(mod => ({ default: mod.LiquidMetalComponent1 })), { ssr: false });
+const LiquidMetalComponent2 = dynamic(() => import('@/y2k').then(mod => ({ default: mod.LiquidMetalComponent2 })), { ssr: false });
+const LiquidMetalComponent3 = dynamic(() => import('@/y2k').then(mod => ({ default: mod.LiquidMetalComponent3 })), { ssr: false });
+const LiquidMetalComponent4 = dynamic(() => import('@/y2k').then(mod => ({ default: mod.LiquidMetalComponent4 })), { ssr: false });
+const LiquidMetalComponent6 = dynamic(() => import('@/y2k').then(mod => ({ default: mod.LiquidMetalComponent6 })), { ssr: false });
+const LiquidMetalComponent7 = dynamic(() => import('@/y2k').then(mod => ({ default: mod.LiquidMetalComponent7 })), { ssr: false });
+const LiquidMetalComponent8 = dynamic(() => import('@/y2k').then(mod => ({ default: mod.LiquidMetalComponent8 })), { ssr: false });
 
 /** Fixed “random” positions across the page (deterministic for SSR). */
 const PAGE_POSITIONS: Array<{ top: string; left?: string; right?: string; width: number; height: number; opacity: number }> = [
@@ -90,13 +92,38 @@ function Y2KWrapper({
 }
 
 export function ProshowsY2KHero() {
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (shouldLoad || typeof window === 'undefined' || !containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: '100px' } // Start loading 100px before entering viewport
+    );
+
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, [shouldLoad]);
+
   return (
-    <div className="shows-hero__y2k" aria-hidden>
-      {HERO_POSITIONS.map((pos, i) => {
+    <div ref={containerRef} className="shows-hero__y2k" aria-hidden>
+      {shouldLoad && HERO_POSITIONS.map((pos, i) => {
         const Comp = HERO_COMPONENTS[i % HERO_COMPONENTS.length];
         return (
           <Y2KWrapper key={`hero-y2k-${i}`} position={pos}>
-            <Comp />
+            <Suspense fallback={null}>
+              <Comp />
+            </Suspense>
           </Y2KWrapper>
         );
       })}
@@ -105,13 +132,38 @@ export function ProshowsY2KHero() {
 }
 
 export function ProshowsY2KPage() {
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (shouldLoad || typeof window === 'undefined' || !containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: '200px' } // Start loading 200px before entering viewport
+    );
+
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, [shouldLoad]);
+
   return (
-    <div className="proshows-page__y2k" aria-hidden>
-      {PAGE_POSITIONS.map((pos, i) => {
+    <div ref={containerRef} className="proshows-page__y2k" aria-hidden>
+      {shouldLoad && PAGE_POSITIONS.map((pos, i) => {
         const Comp = PAGE_COMPONENTS[i % PAGE_COMPONENTS.length];
         return (
           <Y2KWrapper key={`page-y2k-${i}`} position={pos}>
-            <Comp />
+            <Suspense fallback={null}>
+              <Comp />
+            </Suspense>
           </Y2KWrapper>
         );
       })}

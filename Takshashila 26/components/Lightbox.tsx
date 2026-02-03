@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Hls from 'hls.js';
 
 interface LightboxProps {
     isOpen: boolean;
@@ -12,7 +11,17 @@ interface LightboxProps {
 export default function Lightbox({ isOpen, onClose, videoSrc }: LightboxProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const hlsRef = useRef<Hls | null>(null);
+    const hlsRef = useRef<any>(null);
+    const [hlsModule, setHlsModule] = useState<typeof import('hls.js') | null>(null);
+
+    // Lazy load HLS.js only when lightbox opens
+    useEffect(() => {
+        if (!isOpen || hlsModule) return;
+
+        import('hls.js').then((module) => {
+            setHlsModule(module);
+        });
+    }, [isOpen, hlsModule]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -27,7 +36,9 @@ export default function Lightbox({ isOpen, onClose, videoSrc }: LightboxProps) {
         const video = videoRef.current;
         if (!video || !videoSrc) return;
 
-        if (Hls.isSupported()) {
+        // Wait for HLS.js to load if needed
+        if (hlsModule && hlsModule.default.isSupported()) {
+            const Hls = hlsModule.default;
             const hls = new Hls();
             hlsRef.current = hls;
 
@@ -55,7 +66,7 @@ export default function Lightbox({ isOpen, onClose, videoSrc }: LightboxProps) {
                 video.load();
             };
         }
-    }, [isOpen, videoSrc]);
+    }, [isOpen, videoSrc, hlsModule]);
 
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {

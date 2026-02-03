@@ -1,21 +1,18 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-    gsap.registerPlugin(ScrollTrigger);
-}
+import { useGSAP } from '@/hooks/useGSAP';
 
 // Exact HTML structure from original Zeit Media website for Services Section
 export default function ServicesSection() {
     const sectionRef = useRef<HTMLElement>(null);
     const headingRef = useRef<HTMLHeadingElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null);
+    const [gsapModules, isLoading] = useGSAP();
 
     useEffect(() => {
+        if (isLoading || !gsapModules) return;
+        const { gsap, ScrollTrigger } = gsapModules;
         const ctx = gsap.context(() => {
             // Heading animation
             if (headingRef.current) {
@@ -59,7 +56,7 @@ export default function ServicesSection() {
         }, sectionRef);
 
         return () => ctx.revert();
-    }, []);
+    }, [isLoading, gsapModules]);
 
     return (
         <section ref={sectionRef} data-wf--section--theme="inherit" className="u-section">

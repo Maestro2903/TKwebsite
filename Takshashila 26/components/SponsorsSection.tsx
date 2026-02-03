@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 const SPONSOR_LOGO_FILES = [
     'AGS.png',
     'Aswins.png',
@@ -34,7 +36,15 @@ function SponsorLogo({ filename }: { filename: string }) {
     const alt = filename.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
     return (
         <div className="sponsors_marquee_logo">
-            <img src={src} alt={alt} loading="lazy" className="sponsors_marquee_logo_img" />
+            <Image 
+                src={src} 
+                alt={alt} 
+                width={640}
+                height={256}
+                loading="lazy" 
+                className="sponsors_marquee_logo_img"
+                sizes="(max-width: 767px) 224px, 640px"
+            />
         </div>
     );
 }

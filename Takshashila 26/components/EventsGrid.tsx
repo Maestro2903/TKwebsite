@@ -1,26 +1,23 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useEffect, useRef, memo } from 'react';
+import { useGSAP } from '@/hooks/useGSAP';
 import EventCard from './EventCard';
 import type { EventItem } from '@/lib/eventsData';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 interface EventsGridProps {
   events: EventItem[];
   category: 'non-technical' | 'technical';
 }
 
-export default function EventsGrid({ events, category }: EventsGridProps) {
+function EventsGrid({ events, category }: EventsGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
+  const [gsapModules, isLoading] = useGSAP();
 
   useEffect(() => {
-    if (!gridRef.current) return;
+    if (!gridRef.current || isLoading || !gsapModules) return;
 
+    const { gsap, ScrollTrigger } = gsapModules;
     const cards = gridRef.current.querySelectorAll('.event-card');
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -42,7 +39,7 @@ export default function EventsGrid({ events, category }: EventsGridProps) {
     }, gridRef);
 
     return () => ctx.revert();
-  }, [events, category]);
+  }, [events, category, isLoading, gsapModules]);
 
   const id = category === 'non-technical' ? 'events-grid-non-technical' : 'events-grid-technical';
   const ariaLabelledBy = category === 'non-technical' ? 'tab-non-technical' : 'tab-technical';
@@ -73,3 +70,5 @@ export default function EventsGrid({ events, category }: EventsGridProps) {
     </div>
   );
 }
+
+export default memo(EventsGrid);

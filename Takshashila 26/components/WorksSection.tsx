@@ -1,13 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-    gsap.registerPlugin(ScrollTrigger);
-}
+import { useGSAP } from '@/hooks/useGSAP';
 
 // Flagship events - Takshashila
 const PROJECTS = [
@@ -58,8 +52,11 @@ export default function WorksSection() {
     const sectionRef = useRef<HTMLElement>(null);
     const headingRef = useRef<HTMLHeadingElement>(null);
     const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+    const [gsapModules, isLoading] = useGSAP();
 
     useEffect(() => {
+        if (isLoading || !gsapModules) return;
+        const { gsap, ScrollTrigger } = gsapModules;
         const ctx = gsap.context(() => {
             // Heading animation
             if (headingRef.current) {
@@ -104,7 +101,7 @@ export default function WorksSection() {
         }, sectionRef);
 
         return () => ctx.revert();
-    }, []);
+    }, [isLoading, gsapModules]);
 
     return (
         <section ref={sectionRef} className="u-section u-zindex-3">

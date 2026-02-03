@@ -1,14 +1,12 @@
 'use client';
 
-import { useCallback } from 'react';
+import { memo, useMemo } from 'react';
 import { PROSHOWS_SCHEDULE } from '@/lib/showsData';
 import ShowCard from '@/components/ShowCard';
 
-export default function ShowsSchedule() {
-  const scrollToDay = useCallback((day: number) => {
-    const el = document.getElementById(`day-${day}`);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, []);
+function ShowsSchedule() {
+  // Memoize schedule to prevent re-renders (though it's a constant, this ensures stability)
+  const schedule = useMemo(() => PROSHOWS_SCHEDULE, []);
 
   return (
     <section className="shows-schedule u-section" aria-labelledby="shows-schedule-heading">
@@ -16,32 +14,8 @@ export default function ShowsSchedule() {
         Proshows schedule by day
       </h2>
 
-      {/* Sticky day nav — Saarang-style */}
-      <nav className="shows-schedule__day-nav" aria-label="Jump to day">
-        <div className="shows-schedule__day-nav-inner u-container">
-          {PROSHOWS_SCHEDULE.map((dayBlock) => (
-            <button
-              key={dayBlock.day}
-              type="button"
-              className="shows-schedule__day-nav-btn"
-              onClick={() => scrollToDay(dayBlock.day)}
-              aria-label={`Go to ${dayBlock.label}`}
-            >
-              {dayBlock.label}
-            </button>
-          ))}
-        </div>
-      </nav>
-
-      <div className="shows-schedule__eyebrow u-container">
-        <div className="eyebrow_layout">
-          <div className="eyebrow_marker" aria-hidden />
-          <span className="eyebrow_text u-text-style-main">LINEUP</span>
-        </div>
-      </div>
-
       <div className="shows-schedule__inner">
-        {PROSHOWS_SCHEDULE.map((dayBlock) => (
+        {schedule.map((dayBlock) => (
           <article
             key={dayBlock.day}
             className="show-day-section"
@@ -56,12 +30,15 @@ export default function ShowsSchedule() {
                 {dayBlock.label}
               </span>
             </div>
-            <div className="show-day-section__cards-scroll">
-              <div className="show-day-section__cards">
-                {dayBlock.shows.map((show) => (
-                  <ShowCard key={show.id} show={show} />
-                ))}
-              </div>
+            <div className="show-day-section__cards u-container">
+              {dayBlock.shows.map((show, index) => (
+                <ShowCard 
+                  key={show.id} 
+                  show={show} 
+                  day={dayBlock.day}
+                  alternate={index % 2 === 1}
+                />
+              ))}
             </div>
           </article>
         ))}
@@ -69,3 +46,5 @@ export default function ShowsSchedule() {
     </section>
   );
 }
+
+export default memo(ShowsSchedule);

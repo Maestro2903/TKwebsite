@@ -1,13 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-    gsap.registerPlugin(ScrollTrigger);
-}
+import { useGSAP } from '@/hooks/useGSAP';
 
 // Exact HTML structure from original Zeit Media website for About Section with GSAP animations
 export default function AboutSection() {
@@ -17,11 +11,14 @@ export default function AboutSection() {
     const card2Ref = useRef<HTMLDivElement>(null);
     const card3Ref = useRef<HTMLDivElement>(null);
     const headingRef = useRef<HTMLHeadingElement>(null);
+    const [gsapModules, isLoading] = useGSAP();
 
     // Use CDN URLs for images since local versions may not be available
     const parallaxImageSrc = '/assets/images/parallax.webp';
 
     useEffect(() => {
+        if (isLoading || !gsapModules) return;
+        const { gsap, ScrollTrigger } = gsapModules;
         const ctx = gsap.context(() => {
             // Heading animation
             if (headingRef.current) {
@@ -120,7 +117,7 @@ export default function AboutSection() {
         }, sectionRef);
 
         return () => ctx.revert();
-    }, []);
+    }, [isLoading, gsapModules]);
 
     return (
         <div ref={sectionRef} className="u-section u-zindex-3">

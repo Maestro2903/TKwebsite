@@ -1,13 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-    gsap.registerPlugin(ScrollTrigger);
-}
+import { useGSAP } from '@/hooks/useGSAP';
 
 // Flagship events - Takshashila
 const PROJECTS = [
@@ -93,8 +87,11 @@ export default function ServicesAndWorksSection() {
     const headingRef = useRef<HTMLHeadingElement>(null);
     const worksHeadingRef = useRef<HTMLHeadingElement>(null);
     const worksGridRef = useRef<HTMLDivElement>(null);
+    const [gsapModules, isLoading] = useGSAP();
 
     useEffect(() => {
+        if (isLoading || !gsapModules) return;
+        const { gsap, ScrollTrigger } = gsapModules;
         const ctx = gsap.context(() => {
             // Heading animation
             if (headingRef.current) {
@@ -157,7 +154,7 @@ export default function ServicesAndWorksSection() {
         }, sectionRef);
 
         return () => ctx.revert();
-    }, []);
+    }, [isLoading, gsapModules]);
 
     return (
         <div ref={sectionRef} data-wf--section--theme="inherit" className="u-section services-works-section">
