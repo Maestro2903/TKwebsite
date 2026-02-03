@@ -4,14 +4,19 @@ export type PassType = 'DAY_PASS' | 'GROUP_EVENTS_PASS' | 'PROSHOW_PASS' | 'ALL_
 
 export type PaymentStatus = 'PENDING' | 'PAID';
 
+/** User profile stored in Firestore users/{uid}. Used by AuthContext and registration. */
 export interface UserProfile {
   uid: string;
   name: string;
   email: string;
   college: string;
   phone: string;
-  createdAt: Timestamp;
+  isOrganizer?: boolean;
+  createdAt: Timestamp | { toDate: () => Date };
 }
+
+/** Payload for updating user profile (name, college, phone). */
+export type UserProfileUpdate = Pick<UserProfile, 'name' | 'college' | 'phone'>;
 
 export interface Registration {
   uid: string;

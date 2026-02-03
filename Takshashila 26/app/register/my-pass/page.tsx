@@ -3,28 +3,32 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import QRCode from 'qrcode';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { REGISTRATION_PASSES } from '@/lib/registrationPassesData';
-import type { PassType } from '@/lib/firestore-types';
+import { PASS_TYPES } from '@/lib/types';
 
-interface RegistrationDoc {
+interface PassDoc {
   id: string;
-  uid: string;
-  passType: PassType;
+  userId: string;
+  passType: string;
   amount: number;
-  paymentStatus: string;
-  qrPayload?: string;
+  status: string;
+  qrCode: string;
   createdAt?: { toDate: () => Date };
 }
 
+const passTypeLabel: Record<string, string> = {
+  day_pass: PASS_TYPES.DAY_PASS.name,
+  group_events: PASS_TYPES.GROUP_EVENTS.name,
+  proshow: PASS_TYPES.PROSHOW.name,
+  sana_concert: PASS_TYPES.SANA_CONCERT.name,
+};
+
 export default function MyPassPage() {
   const { user, loading, signIn } = useAuth();
-  const [registrations, setRegistrations] = useState<RegistrationDoc[]>([]);
-  const [qrDataUrls, setQrDataUrls] = useState<Record<string, string>>({});
+  const [passes, setPasses] = useState<PassDoc[]>([]);
   const [fetchLoading, setFetchLoading] = useState(true);
 
   useEffect(() => {
@@ -36,22 +40,22 @@ export default function MyPassPage() {
     (async () => {
       try {
         const q = query(
-          collection(db, 'registrations'),
-          where('uid', '==', user.uid),
-          where('paymentStatus', '==', 'PAID')
+          collection(db, 'passes'),
+          where('userId', '==', user.uid),
+          where('status', '==', 'paid')
         );
         const snap = await getDocs(q);
         if (cancelled) return;
         const docs = snap.docs
-          .map((d) => ({ id: d.id, ...d.data() } as RegistrationDoc))
+          .map((d) => ({ id: d.id, ...d.data() } as PassDoc))
           .sort((a, b) => {
             const at = a.createdAt?.toDate?.()?.getTime() ?? 0;
             const bt = b.createdAt?.toDate?.()?.getTime() ?? 0;
             return bt - at;
           });
-        setRegistrations(docs);
+        setPasses(docs);
       } catch (e) {
-        console.error('Failed to fetch registrations', e);
+        console.error('Failed to fetch passes', e);
       } finally {
         if (!cancelled) setFetchLoading(false);
       }
@@ -60,29 +64,6 @@ export default function MyPassPage() {
       cancelled = true;
     };
   }, [user]);
-
-  useEffect(() => {
-    if (registrations.length === 0) return;
-    const payloads = registrations
-      .filter((r) => r.qrPayload)
-      .map((r) => ({ id: r.id, payload: r.qrPayload! }));
-    let cancelled = false;
-    (async () => {
-      const map: Record<string, string> = {};
-      for (const { id, payload } of payloads) {
-        try {
-          const url = await QRCode.toDataURL(payload, { width: 200, margin: 1 });
-          if (!cancelled) map[id] = url;
-        } catch (e) {
-          console.error('QR gen failed', id, e);
-        }
-      }
-      if (!cancelled) setQrDataUrls((prev) => ({ ...prev, ...map }));
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [registrations]);
 
   if (loading || !user) {
     return (
@@ -109,21 +90,18 @@ export default function MyPassPage() {
     );
   }
 
-  const passLabel = (passType: PassType) =>
-    REGISTRATION_PASSES.find((p) => p.passType === passType)?.title ?? passType;
-
   return (
     <>
       <Navigation />
       <main id="main" className="page_main u-container py-[var(--_spacing---section-space--large)]">
         <div className="mb-12">
           <h1 className="text-2xl font-semibold text-white md:text-3xl">My Pass</h1>
-          <p className="mt-2 text-white/70">Your registered passes for SANA ARENA</p>
+          <p className="mt-2 text-white/70">Your registered passes for CIT Takshashila 2026</p>
         </div>
 
         {fetchLoading ? (
           <p className="text-white/70">Loading your passes…</p>
-        ) : registrations.length === 0 ? (
+        ) : passes.length === 0 ? (
           <div className="rounded-lg border border-white/15 bg-white/5 p-8 text-center">
             <p className="text-white/80">You don’t have any paid passes yet.</p>
             <Link
@@ -135,26 +113,22 @@ export default function MyPassPage() {
           </div>
         ) : (
           <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {registrations.map((reg) => (
+            {passes.map((pass) => (
               <li
-                key={reg.id}
+                key={pass.id}
                 className="flex flex-col rounded-lg border border-white/15 bg-white/5 p-6"
               >
                 <h2 className="text-lg font-semibold text-white">
-                  {passLabel(reg.passType)}
+                  {passTypeLabel[pass.passType] ?? pass.passType}
                 </h2>
-                <p className="mt-1 text-white/70">₹{reg.amount}</p>
-                {reg.qrPayload && (
+                <p className="mt-1 text-white/70">₹{pass.amount}</p>
+                {pass.qrCode && (
                   <div className="mt-4 flex justify-center">
-                    {qrDataUrls[reg.id] ? (
-                      <img
-                        src={qrDataUrls[reg.id]}
-                        alt="Pass QR code"
-                        className="h-[200px] w-[200px] rounded border border-white/1 bg-white"
-                      />
-                    ) : (
-                      <div className="h-[200px] w-[200px] animate-pulse rounded bg-white/10" />
-                    )}
+                    <img
+                      src={pass.qrCode}
+                      alt="Pass QR code"
+                      className="h-[200px] w-[200px] rounded border border-white/10 bg-white"
+                    />
                   </div>
                 )}
                 <p className="mt-2 text-center text-xs text-white/50">

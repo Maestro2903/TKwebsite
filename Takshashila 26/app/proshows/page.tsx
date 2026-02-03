@@ -6,7 +6,6 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import ShowsHero from '@/components/ShowsHero';
 import StickyRegisterCTA from '@/components/StickyRegisterCTA';
-import { ProshowsY2KPage } from '@/components/ProshowsY2KDecor';
 import { useLenis } from '@/hooks/useLenis';
 
 // Code-split ShowsSchedule - it imports showsData
@@ -22,7 +21,6 @@ export default function ProshowsPage() {
       <Navigation />
 
       <main id="main" className="page_main page_main--proshows">
-        <ProshowsY2KPage />
         <ShowsHero />
 
         <div
