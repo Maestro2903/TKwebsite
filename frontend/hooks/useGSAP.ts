@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 interface GSAPModules {
   gsap: typeof import('gsap').default;
   ScrollTrigger: typeof import('gsap/ScrollTrigger').default;
-  Flip?: typeof import('gsap/Flip').default;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Flip?: any; // Using any to avoid case-sensitivity issues with gsap/Flip types
 }
 
 /**
@@ -26,7 +27,8 @@ export function useGSAP(loadFlip = false): [GSAPModules | null, boolean] {
     Promise.all([
       import('gsap'),
       import('gsap/ScrollTrigger'),
-      ...(loadFlip ? [import('gsap/Flip')] : [Promise.resolve(null)]),
+      // Use dynamic import with type assertion to avoid case-sensitivity issues
+      ...(loadFlip ? [import('gsap/dist/Flip').catch(() => import('gsap').then(g => ({ default: (g as any).Flip })))] : [Promise.resolve(null)]),
     ]).then(([gsapModule, scrollTriggerModule, flipModule]) => {
       const gsap = gsapModule.default;
       const ScrollTrigger = scrollTriggerModule.default;

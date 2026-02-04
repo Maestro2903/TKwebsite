@@ -68,7 +68,7 @@ export default function CTAGlbViewer() {
                     scene.add(model);
                 },
                 undefined,
-                (e) => setError(e.message || 'Failed to load model')
+                (e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load model')
             );
 
             const onResize = () => {

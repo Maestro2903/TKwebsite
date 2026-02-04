@@ -77,7 +77,8 @@ function PassCard({ id, name, description, price, priceLabel, icon, isSelected, 
         <span className="pass-card-v2__title">{name}</span>
         <span className="pass-card-v2__description">{description}</span>
         <span className="pass-card-v2__price">
-          <span className="pass-card-v2__price-amount">₹{price}</span>
+          <span className="pass-card-v2__price-currency" aria-hidden>₹</span>
+          <span className="pass-card-v2__price-amount">{price}</span>
           {priceLabel && (
             <span className="pass-card-v2__price-label">{priceLabel}</span>
           )}
@@ -451,7 +452,7 @@ export default function RegisterPage() {
 
   // Pass selection step - Event Card Style
   return (
-    <>
+    <div data-page="register">
       <Navigation />
       <main id="main" className="page_main page_main--registration">
         {/* Hero */}
@@ -474,7 +475,14 @@ export default function RegisterPage() {
           <div className="registration-passes-v2">
             <div className="registration-passes-v2__grid">
               {Object.entries(PASS_TYPES).map(([key, pass]) => (
-                <label key={key} className="pass-card-v2-option">
+                <label
+                  key={key}
+                  className="pass-card-v2-option"
+                  {...(pass.id === 'sana_concert' ? { 'data-most-popular': '' } : {})}
+                >
+                  {pass.id === 'sana_concert' && (
+                    <span className="sr-only">Recommended</span>
+                  )}
                   <input
                     type="radio"
                     name="passType"
@@ -611,9 +619,9 @@ export default function RegisterPage() {
                       <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
                     </div>
                   ) : (
-                    <div className="w-full max-w-[260px]">
-                      <AwardBadge type="button" onClick={handlePayment}>
-                        PROCEED TO PAYMENT
+                    <div className="registration-checkout-v2__cta-btn-wrap">
+                      <AwardBadge type="button" onClick={handlePayment} variant="gold-solid">
+                        PROCEED TO SECURE PAYMENT
                       </AwardBadge>
                     </div>
                   )}
@@ -631,6 +639,6 @@ export default function RegisterPage() {
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

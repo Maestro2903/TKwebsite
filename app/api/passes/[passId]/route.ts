@@ -8,7 +8,7 @@ import { getAdminAuth, getAdminFirestore } from '@/lib/firebase-admin';
  */
 export async function GET(
     req: NextRequest,
-    { params }: { params: { passId: string } }
+    { params }: { params: Promise<{ passId: string }> }
 ) {
     try {
         const authHeader = req.headers.get('Authorization');
@@ -25,7 +25,7 @@ export async function GET(
             return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
         }
 
-        const { passId } = params;
+        const { passId } = await params;
         const db = getAdminFirestore();
         const passDoc = await db.collection('passes').doc(passId).get();
 

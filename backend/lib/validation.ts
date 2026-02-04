@@ -54,21 +54,21 @@ export function validatePhone(phone: string) {
   const result = phoneSchema.safeParse(phone);
   return result.success
     ? { valid: true }
-    : { valid: false, error: result.error.errors[0].message };
+    : { valid: false, error: result.error.issues[0].message };
 }
 
 export function validateName(name: string) {
   const result = nameSchema.safeParse(name);
   return result.success
     ? { valid: true }
-    : { valid: false, error: result.error.errors[0].message };
+    : { valid: false, error: result.error.issues[0].message };
 }
 
 export function validateCollege(college: string) {
   const result = collegeSchema.safeParse(college);
   return result.success
     ? { valid: true }
-    : { valid: false, error: result.error.errors[0].message };
+    : { valid: false, error: result.error.issues[0].message };
 }
 
 export function sanitizeInput(input: string): string {
@@ -88,7 +88,7 @@ export function validateProfileInput(data: any) {
   }
 
   const errors: Record<string, string> = {};
-  result.error.errors.forEach((err) => {
+  result.error.issues.forEach((err) => {
     if (err.path[0]) {
       errors[err.path[0].toString()] = err.message;
     }

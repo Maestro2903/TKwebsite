@@ -8,9 +8,23 @@ interface AwardBadgeProps {
     onClick?: () => void;
     type?: 'button' | 'submit';
     disabled?: boolean;
+    /** Gold solid button for checkout CTA (full-width, dark text, hover glow) */
+    variant?: 'default' | 'gold-solid';
 }
 
-export const AwardBadge = ({ children, className = "", onClick, type = 'button', disabled = false }: AwardBadgeProps) => {
+export const AwardBadge = ({ children, className = "", onClick, type = 'button', disabled = false, variant = 'default' }: AwardBadgeProps) => {
+    if (variant === 'gold-solid') {
+        return (
+            <button
+                type={type}
+                disabled={disabled}
+                className={`award-badge-simple award-badge-simple--gold-solid w-full py-3.5 px-6 font-bold text-sm uppercase tracking-wider text-[#1a1a1a] transition-all duration-250 ease-out rounded-none border-0 cursor-pointer overflow-hidden ${className}`}
+                onClick={onClick}
+            >
+                {children || "PROCEED TO SECURE PAYMENT"}
+            </button>
+        );
+    }
     return (
         <button
             type={type}
