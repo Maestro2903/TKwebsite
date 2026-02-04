@@ -54,8 +54,8 @@ export default function RegistrationFormModal({
 
       try {
         const uid = user.uid;
-        const name = user.displayName || user.email || '';
-        const email = user.email || '';
+        const email = user.email || user.providerData?.[0]?.email || '';
+        const name = user.displayName || email || 'Attendee';
 
         await setDoc(
           doc(db, 'users', uid),

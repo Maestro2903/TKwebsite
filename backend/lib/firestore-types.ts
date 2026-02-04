@@ -16,6 +16,12 @@ export interface UserProfile {
   updatedAt?: Timestamp | Date;
 }
 
+export interface UserProfileUpdate {
+  name: string;
+  college: string;
+  phone: string;
+}
+
 /** Tracking of orders created via Cashfree in payments/{orderId} */
 export interface Payment {
   userId: string;
@@ -32,6 +38,44 @@ export interface Payment {
   teamId?: string | null;
 }
 
+/** Individual team member with attendance tracking */
+export interface TeamMember {
+  memberId: string;
+  name: string;
+  phone: string;
+  isLeader: boolean;
+  attendance: {
+    checkedIn: boolean;
+    checkInTime: Timestamp | null;
+    checkedInBy: string | null;
+  };
+}
+
+/** Team registration for group events in teams/{teamId} */
+export interface Team {
+  teamName: string;
+  leaderId: string;
+  passId: string;
+  totalMembers: number;
+  totalAmount: number;
+  members: TeamMember[];
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+/** Team snapshot stored in pass document (immutable after payment) */
+export interface TeamSnapshot {
+  teamName: string;
+  totalMembers: number;
+  members: Array<{
+    memberId: string;
+    name: string;
+    phone: string;
+    isLeader: boolean;
+    checkedIn: boolean;
+  }>;
+}
+
 /** Verified pass for entry in passes/{passId} */
 export interface Pass {
   userId: string;
@@ -43,4 +87,8 @@ export interface Pass {
   createdAt: Timestamp | Date;
   usedAt?: Timestamp | Date;
   scannedBy?: string; // UID of the organizer
+
+  // Group Events specific fields
+  teamId?: string;
+  teamSnapshot?: TeamSnapshot;
 }

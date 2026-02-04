@@ -85,6 +85,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
+
     const passRef = db.collection('passes').doc();
 
     // Create signed QR payload
@@ -94,9 +95,10 @@ export async function POST(req: NextRequest) {
       paymentData.passType as string
     );
 
-    const qrCodeUrl = await QRCode.toDataURL(qrData);
+    const qrCodeUrl: string = await QRCode.toDataURL(qrData);
 
-    await passRef.set({
+    // Prepare base pass data
+    const passData: any = {
       userId: paymentData.userId,
       passType: paymentData.passType,
       amount: paymentData.amount,
@@ -104,7 +106,43 @@ export async function POST(req: NextRequest) {
       status: 'paid',
       qrCode: qrCodeUrl,
       createdAt: new Date(),
-    });
+    };
+
+    // For group events, fetch and snapshot team data
+    if (paymentData.passType === 'group_events' && paymentData.teamId) {
+      try {
+        const teamDoc = await db.collection('teams').doc(paymentData.teamId).get();
+        if (teamDoc.exists) {
+          const teamData = teamDoc.data();
+
+          // Create immutable snapshot of team at payment time
+          passData.teamId = paymentData.teamId;
+          passData.teamSnapshot = {
+            teamName: teamData?.teamName || '',
+            totalMembers: teamData?.members?.length || 0,
+            members: (teamData?.members || []).map((member: any) => ({
+              memberId: member.memberId,
+              name: member.name,
+              phone: member.phone,
+              isLeader: member.isLeader,
+              checkedIn: false, // Initially unchecked
+            })),
+          };
+
+          // Update team document with passId reference
+          await db.collection('teams').doc(paymentData.teamId).update({
+            passId: passRef.id,
+            updatedAt: new Date(),
+          });
+        }
+      } catch (teamError) {
+        console.error('Error fetching team data:', teamError);
+        // Continue without team snapshot if fetch fails
+      }
+    }
+
+    await passRef.set(passData);
+
 
     const userDoc = await db
       .collection('users')

@@ -83,11 +83,18 @@ export async function POST(req: NextRequest) {
         const userRef = db.collection('users').doc(decoded.uid);
         const userDoc = await userRef.get();
 
+        // Robust email extraction from token
+        const email =
+            (decoded as any).email ||
+            (decoded as any).firebase?.identities?.['google.com']?.[0] ||
+            (decoded as any).firebase?.identities?.['email']?.[0] ||
+            null;
+
         const profileData = {
             name: sanitizeInput(name),
             college: sanitizeInput(college),
             phone: phone.trim(),
-            email: decoded.email || null,
+            email: email,
             updatedAt: new Date(),
         };
 

@@ -75,10 +75,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUserProfile = useCallback(async (data: UserProfileUpdate) => {
     if (!user) throw new Error('No user logged in');
     const userRef = doc(db, 'users', user.uid);
+    const email = user.email || user.providerData?.[0]?.email || '';
     const profile = {
       uid: user.uid,
       name: data.name,
-      email: user.email ?? '',
+      email: email,
       college: data.college,
       phone: data.phone,
       createdAt: serverTimestamp(),

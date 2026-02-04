@@ -10,7 +10,11 @@ export async function signInWithGoogle() {
     throw new Error(FIREBASE_NOT_CONFIGURED);
   }
   const provider = new GoogleAuthProvider();
-  return await signInWithPopup(realAuth, provider);
+  provider.addScope('email');
+  provider.addScope('profile');
+
+  const result = await signInWithPopup(realAuth, provider);
+  return result;
 }
 
 export async function signOut() {
