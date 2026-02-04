@@ -1,0 +1,208 @@
+/* ... existing styles ... */
+
+/* =================================================================
+   MARQUEE SECTION STYLES
+   ================================================================= */
+
+.marquee-advanced {
+    width: 100vw;
+    position: relative;
+    overflow: hidden;
+}
+
+.marquee-advanced.is-bts-1 {
+    margin-top: 4rem;
+    margin-bottom: 6rem;
+    transform: rotate(-4deg);
+}
+
+.marquee-advanced.is-bts-2 {
+    transform: rotate(4deg);
+}
+
+.marquee__advanced__p {
+    font-size: 10rem;
+    line-height: 1;
+    font-weight: 500;
+    white-space: nowrap;
+    flex: none;
+    margin-bottom: 0;
+    margin-right: 0.25em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    color: var(--swatch--light-100, #fff);
+    font-family: 'Interdisplay', sans-serif;
+}
+
+.home_marquee_image_wrap {
+    aspect-ratio: 2;
+    object-fit: cover;
+    width: 17rem;
+    margin-right: 1rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: 999px;
+    /* Assuming rounded pill shape from visuals usually seen, or just rect? HTML implies just cover absolute */
+}
+
+/* Actually checking the image, let's keep it simple first as per CSS */
+.home_marquee_image_wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.marquee-advanced__scroll {
+    will-change: transform;
+    width: 100%;
+    /* Instead of fit-content, we usually let it flow. But here we have flex children */
+    display: flex;
+    position: relative;
+}
+
+.marquee-advanced__collection {
+    will-change: transform;
+    flex: none;
+    justify-content: flex-start;
+    align-items: center;
+    display: flex;
+    position: relative;
+}
+
+
+/* Animations */
+@keyframes marquee-left {
+    0% {
+        transform: translateX(0%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes marquee-right {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+.marquee-advanced[data-marquee-direction="left"] .marquee-advanced__scroll {
+    animation: marquee-left 30s linear infinite;
+}
+
+.marquee-advanced[data-marquee-direction="right"] .marquee-advanced__scroll {
+    animation: marquee-right 30s linear infinite;
+}
+
+/* Scaling Video Section small box */
+.scaling-element__small-box {
+    border-radius: 1em;
+    width: 20em;
+    max-width: calc(100vw - 2rem);
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    overflow: hidden;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.scaling-video__before.is-1 {
+    width: 100%;
+    padding-top: 56.25%;
+    /* 16:9 aspect ratio */
+    position: relative;
+}
+
+.scaling-video__wrapper {
+    opacity: 1;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.scaling-video {
+    opacity: 1;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.scaling-video-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 991px) {
+    .marquee-advanced.is-bts-1 {
+        margin-top: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .marquee__advanced__p {
+        font-size: 8rem;
+    }
+
+    .home_marquee_image_wrap {
+        width: 14rem;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .marquee-advanced.is-bts-1 {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .marquee__advanced__p {
+        font-size: 6rem;
+    }
+
+    .home_marquee_image_wrap {
+        width: 12rem;
+    }
+
+    .scaling-element__small-box {
+        width: 15em;
+        max-width: calc(100vw - 1.5rem);
+    }
+
+    /* Reduce compositing layers on mobile to save RAM */
+    .marquee-advanced__scroll,
+    .marquee-advanced__collection {
+        will-change: auto;
+    }
+}
+
+@media screen and (max-width: 479px) {
+    .marquee__advanced__p {
+        font-size: 4rem;
+    }
+
+    .scaling-element__small-box {
+        width: min(18em, calc(100vw - 1rem));
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+}
