@@ -11,7 +11,7 @@ import {
 import type { User } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { db, getAuthSafe } from '@/lib/firebase';
 import { signInWithGoogle, signOut as authSignOut } from '@/lib/auth';
 import type { UserProfile, UserProfileUpdate } from '@/lib/firestore-types';
 
@@ -32,7 +32,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+    const authInstance = getAuthSafe();
+    if (!authInstance) {
+      setLoading(false);
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(authInstance, async (u) => {
       setUser(u);
       if (u) {
         try {
