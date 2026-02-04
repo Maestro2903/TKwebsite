@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import EventsHero from '@/components/EventsHero';
 import EventCategorySwitch from '@/components/EventCategorySwitch';
 import EventsGrid from '@/components/EventsGrid';
 import StickyRegisterCTA from '@/components/StickyRegisterCTA';
@@ -34,8 +33,6 @@ export default function EventsPage() {
       <Navigation />
 
       <main id="main" className="page_main page_main--events">
-        <EventsHero />
-
         <EventCategorySwitch value={category} onChange={setCategory} />
 
         <div

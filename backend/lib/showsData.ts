@@ -29,6 +29,7 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
       {
         id: 'day1-music-dance',
         title: "CIT's Music and Dance Team Performance",
+        imageUrl: '/images/proshows/dance-and-music.jpeg',
       },
       {
         id: 'day1-jeeva',

@@ -26,7 +26,7 @@ function ShowCard({ show, day, alternate = false, imageUrl }: ShowCardProps) {
       className={`show-card-proshows ${alternate ? 'show-card-proshows--alternate' : ''}`}
       aria-labelledby={`show-${show.id}-title`}
     >
-      <div className="show-card-proshows__image">
+      <div className={`show-card-proshows__image ${show.id === 'day1-jeeva' ? 'show-card-proshows__image--align-top' : ''}`}>
         {imageUrl ? (
           <Image 
             src={imageUrl} 

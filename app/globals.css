@@ -3371,6 +3371,11 @@ html {
   object-fit: cover;
 }
 
+/* Actor Jeeva: align image to top so face is visible */
+.show-card-proshows__image--align-top .show-card-proshows__image-img {
+  object-position: top center;
+}
+
 .show-card-proshows__image-placeholder {
   position: absolute;
   inset: 0;
