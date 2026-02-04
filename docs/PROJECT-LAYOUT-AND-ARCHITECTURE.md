@@ -15,12 +15,23 @@ This document describes the **current project structure**, **architecture**, **t
 
 ## 2. Repository Layout
 
+The codebase is split into **frontend** (UI) and **backend** (server logic) folders for clarity.
+
 ```
 zeitmedia-clone/
+├── frontend/                     # UI code (components, contexts, hooks)
+│   ├── components/
+│   ├── contexts/
+│   └── hooks/
+├── backend/                      # Server logic and shared libraries
+│   └── lib/
 ├── app/                          # Next.js App Router
-│   ├── api/                      # API routes (server)
+│   ├── api/                      # API routes (import from backend/lib)
 │   │   ├── create-order/         # Create Cashfree order + Firestore registration
 │   │   │   └── route.ts
+│   │   ├── payment/
+│   │   │   ├── create-order/
+│   │   │   └── verify/
 │   │   └── webhooks/
 │   │       └── cashfree/
 │   │           └── route.ts      # Cashfree PAYMENT_SUCCESS_WEBHOOK handler
@@ -42,7 +53,7 @@ zeitmedia-clone/
 │   ├── marquee-globals.css       # Marquee + scaling video styles
 │   ├── webflow.css               # Normalize / base HTML
 │   └── favicon.ico
-├── components/                   # React UI components
+├── frontend/components/          # React UI components
 │   ├── Navigation.tsx
 │   ├── Footer.tsx
 │   ├── HeroSection.tsx
@@ -75,11 +86,11 @@ zeitmedia-clone/
 │   ├── PixelCard.tsx
 │   ├── AwardBadge.tsx
 │   └── ServiceCardsSection.tsx, WorksSection.tsx, etc.
-├── contexts/
+├── frontend/contexts/
 │   └── AuthContext.tsx           # Firebase auth state (user, signIn, signOut)
-├── hooks/
+├── frontend/hooks/
 │   └── useLenis.ts               # Lenis smooth scroll
-├── lib/                          # Shared logic & config
+├── backend/lib/                  # Shared logic & config (server + client libs)
 │   ├── firebase.ts               # Client Firebase app, auth, Firestore
 │   ├── firebase-admin.ts         # Server Firebase Admin (API routes)
 │   ├── auth.ts                   # signInWithGoogle, signOut

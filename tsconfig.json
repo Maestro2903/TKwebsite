@@ -19,7 +19,15 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/components": ["./frontend/components"],
+      "@/components/*": ["./frontend/components/*"],
+      "@/contexts": ["./frontend/contexts"],
+      "@/contexts/*": ["./frontend/contexts/*"],
+      "@/hooks": ["./frontend/hooks"],
+      "@/hooks/*": ["./frontend/hooks/*"],
+      "@/lib": ["./backend/lib"],
+      "@/lib/*": ["./backend/lib/*"]
     }
   },
   "include": [
