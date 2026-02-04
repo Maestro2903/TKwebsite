@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import QRCode from 'qrcode';
-import { Resend } from 'resend';
+import { sendEmail, emailTemplates } from '@/backend/lib/email';
 import { getAdminFirestore } from '@/lib/firebase-admin';
-
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+import { createQRPayload } from '@/lib/qr-signing';
 
 const CASHFREE_BASE =
   process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production'
@@ -70,13 +67,32 @@ export async function POST(req: NextRequest) {
 
     await paymentDoc.ref.update({ status: 'success' });
 
+    // Idempotency check: return existing pass if already created
+    const existingPassSnapshot = await db
+      .collection('passes')
+      .where('paymentId', '==', orderId)
+      .limit(1)
+      .get();
+
+    if (!existingPassSnapshot.empty) {
+      const existingPass = existingPassSnapshot.docs[0];
+      const existingData = existingPass.data();
+      return NextResponse.json({
+        success: true,
+        passId: existingPass.id,
+        qrCode: existingData.qrCode,
+        message: 'Pass already exists',
+      });
+    }
+
     const passRef = db.collection('passes').doc();
-    const qrData = JSON.stringify({
-      passId: passRef.id,
-      userId: paymentData.userId,
-      passType: paymentData.passType,
-      teamId: paymentData.teamId ?? null,
-    });
+
+    // Create signed QR payload
+    const qrData = createQRPayload(
+      passRef.id,
+      paymentData.userId as string,
+      paymentData.passType as string
+    );
 
     const qrCodeUrl = await QRCode.toDataURL(qrData);
 
@@ -90,38 +106,27 @@ export async function POST(req: NextRequest) {
       createdAt: new Date(),
     });
 
-    if (resend) {
-      const userDoc = await db
-        .collection('users')
-        .doc(paymentData.userId as string)
-        .get();
-      const userData = userDoc.data();
-      if (userData?.email) {
-        resend.emails
-          .send({
-            from: 'onboarding@resend.dev',
-            to: userData.email as string,
-            subject: 'Event Registration Confirmed - CIT Takshashila 2026',
-            html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h1 style="color: #7c3aed;">Registration Confirmed!</h1>
-              <p>Hi <strong>${userData.name ?? 'there'}</strong>,</p>
-              <p>Your payment of <strong>₹${paymentData.amount}</strong> has been confirmed.</p>
-              <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <p><strong>Pass Type:</strong> ${paymentData.passType}</p>
-                <p><strong>College:</strong> ${userData.college ?? '-'}</p>
-                <p><strong>Phone:</strong> ${userData.phone ?? '-'}</p>
-              </div>
-              <p><strong>Please show this QR code at the event:</strong></p>
-              <img src="${qrCodeUrl}" alt="QR Code" style="width: 300px; height: 300px;" />
-              <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-                See you at CIT Takshashila 2026!
-              </p>
-            </div>
-          `,
-          })
-          .catch((err: unknown) => console.log('Email error:', err));
-      }
+    const userDoc = await db
+      .collection('users')
+      .doc(paymentData.userId as string)
+      .get();
+    const userData = userDoc.data();
+
+    if (userData?.email) {
+      const emailTemplate = emailTemplates.passConfirmation({
+        name: userData.name ?? 'there',
+        amount: paymentData.amount,
+        passType: paymentData.passType,
+        college: userData.college ?? '-',
+        phone: userData.phone ?? '-',
+        qrCodeUrl: qrCodeUrl,
+      });
+
+      await sendEmail({
+        to: userData.email as string,
+        subject: emailTemplate.subject,
+        html: emailTemplate.html,
+      });
     }
 
     return NextResponse.json({

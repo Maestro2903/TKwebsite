@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase-admin';
 import { PASS_TYPES } from '@/lib/types';
+import { checkRateLimit } from '@/backend/lib/rate-limit';
 
 const CASHFREE_BASE =
   process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production'
@@ -8,6 +9,9 @@ const CASHFREE_BASE =
     : 'https://sandbox.cashfree.com/pg';
 
 export async function POST(req: NextRequest) {
+  const rateLimitResponse = await checkRateLimit(req, { limit: 5, windowMs: 60000 });
+  if (rateLimitResponse) return rateLimitResponse;
+
   try {
     const authHeader = req.headers.get('Authorization');
     const idToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
@@ -36,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const expectedAmount =
       passType === 'group_events'
-        ? (body.teamMemberCount ?? 1) * (validPass.pricePerPerson ?? 250)
+        ? (body.teamMemberCount ?? 1) * ((validPass as { pricePerPerson?: number }).pricePerPerson ?? 250)
         : (validPass as { price?: number }).price ?? 0;
     if (typeof amount !== 'number' || amount !== expectedAmount) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
@@ -86,6 +90,23 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Persist pending payment to Firestore
+    const db = getAdminFirestore();
+    await db.collection('payments').doc(orderId).set({
+      userId,
+      amount,
+      passType,
+      cashfreeOrderId: orderId,
+      status: 'pending',
+      createdAt: new Date(),
+      customerDetails: {
+        name: customerName,
+        email: customerEmail,
+        phone: customerPhone,
+      },
+      teamId: teamId || null,
+    });
 
     return NextResponse.json({
       orderId: data.order_id,

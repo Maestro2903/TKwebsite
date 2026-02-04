@@ -2,31 +2,32 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
+      allow read: if request.auth.uid == userId;
+      allow create: if request.auth.uid == userId && request.resource.data.isOrganizer == false;
+      allow update: if request.auth.uid == userId && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['isOrganizer']));
     }
     match /registrations/{doc} {
       allow read: if request.auth.uid == resource.data.uid;
-      allow create: if request.auth != null;
-      allow update, delete: if false;
+      allow create, update, delete: if false;  // Server only via Admin SDK
     }
     match /passes/{passId} {
       allow read: if request.auth != null &&
         (resource.data.userId == request.auth.uid ||
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isOrganizer == true);
-      allow create: if request.auth != null;
+      allow create: if false;  // Server only via Admin SDK
       allow update: if request.auth != null &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isOrganizer == true;
+      allow delete: if false;
     }
     match /teams/{teamId} {
       allow read: if request.auth != null &&
         (resource.data.leaderId == request.auth.uid ||
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isOrganizer == true);
-      allow create: if request.auth != null;
+      allow create, update, delete: if false;  // Server only via Admin SDK
     }
     match /payments/{paymentId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;  // Server only via Admin SDK
     }
   }
 }

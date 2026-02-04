@@ -1,7 +1,14 @@
 declare global {
   interface Window {
     Cashfree?: (opts: { mode: 'sandbox' | 'production' }) => {
-      checkout: (opts: { paymentSessionId: string; redirectTarget?: string }) => Promise<unknown>;
+      checkout: (opts: {
+        paymentSessionId: string;
+        returnUrl?: string;
+        redirectTarget?: string;
+        onPaymentFailure?: () => void;
+        onPaymentSuccess?: () => void;
+        onClose?: () => void;
+      }) => Promise<unknown>;
     };
   }
 }

@@ -1,30 +1,46 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type PassType = 'DAY_PASS' | 'GROUP_EVENTS_PASS' | 'PROSHOW_PASS' | 'ALL_ACCESS';
+export type PassType = 'DAY_PASS' | 'GROUP_EVENTS_PASS' | 'PROSHOW_PASS' | 'ALL_ACCESS' | 'group_events';
 
-export type PaymentStatus = 'PENDING' | 'PAID';
+export type PaymentStatus = 'pending' | 'success' | 'failed';
 
-/** User profile stored in Firestore users/{uid}. Used by AuthContext and registration. */
+/** User profile stored in Firestore users/{uid} */
 export interface UserProfile {
   uid: string;
   name: string;
-  email: string;
+  email: string | null;
   college: string;
   phone: string;
   isOrganizer?: boolean;
   createdAt: Timestamp | { toDate: () => Date };
+  updatedAt?: Timestamp | Date;
 }
 
-/** Payload for updating user profile (name, college, phone). */
-export type UserProfileUpdate = Pick<UserProfile, 'name' | 'college' | 'phone'>;
-
-export interface Registration {
-  uid: string;
-  passType: PassType;
+/** Tracking of orders created via Cashfree in payments/{orderId} */
+export interface Payment {
+  userId: string;
   amount: number;
-  paymentStatus: PaymentStatus;
+  passType: string;
   cashfreeOrderId: string;
-  createdAt: Timestamp;
-  qrPayload?: string;
-  registrationId?: string;
+  status: PaymentStatus;
+  createdAt: Timestamp | Date;
+  customerDetails: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  teamId?: string | null;
+}
+
+/** Verified pass for entry in passes/{passId} */
+export interface Pass {
+  userId: string;
+  passType: string;
+  amount: number;
+  paymentId: string; // The Cashfree orderId
+  status: 'paid' | 'used';
+  qrCode: string; // Data URL of the QR
+  createdAt: Timestamp | Date;
+  usedAt?: Timestamp | Date;
+  scannedBy?: string; // UID of the organizer
 }

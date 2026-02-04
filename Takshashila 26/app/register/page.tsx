@@ -9,21 +9,6 @@ import { auth, db } from '@/lib/firebase';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
-declare global {
-  interface Window {
-    Cashfree: (opts: { mode: 'sandbox' | 'production' }) => {
-      checkout: (opts: {
-        paymentSessionId: string;
-        returnUrl: string;
-        redirectTarget?: string;
-        onPaymentFailure?: () => void;
-        onPaymentSuccess?: () => void;
-        onClose?: () => void;
-      }) => void;
-    };
-  }
-}
-
 const passIcons: Record<string, React.ReactNode> = {
   day_pass: (
     <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -346,9 +331,8 @@ export default function RegisterPage() {
                 >
                   <div className="flex items-start gap-4">
                     <div
-                      className={`p-3 rounded-xl ${
-                        selectedPass === pass.id ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white' : 'bg-gray-100 text-gray-600'
-                      }`}
+                      className={`p-3 rounded-xl ${selectedPass === pass.id ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white' : 'bg-gray-100 text-gray-600'
+                        }`}
                     >
                       {passIcons[pass.id] ?? passIcons.day_pass}
                     </div>
@@ -364,9 +348,8 @@ export default function RegisterPage() {
                       </div>
                     </div>
                     <div
-                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                        selectedPass === pass.id ? 'border-purple-600 bg-purple-600' : 'border-gray-300'
-                      }`}
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${selectedPass === pass.id ? 'border-purple-600 bg-purple-600' : 'border-gray-300'
+                        }`}
                     >
                       {selectedPass === pass.id && (
                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

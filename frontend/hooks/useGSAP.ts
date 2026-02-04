@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface GSAPModules {
-  gsap: typeof import('gsap');
-  ScrollTrigger: typeof import('gsap/ScrollTrigger');
-  Flip?: any; // Flip module is optional
+  gsap: typeof import('gsap').default;
+  ScrollTrigger: typeof import('gsap/ScrollTrigger').default;
+  Flip?: typeof import('gsap/Flip').default;
 }
 
 /**
