@@ -7,6 +7,7 @@ export type ShowItem = {
   title: string;
   subtitle?: string;
   isReveal?: boolean;
+  imageUrl?: string;
 };
 
 export type ShowDay = {
@@ -23,6 +24,7 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
       {
         id: 'day1-cida',
         title: 'CIDA — CIT Icon of Digital Awards',
+        imageUrl: '/images/proshows/cida.png',
       },
       {
         id: 'day1-music-dance',
@@ -32,6 +34,7 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
         id: 'day1-jeeva',
         title: 'Actor Jeeva',
         subtitle: 'Walk-in Guest',
+        imageUrl: '/images/proshows/jeeva.png',
       },
     ],
   },
@@ -42,6 +45,7 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
       {
         id: 'day2-sana',
         title: 'SaNa Concert',
+        imageUrl: '/images/proshows/sana.jpg',
       },
     ],
   },
@@ -54,10 +58,12 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
         title: 'Concert',
         subtitle: 'To be revealed',
         isReveal: true,
+        imageUrl: '/images/proshows/concert.webp',
       },
       {
         id: 'day3-dj',
         title: 'DJ Night',
+        imageUrl: '/images/proshows/dj-night.webp',
       },
     ],
   },

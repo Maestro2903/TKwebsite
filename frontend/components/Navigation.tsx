@@ -118,16 +118,18 @@ export default function Navigation() {
             >
                 <div className="nav_contain u-container u-grid-custom">
                     {/* Logo */}
-                    <Link href="/" aria-label="Home Page" className="nav_mobile_logo u-column-2" onClick={closeMenu}>
-                        <div className="u-max-width-full">
-                            <img
-                                src="/tk-logo.svg"
-                                alt="TK Logo"
-                                className="u-svg"
-                                style={{ width: 'auto', height: '40px', display: 'block' }}
-                            />
-                        </div>
-                    </Link>
+                    <div className="nav_mobile_logo_wrap u-column-2">
+                        <Link href="/" aria-label="Home Page" className="nav_mobile_logo" onClick={closeMenu}>
+                            <div className="u-max-width-full">
+                                <img
+                                    src="/tk-logo.svg"
+                                    alt="TK Logo"
+                                    className="u-svg"
+                                    style={{ width: 'auto', height: '40px', display: 'block' }}
+                                />
+                            </div>
+                        </Link>
+                    </div>
 
                     {/* Desktop Navigation */}
                     <div className="nav_desktop_right_wrap u-column-8">
@@ -147,22 +149,32 @@ export default function Navigation() {
                             </ul>
 
                             <div className="nav_desktop_right_btns">
-                                {/* Auth: Sign in / My Pass + Sign out */}
-                                {!loading && !user && (
-                                    <button type="button" onClick={signIn} className="nav-auth-btn">
-                                        Sign in
-                                    </button>
-                                )}
-                                {!loading && user && (
-                                    <div className="flex items-center gap-4">
-                                        <Link href="/register/my-pass" className="nav-auth-link">
-                                            My Pass
-                                        </Link>
-                                        <button type="button" onClick={signOut} className="nav-auth-btn subtle">
-                                            Sign out
-                                        </button>
-                                    </div>
-                                )}
+                                {/* Desktop: Auth: Sign in / My Pass + Sign out */}
+                                <div className="nav-auth-status-desktop">
+                                    {!loading && !user && (
+                                        <div className="nav-auth-status">
+                                            <span className="nav-auth-status-text">Not signed in</span>
+                                            <button type="button" onClick={signIn} className="nav-auth-btn">
+                                                Sign in
+                                            </button>
+                                        </div>
+                                    )}
+                                    {!loading && user && (
+                                        <div className="nav-auth-status">
+                                            <span className="nav-auth-status-text">Signed in</span>
+                                            <div className="flex items-center gap-2">
+                                                <Link href="/register/my-pass" className="nav-auth-link nav-auth-link--pass">
+                                                    My Pass
+                                                </Link>
+                                                <button type="button" onClick={signOut} className="nav-auth-btn subtle">
+                                                    Sign out
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {/* Register Button - visible on all screen sizes */}
                                 <div className="btn-group">
                                     {user ? (
                                         <Link href="/register" className="btn-bubble-arrow">
@@ -291,6 +303,46 @@ export default function Navigation() {
                                         </Link>
                                     </li>
                                 ))}
+                                {/* My Pass link - always show, redirects to sign-in if not authenticated */}
+                                <li className="nav_menu_link_wrap">
+                                    {user ? (
+                                        <Link
+                                            data-menu-item=""
+                                            href="/register/my-pass"
+                                            className={`nav_menu_link ${pathname === '/register/my-pass' ? 'w--current' : ''}`}
+                                            onClick={closeMenu}
+                                        >
+                                            <div className="nav_menu_icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
+                                                    <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
+                                                </svg>
+                                            </div>
+                                            <div className="nav_menu_text">My Pass</div>
+                                        </Link>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            data-menu-item=""
+                                            className="nav_menu_link w-full text-left cursor-pointer border-0 bg-transparent"
+                                            onClick={async () => {
+                                                closeMenu();
+                                                try {
+                                                    await signIn();
+                                                    router.push('/register/my-pass');
+                                                } catch {
+                                                    // Sign-in failed or cancelled
+                                                }
+                                            }}
+                                        >
+                                            <div className="nav_menu_icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
+                                                    <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
+                                                </svg>
+                                            </div>
+                                            <div className="nav_menu_text">My Pass</div>
+                                        </button>
+                                    )}
+                                </li>
                                 <li className="nav_menu_link_wrap">
                                     {user ? (
                                         <Link

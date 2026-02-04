@@ -37,6 +37,7 @@ function ShowsSchedule() {
                   show={show} 
                   day={dayBlock.day}
                   alternate={index % 2 === 1}
+                  imageUrl={show.imageUrl}
                 />
               ))}
             </div>

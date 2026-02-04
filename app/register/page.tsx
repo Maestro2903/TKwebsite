@@ -8,29 +8,29 @@ import { collection, addDoc } from 'firebase/firestore';
 import { auth, getDb } from '@/lib/firebase';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import RegistrationPassCard from '@/components/RegistrationPassCard';
 import { AwardBadge } from '@/components/AwardBadge';
 import { useLenis } from '@/hooks/useLenis';
 
+// Icons matching the pass types - larger for visual headers
 const passIcons: Record<string, React.ReactNode> = {
   day_pass: (
-    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
     </svg>
   ),
   group_events: (
-    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
     </svg>
   ),
   proshow: (
-    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
     </svg>
   ),
   sana_concert: (
-    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
     </svg>
   ),
 };
@@ -42,9 +42,54 @@ const passDescriptions: Record<string, string> = {
   sana_concert: 'All-access pass including SANA concert and all 3-day events.',
 };
 
+// Pass Card Component - Event Card Style
+interface PassCardProps {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  priceLabel?: string;
+  icon: React.ReactNode;
+  isSelected: boolean;
+  isMostPopular?: boolean;
+}
+
+function PassCard({ id, name, description, price, priceLabel, icon, isSelected, isMostPopular }: PassCardProps) {
+  return (
+    <span className={`pass-card-v2 ${isSelected ? 'pass-card-v2--selected' : ''}`}>
+      {/* Selection Indicator */}
+      <span className="pass-card-v2__selector" aria-hidden>
+        <span className="pass-card-v2__selector-dot" />
+      </span>
+
+      {/* Visual Header - Like Event Card Image */}
+      <span className="pass-card-v2__visual">
+        <span className="pass-card-v2__visual-icon">
+          {icon}
+        </span>
+        {isMostPopular && (
+          <span className="pass-card-v2__badge">Most Popular</span>
+        )}
+      </span>
+
+      {/* Content - Like Event Card Content */}
+      <span className="pass-card-v2__content">
+        <span className="pass-card-v2__title">{name}</span>
+        <span className="pass-card-v2__description">{description}</span>
+        <span className="pass-card-v2__price">
+          <span className="pass-card-v2__price-amount">₹{price}</span>
+          {priceLabel && (
+            <span className="pass-card-v2__price-label">{priceLabel}</span>
+          )}
+        </span>
+      </span>
+    </span>
+  );
+}
+
 export default function RegisterPage() {
   useLenis();
-  const { user, userData, loading: authLoading, updateUserProfile, signOut, signIn } = useAuth();
+  const { user, userData, loading: authLoading, updateUserProfile, signIn } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState<'profile' | 'pass'>('profile');
   const [formData, setFormData] = useState({ name: '', college: '', phone: '' });
@@ -54,6 +99,18 @@ export default function RegisterPage() {
     members: [{ name: '', phone: '' }],
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [signingIn, setSigningIn] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setSigningIn(true);
+    try {
+      await signIn();
+    } catch {
+      // auth/popup-closed-by-user or other errors - user stays on page
+    } finally {
+      setSigningIn(false);
+    }
+  };
 
   useEffect(() => {
     if (authLoading) return;
@@ -189,6 +246,9 @@ export default function RegisterPage() {
     }
   };
 
+  const selectedPassConfig = Object.values(PASS_TYPES).find((p) => p.id === selectedPass);
+
+  // Loading state
   if (authLoading) {
     return (
       <>
@@ -203,280 +263,372 @@ export default function RegisterPage() {
     );
   }
 
+  // Sign in required state - Premium Split-Screen Auth Layout
   if (!user) {
     return (
       <>
         <Navigation />
-        <main className="page_main page_main--registration min-h-[60vh] flex flex-col items-center justify-center u-container py-16 px-5 pb-24 sm:pb-28 md:pb-32">
-          <div className="eyebrow_wrap u-margin-bottom-4">
-            <div className="eyebrow_layout">
-              <div className="eyebrow_marker" aria-hidden />
-              <div className="eyebrow_text u-text-style-main">
-                SIGN IN REQUIRED
+        <div className="auth-page">
+          {/* Split Screen Layout */}
+          <div className="auth-container">
+            {/* Left Panel - Branding & Testimonial */}
+            <div className="auth-left-panel">
+              <div
+                className="auth-left-bg"
+                style={{
+                  backgroundImage: "url(/assets/images/parallax.webp)",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center"
+                }}
+              />
+              <div className="auth-left-overlay" />
+
+              {/* Logo */}
+              <div className="auth-logo">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="auth-logo-icon"
+                >
+                  <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
+                </svg>
+                <span className="auth-logo-text">Takshashila 2026</span>
+              </div>
+
+              {/* Testimonial */}
+              <div className="auth-testimonial">
+                <blockquote className="auth-quote">
+                  &ldquo;The most electrifying tech fest I&apos;ve ever attended. From the innovations to the proshows, every moment was unforgettable.&rdquo;
+                </blockquote>
+                <div className="auth-author">
+                  <span className="auth-author-name">— Past Attendee</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Panel - Auth Form */}
+            <div className="auth-right-panel">
+              {/* Mobile: background image (hidden on desktop) */}
+              <div
+                className="auth-right-bg"
+                style={{
+                  backgroundImage: "url(/assets/images/parallax.webp)",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+                aria-hidden
+              />
+              <div className="auth-right-overlay" aria-hidden />
+              {/* Mobile Logo (visible only on mobile) */}
+              <div className="auth-mobile-logo">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="auth-logo-icon"
+                >
+                  <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
+                </svg>
+                <span className="auth-logo-text">Takshashila 2026</span>
+              </div>
+
+              <div className="auth-form-container">
+                {/* Header */}
+                <div className="auth-header">
+                  <h1 className="auth-title">Get Your Pass</h1>
+                  <p className="auth-subtitle">
+                    Sign in to register for CIT Takshashila 2026
+                  </p>
+                </div>
+
+                {/* Auth Form */}
+                <div className="auth-form">
+                  <div className="auth-form-fields items-center">
+                    {signingIn ? (
+                      <div className="flex justify-center items-center h-[54px]">
+                        <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
+                      </div>
+                    ) : (
+                      <div className="w-full max-w-[260px]">
+                        <AwardBadge type="button" onClick={handleGoogleSignIn} disabled={signingIn}>
+                          CONTINUE WITH GOOGLE
+                        </AwardBadge>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <p className="text-white/80 mb-6 font-medium text-center">Sign in to register for passes.</p>
-          <div className="w-full max-w-[260px]">
-            <AwardBadge onClick={() => signIn()}>SIGN IN WITH GOOGLE</AwardBadge>
-          </div>
-        </main>
-        <Footer />
+        </div>
       </>
     );
   }
 
+  // Profile setup step
   if (step === 'profile') {
     return (
       <>
         <Navigation />
         <main id="main" className="page_main page_main--registration">
-          <section className="registration-profile-hero u-section" aria-labelledby="profile-hero-title">
-            <div className="eyebrow_wrap u-margin-bottom-4">
-              <div className="eyebrow_layout">
-                <div className="eyebrow_marker" aria-hidden />
-                <div className="eyebrow_text u-text-style-main">
-                  PROFILE SETUP
+          {/* Hero */}
+          <section className="registration-hero-v2">
+            <div className="registration-hero-v2__eyebrow">
+              <div className="eyebrow_wrap">
+                <div className="eyebrow_layout">
+                  <div className="eyebrow_marker" aria-hidden />
+                  <div className="eyebrow_text u-text-style-main">PROFILE SETUP</div>
                 </div>
               </div>
             </div>
-            <h1 id="profile-hero-title" className="registration-profile-hero__title">
-              COMPLETE YOUR PROFILE
-            </h1>
-            <p className="registration-profile-hero__subtext">
-              We need a few details to get you started
-            </p>
+            <h1 className="registration-hero-v2__title">Complete Your Profile</h1>
+            <p className="registration-hero-v2__subtext">We need a few details to get you started</p>
           </section>
 
-          <div className="u-container">
-            <div className="registration-profile-form">
-              <form onSubmit={handleProfileSubmit} className="registration-profile-form__form">
-                <div className="registration-profile-form__field">
-                  <label className="registration-profile-form__label">Full Name</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="registration-profile-form__input"
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </div>
-                <div className="registration-profile-form__field">
-                  <label className="registration-profile-form__label">College Name</label>
-                  <input
-                    type="text"
-                    value={formData.college}
-                    onChange={(e) => setFormData({ ...formData, college: e.target.value })}
-                    className="registration-profile-form__input"
-                    placeholder="Enter your college name"
-                    required
-                  />
-                </div>
-                <div className="registration-profile-form__field">
-                  <label className="registration-profile-form__label">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="registration-profile-form__input"
-                    placeholder="Enter your phone number"
-                    required
-                  />
-                </div>
-                <div className="registration-profile-form__cta">
-                  {isLoading ? (
-                    <div className="registration-profile-form__submit">
-                      <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
-                    </div>
-                  ) : (
-                    <div className="w-full max-w-[260px]">
-                      <AwardBadge type="submit" disabled={isLoading}>CONTINUE</AwardBadge>
-                    </div>
-                  )}
-                </div>
-              </form>
-            </div>
+          {/* Profile Form */}
+          <div className="u-container registration-profile-v2">
+            <form onSubmit={handleProfileSubmit} className="registration-profile-v2__form">
+              <div className="registration-profile-v2__field">
+                <label className="registration-profile-v2__label">Full Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="registration-profile-v2__input"
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
+              <div className="registration-profile-v2__field">
+                <label className="registration-profile-v2__label">College Name</label>
+                <input
+                  type="text"
+                  value={formData.college}
+                  onChange={(e) => setFormData({ ...formData, college: e.target.value })}
+                  className="registration-profile-v2__input"
+                  placeholder="Enter your college name"
+                  required
+                />
+              </div>
+              <div className="registration-profile-v2__field">
+                <label className="registration-profile-v2__label">Phone Number</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="registration-profile-v2__input"
+                  placeholder="Enter your phone number"
+                  required
+                />
+              </div>
+              <div className="registration-profile-v2__cta">
+                {isLoading ? (
+                  <div className="flex justify-center items-center h-[54px]">
+                    <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
+                  </div>
+                ) : (
+                  <div className="w-full max-w-[260px]">
+                    <AwardBadge type="submit" disabled={isLoading}>CONTINUE</AwardBadge>
+                  </div>
+                )}
+              </div>
+            </form>
           </div>
-
-          <div
-            data-wf--spacer--section-space="main"
-            className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
-          />
         </main>
         <Footer />
       </>
     );
   }
 
+  // Pass selection step - Event Card Style
   return (
     <>
       <Navigation />
       <main id="main" className="page_main page_main--registration">
-        <div className="u-container registration-selector-layout">
-          <div className="registration-selector-layout__left">
-            <fieldset className="registration-pass-options">
-              <legend className="registration-pass-options__legend">Choose your pass</legend>
-              <div className="registration-pass-options__list">
-                {Object.entries(PASS_TYPES).map(([key, pass]) => (
-                  <label key={key} className="registration-pass-option">
-                    <input
-                      type="radio"
-                      name="passType"
-                      value={pass.id}
-                      checked={selectedPass === pass.id}
-                      onChange={() => setSelectedPass(pass.id)}
-                      className="registration-pass-option__input"
-                    />
-                    <RegistrationPassCard
-                      id={pass.id}
-                      name={pass.name}
-                      description={passDescriptions[pass.id] || 'Access to events and activities.'}
-                      price={pass.id === 'group_events' ? (PASS_TYPES.GROUP_EVENTS.pricePerPerson ?? 250) : ((pass as { price?: number }).price ?? 0)}
-                      priceLabel={pass.id === 'group_events' ? 'per person' : undefined}
-                      icon={passIcons[pass.id] ?? passIcons.day_pass}
-                      isSelected={selectedPass === pass.id}
-                      variant="radio"
-                      isMostPopular={pass.id === 'sana_concert'}
-                    />
-                  </label>
-                ))}
+        {/* Hero */}
+        <section className="registration-hero-v2">
+          <div className="registration-hero-v2__eyebrow">
+            <div className="eyebrow_wrap">
+              <div className="eyebrow_layout">
+                <div className="eyebrow_marker" aria-hidden />
+                <div className="eyebrow_text u-text-style-main">REGISTRATION</div>
               </div>
-            </fieldset>
+            </div>
           </div>
+          <h1 className="registration-hero-v2__title">Choose Your Pass</h1>
+          <p className="registration-hero-v2__subtext">Select a pass to attend Takshashila 2026</p>
+        </section>
 
-          <div className="registration-selector-layout__right registration-right-panel">
-            <div className="registration-right-panel__scroll">
-              {!selectedPass && (
-                <div className="registration-details-placeholder">
-                  <p>Select a pass to see details and proceed to payment</p>
-                </div>
-              )}
-              {selectedPass === 'group_events' && (
-                <div className="registration-team-section">
-                  <h3 className="registration-team-section__title">Team Details</h3>
-                  <div className="registration-team-section__field">
-                    <label className="registration-team-section__label">Team Name</label>
-                    <input
-                      type="text"
-                      value={teamData.teamName}
-                      onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
-                      className="registration-team-section__input"
-                      placeholder="Enter your team name"
-                      required
-                    />
-                  </div>
-                  <div className="registration-team-section__members">
-                    {teamData.members.map((member, idx) => (
-                      <div key={idx} className="registration-team-member">
-                        <div className="registration-team-member__header">
-                          <h4 className="registration-team-member__title">
-                            Member {idx + 1}
-                            {idx === 0 && <span className="registration-team-member__badge">You (Leader)</span>}
-                          </h4>
-                          {idx > 0 && (
-                            <button
-                              type="button"
-                              onClick={() => removeMember(idx)}
-                              className="registration-team-member__remove"
-                              aria-label="Remove member"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
-                          )}
-                        </div>
-                        <div className="registration-team-member__fields">
-                          <input
-                            type="text"
-                            placeholder="Member name"
-                            value={member.name}
-                            onChange={(e) => {
-                              const newMembers = [...teamData.members];
-                              newMembers[idx]!.name = e.target.value;
-                              setTeamData({ ...teamData, members: newMembers });
-                            }}
-                            className="registration-team-member__input"
-                            required
-                          />
-                          <input
-                            type="tel"
-                            placeholder="Phone number"
-                            value={member.phone}
-                            onChange={(e) => {
-                              const newMembers = [...teamData.members];
-                              newMembers[idx]!.phone = e.target.value;
-                              setTeamData({ ...teamData, members: newMembers });
-                            }}
-                            className="registration-team-member__input"
-                            required
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {teamData.members.length < 6 && (
-                    <button
-                      type="button"
-                      onClick={() => setTeamData({ ...teamData, members: [...teamData.members, { name: '', phone: '' }] })}
-                      className="registration-team-section__add"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                      Add Team Member ({teamData.members.length}/6)
-                    </button>
-                  )}
-                </div>
-              )}
+        {/* Pass Selection Layout */}
+        <div className="u-container registration-layout-v2">
+          {/* Pass Cards Grid */}
+          <div className="registration-passes-v2">
+            <div className="registration-passes-v2__grid">
+              {Object.entries(PASS_TYPES).map(([key, pass]) => (
+                <label key={key} className="pass-card-v2-option">
+                  <input
+                    type="radio"
+                    name="passType"
+                    value={pass.id}
+                    checked={selectedPass === pass.id}
+                    onChange={() => setSelectedPass(pass.id)}
+                    className="pass-card-v2-input"
+                  />
+                  <PassCard
+                    id={pass.id}
+                    name={pass.name}
+                    description={passDescriptions[pass.id] || 'Access to events and activities.'}
+                    price={pass.id === 'group_events' ? (PASS_TYPES.GROUP_EVENTS.pricePerPerson ?? 250) : ((pass as { price?: number }).price ?? 0)}
+                    priceLabel={pass.id === 'group_events' ? 'per person' : undefined}
+                    icon={passIcons[pass.id] ?? passIcons.day_pass}
+                    isSelected={selectedPass === pass.id}
+                    isMostPopular={pass.id === 'sana_concert'}
+                  />
+                </label>
+              ))}
             </div>
 
-            <footer className="registration-right-panel__footer">
-              <div className="registration-right-panel__summary">
-                {selectedPass ? (
-                  <>
-                    <div className="registration-right-panel__summary-line">
-                      <span className="registration-right-panel__pass-name">
-                        {Object.values(PASS_TYPES).find((p) => p.id === selectedPass)?.name}
-                      </span>
-                      <span className="registration-right-panel__amount">₹{calculateAmount()}</span>
+            {/* Team Section - Show when group pass is selected */}
+            {selectedPass === 'group_events' && (
+              <div className="registration-team-v2">
+                <h3 className="registration-team-v2__title">Team Details</h3>
+                <div className="registration-team-v2__field">
+                  <label className="registration-team-v2__label">Team Name</label>
+                  <input
+                    type="text"
+                    value={teamData.teamName}
+                    onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
+                    className="registration-team-v2__input"
+                    placeholder="Enter your team name"
+                    required
+                  />
+                </div>
+                <div className="registration-team-v2__members">
+                  {teamData.members.map((member, idx) => (
+                    <div key={idx} className="registration-team-v2__member">
+                      <div className="registration-team-v2__member-header">
+                        <h4 className="registration-team-v2__member-title">
+                          Member {idx + 1}
+                          {idx === 0 && <span className="registration-team-v2__member-badge">You (Leader)</span>}
+                        </h4>
+                        {idx > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => removeMember(idx)}
+                            className="registration-team-v2__member-remove"
+                            aria-label="Remove member"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                      <div className="registration-team-v2__member-fields">
+                        <input
+                          type="text"
+                          placeholder="Member name"
+                          value={member.name}
+                          onChange={(e) => {
+                            const newMembers = [...teamData.members];
+                            newMembers[idx]!.name = e.target.value;
+                            setTeamData({ ...teamData, members: newMembers });
+                          }}
+                          className="registration-team-v2__input"
+                          required
+                        />
+                        <input
+                          type="tel"
+                          placeholder="Phone number"
+                          value={member.phone}
+                          onChange={(e) => {
+                            const newMembers = [...teamData.members];
+                            newMembers[idx]!.phone = e.target.value;
+                            setTeamData({ ...teamData, members: newMembers });
+                          }}
+                          className="registration-team-v2__input"
+                          required
+                        />
+                      </div>
                     </div>
-                    {selectedPass === 'group_events' && (
-                      <p className="registration-right-panel__pass-details">{teamData.members.length} members × ₹250</p>
-                    )}
-                  </>
-                ) : (
-                  <p className="registration-right-panel__empty">Select a pass</p>
+                  ))}
+                </div>
+                {teamData.members.length < 6 && (
+                  <button
+                    type="button"
+                    onClick={() => setTeamData({ ...teamData, members: [...teamData.members, { name: '', phone: '' }] })}
+                    className="registration-team-v2__add"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add Team Member ({teamData.members.length}/6)
+                  </button>
                 )}
               </div>
-              <div className="registration-right-panel__cta">
-                {isLoading ? (
-                  <div className="registration-right-panel__spinner">
-                    <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
-                  </div>
-                ) : (
-                  <div className="registration-right-panel__btn-wrap">
-                    <AwardBadge type="button" onClick={handlePayment} disabled={!selectedPass}>
-                      PROCEED TO PAYMENT
-                    </AwardBadge>
-                  </div>
-                )}
-              </div>
-              <p className="registration-right-panel__security">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                Secured by Cashfree
-              </p>
-            </footer>
+            )}
           </div>
-        </div>
 
-        <div
-          data-wf--spacer--section-space="main"
-          className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
-        />
+          {/* Checkout Panel */}
+          <aside className="registration-checkout-v2">
+            <h2 className="registration-checkout-v2__title">Order Summary</h2>
+
+            {!selectedPass ? (
+              <div className="registration-checkout-v2__empty">
+                <div className="registration-checkout-v2__empty-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                  </svg>
+                </div>
+                <p className="registration-checkout-v2__empty-text">Select a pass to begin</p>
+              </div>
+            ) : (
+              <>
+                <div className="registration-checkout-v2__selected">
+                  <h3 className="registration-checkout-v2__pass-name">{selectedPassConfig?.name}</h3>
+                  {selectedPass === 'group_events' && (
+                    <p className="registration-checkout-v2__pass-details">{teamData.members.length} members × ₹250</p>
+                  )}
+                </div>
+
+                <div className="registration-checkout-v2__total">
+                  <span className="registration-checkout-v2__total-label">Total</span>
+                  <span className="registration-checkout-v2__total-amount">₹{calculateAmount()}</span>
+                </div>
+
+                <div className="registration-checkout-v2__cta">
+                  {isLoading ? (
+                    <div className="flex justify-center items-center h-[54px]">
+                      <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
+                    </div>
+                  ) : (
+                    <div className="w-full max-w-[260px]">
+                      <AwardBadge type="button" onClick={handlePayment}>
+                        PROCEED TO PAYMENT
+                      </AwardBadge>
+                    </div>
+                  )}
+                </div>
+
+                <p className="registration-checkout-v2__security">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  Secured by Cashfree
+                </p>
+              </>
+            )}
+          </aside>
+        </div>
       </main>
       <Footer />
     </>

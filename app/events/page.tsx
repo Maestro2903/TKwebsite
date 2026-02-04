@@ -43,7 +43,15 @@ export default function EventsPage() {
           className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
         />
 
-        {!isLoading && <EventsGrid key={category} events={memoizedEvents} category={category} />}
+        {isLoading ? (
+          <div className="events-loading">
+            <div className="events-loading__spinner">
+              <div className="events-spinner" aria-label="Loading events" />
+            </div>
+          </div>
+        ) : (
+          <EventsGrid key={category} events={memoizedEvents} category={category} />
+        )}
 
         <div
           data-wf--spacer--section-space="main"
