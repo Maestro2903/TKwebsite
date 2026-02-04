@@ -6,12 +6,15 @@ interface AwardBadgeProps {
     children?: React.ReactNode;
     className?: string;
     onClick?: () => void;
+    type?: 'button' | 'submit';
+    disabled?: boolean;
 }
 
-export const AwardBadge = ({ children, className = "", onClick }: AwardBadgeProps) => {
+export const AwardBadge = ({ children, className = "", onClick, type = 'button', disabled = false }: AwardBadgeProps) => {
     return (
         <button
-            type="button"
+            type={type}
+            disabled={disabled}
             className={`award-badge-simple group relative block w-full h-auto cursor-pointer overflow-hidden ${className}`}
             onClick={onClick}
         >

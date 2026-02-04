@@ -7768,7 +7768,7 @@ figure {
 
 .nav_wrap {
     z-index: 1000;
-    mix-blend-mode: difference;
+    mix-blend-mode: normal;
     position: fixed;
     inset: 0% 0% auto
 }
@@ -10159,6 +10159,59 @@ figure {
 
     #w-node-e081f8e2-b84d-3274-dd88-f9f69c405f8f-9c405f79 {
         align-self: end
+    }
+}
+
+/* Desktop: Hamburger menu always hidden - override any conflicting styles */
+@media screen and (min-width: 992px) {
+    .nav_desktop_right_wrap .nav_menu_toggle_contain,
+    .nav_desktop_right_btns .nav_menu_toggle_contain,
+    .nav_menu_toggle_contain,
+    .nav_desktop_right_wrap .nav_menu_toggle_wrap,
+    .nav_desktop_right_btns .nav_menu_toggle_wrap,
+    .nav_menu_toggle_wrap,
+    .nav_desktop_right_wrap .nav_menu_toggle,
+    .nav_desktop_right_btns .nav_menu_toggle,
+    .nav_menu_toggle {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transform: scale(0) !important;
+    }
+
+    /* Desktop: Desktop links always visible */
+    .nav_desktop_links_wrap {
+        display: flex !important;
+        transform: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    /* Desktop: Navigation buttons always visible */
+    .nav_desktop_right_btns {
+        transform: none !important;
+    }
+
+    /* Override any scroll-based data attribute selectors */
+    [data-scrolling-started="true"] .nav_desktop_links_wrap,
+    [data-scrolling-started="false"] .nav_desktop_links_wrap,
+    [data-scrolling-top="true"] .nav_desktop_links_wrap,
+    [data-scrolling-top="false"] .nav_desktop_links_wrap {
+        display: flex !important;
+        transform: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    /* Ensure hamburger stays hidden regardless of scroll state */
+    [data-scrolling-started="true"] .nav_menu_toggle_contain,
+    [data-scrolling-started="false"] .nav_menu_toggle_contain,
+    [data-scrolling-top="true"] .nav_menu_toggle_contain,
+    [data-scrolling-top="false"] .nav_menu_toggle_contain {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
     }
 }
 

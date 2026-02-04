@@ -6,19 +6,40 @@ import Footer from '@/components/Footer';
 import StickyRegisterCTA from '@/components/StickyRegisterCTA';
 import { useLenis } from '@/hooks/useLenis';
 
+// Music tracks configuration - update these paths when you provide the files
+interface Track {
+    id: string;
+    title: string;
+    artist?: string;
+    src: string;
+}
+
+const TRACKS: Track[] = [
+    // Add your tracks here - example format:
+    // { id: '1', title: 'Song Title', artist: 'Artist Name', src: '/assets/audio/track1.mp3' },
+];
+
 export default function SanaArenaPage() {
     useLenis();
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const heroAudioRef = useRef<HTMLAudioElement | null>(null);
+    const [isHeroPlaying, setIsHeroPlaying] = useState(false);
+    
+    // Music player state
+    const playerAudioRef = useRef<HTMLAudioElement | null>(null);
+    const [currentTrackIndex, setCurrentTrackIndex] = useState<number | null>(null);
+    const [isPlayerPlaying, setIsPlayerPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
 
+    // Hero background audio
     useEffect(() => {
         const audio = new Audio('/assets/audio/rakita_rakita.mp3');
         audio.loop = true;
         audio.preload = 'auto';
-        audioRef.current = audio;
+        heroAudioRef.current = audio;
 
         const tryPlay = () => {
-            audio.play().then(() => setIsPlaying(true)).catch(() => {});
+            audio.play().then(() => setIsHeroPlaying(true)).catch(() => {});
         };
 
         // Attempt autoplay on mount
@@ -44,15 +65,97 @@ export default function SanaArenaPage() {
         };
     }, []);
 
-    const togglePlay = () => {
-        const audio = audioRef.current;
+    // Music player audio management
+    useEffect(() => {
+        const audio = playerAudioRef.current;
         if (!audio) return;
-        if (isPlaying) {
+
+        const updateTime = () => setCurrentTime(audio.currentTime);
+        const updateDuration = () => setDuration(audio.duration);
+        const handleEnded = () => {
+            setIsPlayerPlaying(false);
+            setCurrentTime(0);
+            // Auto-play next track if available
+            if (currentTrackIndex !== null && currentTrackIndex < TRACKS.length - 1) {
+                handleTrackSelect(currentTrackIndex + 1);
+            }
+        };
+
+        audio.addEventListener('timeupdate', updateTime);
+        audio.addEventListener('loadedmetadata', updateDuration);
+        audio.addEventListener('ended', handleEnded);
+
+        return () => {
+            audio.removeEventListener('timeupdate', updateTime);
+            audio.removeEventListener('loadedmetadata', updateDuration);
+            audio.removeEventListener('ended', handleEnded);
+        };
+    }, [currentTrackIndex]);
+
+    const toggleHeroPlay = () => {
+        const audio = heroAudioRef.current;
+        if (!audio) return;
+        if (isHeroPlaying) {
             audio.pause();
         } else {
             audio.play().catch(() => {});
         }
-        setIsPlaying(!isPlaying);
+        setIsHeroPlaying(!isHeroPlaying);
+    };
+
+    const handleTrackSelect = (index: number) => {
+        if (index < 0 || index >= TRACKS.length) return;
+        
+        const track = TRACKS[index];
+        const audio = new Audio(track.src);
+        audio.preload = 'auto';
+        
+        // Stop previous audio
+        if (playerAudioRef.current) {
+            playerAudioRef.current.pause();
+            playerAudioRef.current.src = '';
+        }
+        
+        playerAudioRef.current = audio;
+        setCurrentTrackIndex(index);
+        setIsPlayerPlaying(false);
+        setCurrentTime(0);
+        setDuration(0);
+        
+        // Load the track
+        audio.load();
+    };
+
+    const togglePlayerPlay = () => {
+        const audio = playerAudioRef.current;
+        if (!audio) return;
+        
+        if (isPlayerPlaying) {
+            audio.pause();
+            setIsPlayerPlaying(false);
+        } else {
+            audio.play().then(() => setIsPlayerPlaying(true)).catch(() => {});
+        }
+    };
+
+    const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+        const audio = playerAudioRef.current;
+        if (!audio || !duration) return;
+        
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percentage = x / rect.width;
+        const newTime = percentage * duration;
+        
+        audio.currentTime = newTime;
+        setCurrentTime(newTime);
+    };
+
+    const formatTime = (seconds: number): string => {
+        if (isNaN(seconds)) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
     return (
@@ -72,7 +175,7 @@ export default function SanaArenaPage() {
                     <div
                         className="absolute inset-0 z-0"
                         style={{
-                            backgroundImage: "url('/assets/images/sana-arena-bg-2.jpeg')",
+                            backgroundImage: "url('/assets/images/sana-arena-bg.webp')",
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                         }}
@@ -83,13 +186,6 @@ export default function SanaArenaPage() {
 
                     {/* Content */}
                     <div className="relative z-10 text-center u-container flex flex-col items-center justify-center text-white pt-20">
-                        <h1 className="text-[12vw] leading-none font-bold tracking-tighter mb-4 opacity-90">
-                            SANA ARENA
-                        </h1>
-                        <p className="text-xl md:text-2xl font-light tracking-wide max-w-2xl mx-auto opacity-90">
-                            Experience the ultimate proshow extravaganza
-                        </p>
-
                         <div className="mt-12">
                             {/* Additional content or CTA can go here */}
                         </div>
@@ -98,11 +194,11 @@ export default function SanaArenaPage() {
                     {/* Music Play/Pause Button - floating bottom-right */}
                     <button
                         type="button"
-                        onClick={togglePlay}
+                        onClick={toggleHeroPlay}
                         className="fixed bottom-24 right-6 md:bottom-8 md:right-8 z-50 w-14 h-14 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all hover:scale-105"
-                        aria-label={isPlaying ? 'Pause music' : 'Play music'}
+                        aria-label={isHeroPlaying ? 'Pause music' : 'Play music'}
                     >
-                        {isPlaying ? (
+                        {isHeroPlaying ? (
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                             </svg>
@@ -112,6 +208,135 @@ export default function SanaArenaPage() {
                             </svg>
                         )}
                     </button>
+                </section>
+
+                {/* Music Player Section */}
+                <section className="relative w-full py-20 bg-black">
+                    <div className="u-container">
+                        <div className="grid md:grid-cols-2 gap-12 items-center">
+                            {/* Cover Image */}
+                            <div className="relative aspect-square rounded-lg overflow-hidden">
+                                <img
+                                    src="/assets/images/sana-music-cover.webp"
+                                    alt="Sana Music Cover"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        // Fallback if image doesn't exist yet
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                />
+                                {/* Placeholder if image not available */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 to-black/50 flex items-center justify-center">
+                                    <div className="text-center text-white/60">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="currentColor" className="mx-auto mb-2 opacity-50">
+                                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                                        </svg>
+                                        <p className="text-sm">Cover Image</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Track List & Player */}
+                            <div className="space-y-6">
+                                <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">Sana's Music</h2>
+                                
+                                {/* Current Track Info */}
+                                {currentTrackIndex !== null && currentTrackIndex < TRACKS.length && (
+                                    <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 border border-white/10">
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <button
+                                                onClick={togglePlayerPlay}
+                                                className="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all hover:scale-105 flex-shrink-0"
+                                                aria-label={isPlayerPlaying ? 'Pause' : 'Play'}
+                                            >
+                                                {isPlayerPlaying ? (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                                                    </svg>
+                                                ) : (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path d="M8 5v14l11-7z" />
+                                                    </svg>
+                                                )}
+                                            </button>
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="text-lg font-semibold text-white truncate">
+                                                    {TRACKS[currentTrackIndex].title}
+                                                </h3>
+                                                {TRACKS[currentTrackIndex].artist && (
+                                                    <p className="text-sm text-white/60 truncate">
+                                                        {TRACKS[currentTrackIndex].artist}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        
+                                        {/* Progress Bar */}
+                                        <div className="space-y-2">
+                                            <div
+                                                onClick={handleSeek}
+                                                className="w-full h-1.5 bg-white/10 rounded-full cursor-pointer relative group"
+                                            >
+                                                <div
+                                                    className="h-full bg-white/80 rounded-full transition-all"
+                                                    style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }}
+                                                />
+                                            </div>
+                                            <div className="flex justify-between text-xs text-white/60">
+                                                <span>{formatTime(currentTime)}</span>
+                                                <span>{formatTime(duration)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Track List */}
+                                {TRACKS.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {TRACKS.map((track, index) => (
+                                            <button
+                                                key={track.id}
+                                                onClick={() => handleTrackSelect(index)}
+                                                className={`w-full text-left p-4 rounded-lg transition-all ${
+                                                    currentTrackIndex === index
+                                                        ? 'bg-white/10 border border-white/20'
+                                                        : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded bg-white/10 flex items-center justify-center flex-shrink-0">
+                                                        {currentTrackIndex === index && isPlayerPlaying ? (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                                                            </svg>
+                                                        ) : (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                                <path d="M8 5v14l11-7z" />
+                                                            </svg>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="text-white font-medium truncate">{track.title}</h4>
+                                                        {track.artist && (
+                                                            <p className="text-sm text-white/60 truncate">{track.artist}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="bg-white/5 backdrop-blur-sm rounded-lg p-8 border border-white/10 text-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" className="mx-auto mb-4 text-white/40">
+                                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                                        </svg>
+                                        <p className="text-white/60">Music tracks will appear here</p>
+                                        <p className="text-sm text-white/40 mt-2">Add tracks to the TRACKS array to get started</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </section>
             </main>
 

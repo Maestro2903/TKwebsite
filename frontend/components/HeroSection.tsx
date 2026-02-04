@@ -121,15 +121,15 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                         ))}
                     </video>
 
-                    {/* Hero center logo overlay */}
+                    {/* Hero center logo overlay - Takshashila text (तक्षशिला) */}
                     <div className="hero_center_logo" aria-hidden>
                         <Image
-                            src="/tk25-gold.svg"
-                            alt=""
-                            width={640}
-                            height={360}
+                            src="/assets/images/takshashila-text.png"
+                            alt="Takshashila"
+                            width={1120}
+                            height={644}
                             priority
-                            className="hero_center_logo__img"
+                            className="hero_center_logo__img hero_center_logo__img--text"
                         />
                     </div>
 

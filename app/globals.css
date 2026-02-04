@@ -119,47 +119,81 @@ html {
   object-fit: contain;
 }
 
-/* Mobile: logo 100% larger */
+/* Takshashila text logo (~1.74:1 aspect ratio) - responsive scaling */
+.hero_center_logo__img--text {
+  width: min(85vw, 400px);
+  max-height: 25vh;
+  object-fit: contain;
+}
+
+/* Mobile: Takshashila text - full width with comfortable padding */
+@media screen and (max-width: 767px) {
+  .hero_center_logo__img--text {
+    width: min(90vw, 450px);
+    max-height: 30vh;
+  }
+}
+
+/* Tablet: Takshashila text - larger, still contained */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .hero_center_logo__img--text {
+    width: min(70vw, 600px);
+    max-height: 28vh;
+  }
+}
+
+/* Desktop: Takshashila text - 2x larger for prominent display */
+@media screen and (min-width: 992px) {
+  .hero_center_logo__img--text {
+    width: min(95vw, 2000px);
+    max-height: 70vh;
+  }
+}
+
+/* Mobile: logo 100% larger (legacy / non-text logos) */
 @media screen and (max-width: 991px) {
-  .hero_center_logo__img {
+  .hero_center_logo__img:not(.hero_center_logo__img--text) {
     width: min(90vw, 640px);
     max-height: 95vh;
   }
 }
 
-/* Desktop: logo 150% larger (then increased again by 150%) */
+/* Desktop: logo 150% larger (legacy / non-text logos) */
 @media screen and (min-width: 992px) {
-  .hero_center_logo__img {
+  .hero_center_logo__img:not(.hero_center_logo__img--text) {
     width: min(90vw, 720px);
     max-height: 95vh;
   }
 }
 
-/* Navigation scroll animations - from original embedded CSS */
+/* Navigation scroll animations - Desktop links always visible */
 .nav_desktop_links_wrap {
-  transition: transform 0.5s ease;
-  transform: translateY(0%) rotate(0.001deg);
-}
-
-/* Move nav out of window when scrolling down */
-[data-scrolling-started="true"][data-scrolling-top="false"] .nav_desktop_links_wrap {
-  transform: translateY(-300%) rotate(0.001deg);
+  /* Desktop links remain visible at all times - no scroll-based hiding */
 }
 
 /* =================================================================
    NAVIGATION BAR - Complete Styles from Zeit Media
    ================================================================= */
 
-/* Main Nav Wrapper - Fixed at top with visible background fill */
+/* Main Nav Wrapper - Fixed at top, transparent initially, black on scroll */
 .nav_wrap {
   z-index: 1000;
   position: fixed;
   inset: 0% 0% auto;
   width: 100%;
   color: #fff;
-  background-color: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: transparent;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.3s ease, border-bottom-color 0.3s ease;
+}
+
+/* Navbar becomes black when scrolling */
+.nav_wrap[data-scrolling-started="true"] {
+  background-color: #000;
+  background: #000;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -172,12 +206,13 @@ html {
   mix-blend-mode: normal !important;
 }
 
-/* All pages except home: solid black navbar */
+/* All pages except home: solid black navbar (always black, no scroll effect) */
 .nav_wrap.nav_wrap--solid {
   background-color: #000 !important;
   background: #000 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 /* Nav Container with padding */
@@ -422,31 +457,55 @@ html {
 }
 
 @media screen and (min-width: 992px) {
+  /* Desktop: Hamburger menu always hidden - hide container, wrap, and button */
+  .nav_desktop_right_wrap .nav_menu_toggle_contain,
+  .nav_desktop_right_btns .nav_menu_toggle_contain,
+  .nav_menu_toggle_contain,
+  .nav_desktop_right_wrap .nav_menu_toggle_wrap,
+  .nav_desktop_right_btns .nav_menu_toggle_wrap,
+  .nav_menu_toggle_wrap,
+  .nav_desktop_right_wrap .nav_menu_toggle,
+  .nav_desktop_right_btns .nav_menu_toggle,
+  .nav_menu_toggle {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: scale(0) !important;
+  }
+
+  /* Desktop: Navigation buttons always visible - no transform on scroll */
   .nav_desktop_right_btns {
-    transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
-    transform: translateX(5rem) rotate(0.001deg);
+    transform: none !important;
   }
 
-  .nav_menu_toggle_wrap {
-    transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
-    transform: scale(0) rotate(0.001deg);
+  /* Desktop: Desktop links always visible - never hide on scroll */
+  .nav_desktop_links_wrap {
+    display: flex !important;
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
-  .nav_menu_toggle_contain {
-    transition: opacity 0.5s cubic-bezier(0.625, 0.05, 0, 1);
-    opacity: 0;
+  /* Override any scroll-based data attribute selectors */
+  [data-scrolling-started="true"] .nav_desktop_links_wrap,
+  [data-scrolling-started="false"] .nav_desktop_links_wrap,
+  [data-scrolling-top="true"] .nav_desktop_links_wrap,
+  [data-scrolling-top="false"] .nav_desktop_links_wrap {
+    display: flex !important;
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
-  [data-scrolling-started="true"][data-scrolling-top="false"] .nav_desktop_right_btns {
-    transform: translateX(0%) rotate(0.001deg);
-  }
-
-  [data-scrolling-started="true"][data-scrolling-top="false"] .nav_menu_toggle_contain {
-    opacity: 1;
-  }
-
-  [data-scrolling-started="true"][data-scrolling-top="false"] .nav_menu_toggle_wrap {
-    transform: scale(1) rotate(0.001deg);
+  /* Ensure hamburger stays hidden regardless of scroll state */
+  [data-scrolling-started="true"] .nav_menu_toggle_contain,
+  [data-scrolling-started="false"] .nav_menu_toggle_contain,
+  [data-scrolling-top="true"] .nav_menu_toggle_contain,
+  [data-scrolling-top="false"] .nav_menu_toggle_contain {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
   }
 }
 
@@ -2957,6 +3016,10 @@ html {
 .shows-hero {
   min-height: 100dvh;
   background-color: var(--swatch--dark-900, #000);
+  background-image: url('/assets/images/proshows-hero-bg.webp');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2991,6 +3054,16 @@ html {
   isolation: isolate;
 }
 
+/* Overlay for better text readability */
+.shows-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 0;
+  pointer-events: none;
+}
+
 .shows-hero__y2k {
   position: absolute;
   inset: 0;
@@ -3012,7 +3085,7 @@ html {
 
 .shows-hero__content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 /* Page-wide Y2K decors — scattered across proshows page */
@@ -3312,6 +3385,170 @@ html {
   }
 }
 
+/* Mobile optimizations for proshows page */
+@media screen and (max-width: 767px) {
+  /* Hero section - better mobile padding and background */
+  .shows-hero {
+    min-height: 100svh;
+    padding: var(--site--gutter, 1.5rem) 1rem;
+    background-attachment: scroll;
+    background-size: cover;
+    background-position: center center;
+  }
+
+  /* Increase overlay opacity on mobile for better readability */
+  .shows-hero::before {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .shows-hero__content {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Day section header - better mobile layout */
+  .show-day-section {
+    padding: 2rem 0;
+  }
+
+  .show-day-section__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .show-day-section__num {
+    font-size: clamp(3rem, 20vw, 6rem);
+    line-height: 0.9;
+  }
+
+  .show-day-section__label {
+    font-size: clamp(1.25rem, 5vw, 1.75rem);
+    padding-bottom: 0;
+  }
+
+  /* Cards container - better mobile spacing */
+  .show-day-section__cards {
+    gap: 1.5rem;
+    padding-top: 0;
+  }
+
+  .show-day-section__cards .u-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Show card optimizations */
+  .show-card-proshows {
+    gap: 1rem;
+  }
+
+  .show-card-proshows__image {
+    aspect-ratio: 16 / 9;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .show-card-proshows__info {
+    padding: 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .show-card-proshows__category {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+
+  .show-card-proshows__title {
+    font-size: clamp(1.25rem, 5vw, 1.75rem);
+    line-height: 1.2;
+  }
+
+  .show-card-proshows__description {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .show-card-proshows__meta {
+    padding-top: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .show-card-proshows__date {
+    font-size: 0.8rem;
+  }
+
+  /* Button - touch-friendly size */
+  .show-card-proshows__btn {
+    padding: 1rem 1.5rem;
+    min-height: 44px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Schedule section spacing */
+  .shows-schedule {
+    padding: 0;
+  }
+
+  .shows-schedule__inner {
+    gap: 0;
+  }
+}
+
+/* Small mobile devices (< 480px) */
+@media screen and (max-width: 479px) {
+  .shows-hero {
+    padding: 1rem;
+    min-height: 100svh;
+  }
+
+  .shows-hero::before {
+    background: rgba(0, 0, 0, 0.6);
+  }
+
+  .show-day-section {
+    padding: 1.5rem 0;
+  }
+
+  .show-day-section__header {
+    margin-bottom: 1rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .show-day-section__num {
+    font-size: clamp(2.5rem, 25vw, 5rem);
+  }
+
+  .show-day-section__label {
+    font-size: clamp(1rem, 6vw, 1.5rem);
+  }
+
+  .show-day-section__cards .u-container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .show-card-proshows__info {
+    padding: 1rem;
+  }
+
+  .show-card-proshows__title {
+    font-size: clamp(1.125rem, 6vw, 1.5rem);
+  }
+
+  .show-card-proshows__btn {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.8rem;
+  }
+}
+
 /* =================================================================
    REGISTRATION PAGE
    ================================================================= */
@@ -3344,6 +3581,7 @@ html {
 }
 
 .registration-hero__title {
+  font-family: var(--_typography---font--display-family);
   font-size: clamp(3rem, 10vw, 8rem);
   font-weight: var(--_typography---font--primary-semibold, 600);
   text-transform: uppercase;
@@ -3352,6 +3590,7 @@ html {
 }
 
 .registration-hero__subtext {
+  font-family: var(--_typography---font--primary-family);
   font-size: 0.875rem;
   opacity: 0.6;
   text-transform: uppercase;
@@ -4459,6 +4698,22 @@ html {
   border-radius: 50%;
   animation: reg-spin 1s linear infinite;
   flex-shrink: 0;
+  margin: 0 auto;
+}
+
+.registration-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - var(--nav-height, 80px));
+  width: 100%;
+  padding: 2rem;
+}
+
+.registration-loading__spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes reg-spin {
@@ -4480,4 +4735,1049 @@ html {
   border-radius: 20px;
   font-size: 14px;
   font-weight: 600;
+}
+
+/* =================================================================
+   REDESIGNED REGISTRATION PAGE — Events Page Design Language
+   ================================================================= */
+
+/* Page main for registration */
+.page_main--registration {
+  background-color: #000;
+  padding-top: 60px;
+  margin-top: 0;
+}
+
+/* Hide "GET YOUR GATE PASS" button in footer on registration page */
+.page_main--registration ~ footer .footer_left_wrap > .footer_cta {
+  display: none;
+}
+
+/* Profile Hero (matching EventsHero style) */
+.registration-profile-hero {
+  min-height: 100dvh;
+  background-color: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--site--gutter, 1.5rem);
+}
+
+.registration-profile-hero__title {
+  font-family: var(--_typography---font--display-family);
+  font-size: clamp(3rem, 10vw, 8rem);
+  font-weight: var(--_typography---font--primary-semibold, 600);
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin: 0 0 var(--_spacing---space--4);
+}
+
+.registration-profile-hero__subtext {
+  font-family: var(--_typography---font--primary-family);
+  font-size: 0.875rem;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin: 0;
+}
+
+/* Profile Form (card-based, matching event-card style) */
+.registration-profile-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--_spacing---space--6) 0;
+}
+
+.registration-profile-form__form {
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: var(--_spacing---space--6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--_spacing---space--5);
+}
+
+@media screen and (min-width: 768px) {
+  .registration-profile-form__form {
+    padding: var(--_spacing---space--8);
+  }
+}
+
+.registration-profile-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_spacing---space--2);
+}
+
+.registration-profile-form__label {
+  font-family: var(--_typography---font--primary-family);
+  font-size: 0.75rem;
+  font-weight: var(--_typography---font--primary-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.registration-profile-form__input {
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-family: var(--_typography---font--primary-family);
+  font-size: 1rem;
+  transition: border-color 0.35s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.registration-profile-form__input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.registration-profile-form__input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.registration-profile-form__cta {
+  margin-top: var(--_spacing---space--4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.registration-profile-form__submit {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 54px;
+}
+
+.registration-profile-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.registration-profile-form__submit .reg-spinner {
+  margin: 0;
+}
+
+/* Registration Hero Section: equal padding on all 4 sides, positioned right after navbar */
+.u-container.registration-selector-layout {
+  max-width: 100%;
+  width: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+@media screen and (min-width: 768px) {
+  .u-container.registration-selector-layout {
+    padding: 3rem;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .u-container.registration-selector-layout {
+    padding: 4rem;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .u-container.registration-selector-layout {
+    padding: 1.5rem;
+  }
+}
+
+/* Two-column layout: left 62% fixed (no shrink), right 38% */
+.registration-selector-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_spacing---space--6);
+  padding: 0;
+  margin: 0;
+}
+
+@media screen and (min-width: 992px) {
+  .registration-selector-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 62%) minmax(260px, 38%);
+    gap: 2.5rem;
+    align-items: stretch;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    min-height: 60vh;
+  }
+}
+
+/* Left column: fixed width, never shrinks; stable 2x2 card grid */
+.registration-selector-layout__left {
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+@media screen and (min-width: 992px) {
+  .registration-selector-layout__left {
+    min-width: 0;
+    overflow: hidden;
+  }
+}
+
+.registration-selector-layout__right {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+@media screen and (min-width: 992px) {
+  .registration-selector-layout__right {
+    position: relative;
+    min-height: 0;
+  }
+}
+
+/* Pass options: fieldset + radio list */
+.registration-pass-options {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.registration-pass-options__legend {
+  font-family: var(--_typography---font--display-family);
+  font-weight: var(--_typography---font--primary-bold, 700);
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0 0 var(--_spacing---space--5);
+  color: #fff;
+}
+
+/* Strict 2x2 grid: never collapse, layout-stable */
+.registration-pass-options__list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--_spacing---space--3);
+}
+
+@media screen and (min-width: 600px) {
+  .registration-pass-options__list {
+    gap: var(--_spacing---space--4);
+  }
+}
+
+@media screen and (max-width: 599px) {
+  .registration-pass-options__list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.registration-pass-option {
+  display: block;
+  cursor: pointer;
+}
+
+.registration-pass-option__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.registration-pass-option:focus-within .registration-pass-card,
+.registration-pass-option:hover .registration-pass-card {
+  border-color: #555;
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.registration-pass-option:focus-within .registration-pass-card--selected,
+.registration-pass-option .registration-pass-option__input:checked + .registration-pass-card {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2), 0 0 0 1px rgba(59, 130, 246, 0.3);
+}
+
+/* Radio indicator (used inside pass card when variant=radio) */
+.registration-pass-radio-indicator {
+  margin-top: var(--_spacing---space--4);
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.625, 0.05, 0, 1);
+  flex-shrink: 0;
+}
+
+.registration-pass-radio-indicator__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #3b82f6;
+  transform: scale(0);
+  transition: transform 0.4s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.registration-pass-card--selected .registration-pass-radio-indicator {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.registration-pass-card--selected .registration-pass-radio-indicator__dot {
+  transform: scale(1);
+}
+
+.registration-pass-card--radio .registration-pass-cta {
+  display: none;
+}
+
+.registration-pass-card--radio {
+  display: flex;
+  width: 100%;
+  pointer-events: none;
+}
+
+.registration-pass-option .registration-pass-card--radio {
+  pointer-events: auto;
+}
+
+/* Pass cards in 2x2 grid: no icon, full card style */
+.registration-pass-card--radio .registration-pass-card__icon {
+  display: none;
+}
+
+.registration-pass-card--radio .registration-pass-content {
+  padding: 1rem 1.25rem;
+  gap: var(--_spacing---space--3);
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+@media screen and (min-width: 600px) {
+  .registration-pass-card--radio .registration-pass-content {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.registration-pass-card--radio .registration-pass-content__header {
+  margin-bottom: 0.25rem;
+}
+
+.registration-pass-card--radio .registration-pass-content__title {
+  font-family: var(--_typography---font--display-family);
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+}
+
+.registration-pass-card--radio .registration-pass-badge {
+  font-size: 0.5625rem;
+  padding: 0.2rem 0.4rem;
+}
+
+.registration-pass-card--radio .registration-pass-content__description {
+  font-family: var(--_typography---font--primary-family);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  margin: 0;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 0.75;
+}
+
+.registration-pass-card--radio .registration-pass-content__price {
+  margin-top: auto;
+  margin-bottom: 0;
+}
+
+.registration-pass-card--radio .registration-pass-content__price-amount {
+  font-family: var(--_typography---font--primary-family);
+  font-size: 1.75rem;
+  font-weight: var(--_typography---font--primary-bold, 700);
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.registration-pass-card--radio .registration-pass-content__price-label {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.registration-pass-card--radio .registration-pass-radio-indicator {
+  margin-top: var(--_spacing---space--3);
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+.registration-pass-card--radio .registration-pass-radio-indicator__dot {
+  width: 0.4375rem;
+  height: 0.4375rem;
+}
+
+.registration-pass-card--radio {
+  min-height: 10rem;
+  height: 100%;
+}
+
+.registration-pass-card--radio .registration-pass-content {
+  justify-content: flex-start;
+}
+
+/* Right panel: scrollable body + fixed footer (total + CTA); only right side scrolls */
+.registration-right-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+@media screen and (min-width: 992px) {
+  .registration-right-panel {
+    min-height: 0;
+    max-height: min(75vh, 800px);
+  }
+}
+
+.registration-right-panel__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.25rem;
+}
+
+@media screen and (min-width: 992px) {
+  .registration-right-panel__scroll {
+    padding: 1.5rem;
+  }
+}
+
+.registration-right-panel__footer {
+  flex-shrink: 0;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.registration-right-panel__summary {
+  margin-bottom: 1rem;
+}
+
+.registration-right-panel__summary-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.registration-right-panel__pass-name {
+  font-family: var(--_typography---font--primary-family);
+  font-weight: var(--_typography---font--primary-semibold, 600);
+  font-size: 0.9375rem;
+  color: #fff;
+}
+
+.registration-right-panel__amount {
+  font-family: var(--_typography---font--primary-family);
+  font-size: 1.5rem;
+  font-weight: var(--_typography---font--primary-bold, 700);
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.registration-right-panel__pass-details {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0.25rem 0 0;
+}
+
+.registration-right-panel__empty {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+.registration-right-panel__cta {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.registration-right-panel__btn-wrap {
+  width: 100%;
+  max-width: 260px;
+}
+
+.registration-right-panel__spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 54px;
+}
+
+.registration-right-panel__spinner .reg-spinner {
+  margin: 0;
+}
+
+.registration-right-panel__security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+/* Placeholder / team form inside right panel: avoid double glass */
+.registration-right-panel__scroll .registration-details-placeholder {
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+}
+
+.registration-right-panel__scroll .registration-team-section {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Glassmorphism card base */
+.registration-glass-card {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: var(--_spacing---space--6);
+}
+
+@media screen and (min-width: 992px) {
+  .registration-glass-card {
+    padding: var(--_spacing---space--8);
+  }
+}
+
+/* Right panel empty state - Glassmorphism */
+.registration-details-placeholder {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--_typography---font--primary-family);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  box-sizing: border-box;
+}
+
+.registration-details-placeholder::before {
+  content: '📋';
+  font-size: 2.5rem;
+  margin-bottom: var(--_spacing---space--3);
+  opacity: 0.5;
+}
+
+/* Registration Passes Grid (matching events-grid) - kept for any other use */
+.registration-passes-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--site--gutter);
+  align-items: stretch;
+  padding: var(--_spacing---space--6) 0;
+}
+
+@media screen and (min-width: 768px) {
+  .registration-passes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (min-width: 992px) {
+  .registration-passes-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+}
+
+/* Registration Pass Card - Elevated Design */
+.registration-pass-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #000;
+  border: 1px solid #333;
+  overflow: visible;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.625, 0.05, 0, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.registration-pass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.625, 0.05, 0, 1);
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .registration-pass-card:hover {
+    border-color: #555;
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.2);
+  }
+
+  .registration-pass-card:hover::before {
+    opacity: 1;
+  }
+}
+
+.registration-pass-card--selected {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2), 0 0 0 1px rgba(59, 130, 246, 0.3);
+}
+
+.registration-pass-card--selected::before {
+  opacity: 1;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(59, 130, 246, 0.1));
+}
+
+.registration-pass-card--popular {
+  border-color: #fbbf24;
+}
+
+.registration-pass-card--popular::before {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+}
+
+@media (hover: hover) {
+  .registration-pass-card--popular:hover {
+    box-shadow: 0 8px 24px rgba(251, 191, 36, 0.2), 0 0 0 1px rgba(251, 191, 36, 0.3);
+  }
+}
+
+.registration-pass-card__icon {
+  aspect-ratio: 756 / 200;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--_spacing---space--6);
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.8);
+  transition: color 0.35s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.registration-pass-card--selected .registration-pass-card__icon {
+  color: #fff;
+}
+
+.registration-pass-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_spacing---space--4);
+  padding: var(--_spacing---space--5);
+  flex: 1;
+  min-height: 0;
+  overflow: visible;
+}
+
+.registration-pass-content__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--_spacing---space--2);
+  margin-bottom: 0.25rem;
+}
+
+.registration-pass-content__title {
+  font-family: var(--_typography---font--display-family);
+  font-weight: 400;
+  font-size: 1.25rem;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  overflow: clip;
+  flex: 1;
+}
+
+.registration-pass-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #000;
+  font-family: var(--_typography---font--primary-family);
+  font-size: 0.625rem;
+  font-weight: var(--_typography---font--primary-bold, 700);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.registration-pass-content__description {
+  font-family: var(--_typography---font--primary-family);
+  opacity: 0.7;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0;
+  overflow: clip;
+  flex: 1;
+}
+
+.registration-pass-content__price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.registration-pass-content__price-amount {
+  font-family: var(--_typography---font--primary-family);
+  font-size: 2.25rem;
+  font-weight: var(--_typography---font--primary-bold, 700);
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.registration-pass-content__price-label {
+  font-size: 0.875rem;
+  opacity: 0.6;
+}
+
+.registration-pass-cta {
+  margin-top: var(--_spacing---space--4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.registration-pass-cta > div {
+  width: auto;
+  max-width: min(260px, 100%);
+}
+
+/* Team Section - Glassmorphism */
+.registration-team-section {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+}
+
+@media screen and (min-width: 992px) {
+  .registration-team-section {
+    padding: 2rem;
+  }
+}
+
+.registration-team-section__title {
+  font-weight: var(--_typography---font--primary-bold, 700);
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0 0 var(--_spacing---space--6);
+  display: flex;
+  align-items: center;
+  gap: var(--_spacing---space--2);
+}
+
+.registration-team-section__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_spacing---space--2);
+  margin-bottom: var(--_spacing---space--6);
+}
+
+.registration-team-section__label {
+  font-family: var(--_typography---font--primary-family);
+  font-size: 0.75rem;
+  font-weight: var(--_typography---font--primary-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.registration-team-section__input {
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-family: var(--_typography---font--primary-family);
+  font-size: 1rem;
+  transition: border-color 0.35s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.registration-team-section__input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.registration-team-section__input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.registration-team-section__members {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_spacing---space--4);
+  margin-bottom: var(--_spacing---space--6);
+}
+
+.registration-team-member {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: var(--_spacing---space--5);
+}
+
+.registration-team-member__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--_spacing---space--4);
+}
+
+.registration-team-member__title {
+  font-weight: var(--_typography---font--primary-semibold, 600);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: var(--_spacing---space--2);
+}
+
+.registration-team-member__badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.registration-team-member__remove {
+  background: none;
+  border: none;
+  color: rgba(239, 68, 68, 0.8);
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.35s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.registration-team-member__remove:hover {
+  color: #ef4444;
+}
+
+.registration-team-member__fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--_spacing---space--4);
+}
+
+@media screen and (min-width: 640px) {
+  .registration-team-member__fields {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.registration-team-member__input {
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-family: var(--_typography---font--primary-family);
+  font-size: 1rem;
+  transition: border-color 0.35s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.registration-team-member__input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.registration-team-member__input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.registration-team-section__add {
+  display: flex;
+  align-items: center;
+  gap: var(--_spacing---space--2);
+  background: none;
+  border: none;
+  color: rgba(168, 85, 247, 0.8);
+  font-family: var(--_typography---font--primary-family);
+  font-weight: var(--_typography---font--primary-medium, 500);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  transition: color 0.35s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.registration-team-section__add:hover {
+  color: #a78bfa;
+}
+
+/* Payment Section - Glassmorphism Checkout Summary */
+.registration-payment-section {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+@media screen and (min-width: 992px) {
+  .registration-payment-section {
+    padding: 2rem;
+  }
+}
+
+.registration-payment-section__title {
+  font-family: var(--_typography---font--display-family);
+  font-weight: 400;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0 0 1rem;
+  color: #fff;
+}
+
+.registration-payment-section__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  margin-bottom: 1.5rem;
+}
+
+.registration-payment-section__summary > div:first-child {
+  flex: 1;
+}
+
+.registration-payment-section__pass-name {
+  font-family: var(--_typography---font--primary-family);
+  font-weight: var(--_typography---font--primary-semibold, 600);
+  font-size: 1rem;
+  margin: 0 0 0.25rem;
+  color: #fff;
+}
+
+.registration-payment-section__pass-details {
+  font-family: var(--_typography---font--primary-family);
+  font-size: 0.875rem;
+  opacity: 0.7;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.registration-payment-section__amount {
+  font-family: var(--_typography---font--primary-family);
+  font-size: 2.5rem;
+  font-weight: var(--_typography---font--primary-bold, 700);
+  margin: 0;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.registration-payment-section__cta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+}
+
+.registration-payment-section__button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease;
+}
+
+.registration-payment-section__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.registration-payment-section__button:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+.registration-payment-section__security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--_spacing---space--2);
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
 }

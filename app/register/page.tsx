@@ -8,6 +8,9 @@ import { collection, addDoc } from 'firebase/firestore';
 import { auth, getDb } from '@/lib/firebase';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import RegistrationPassCard from '@/components/RegistrationPassCard';
+import { AwardBadge } from '@/components/AwardBadge';
+import { useLenis } from '@/hooks/useLenis';
 
 const passIcons: Record<string, React.ReactNode> = {
   day_pass: (
@@ -32,7 +35,15 @@ const passIcons: Record<string, React.ReactNode> = {
   ),
 };
 
+const passDescriptions: Record<string, string> = {
+  day_pass: 'Access to all technical and non-technical events for one day.',
+  group_events: 'Perfect for team competitions. Register your entire team.',
+  proshow: 'Access to Day 1 and Day 3 proshows with premium seating.',
+  sana_concert: 'All-access pass including SANA concert and all 3-day events.',
+};
+
 export default function RegisterPage() {
+  useLenis();
   const { user, userData, loading: authLoading, updateUserProfile, signOut, signIn } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState<'profile' | 'pass'>('profile');
@@ -178,22 +189,14 @@ export default function RegisterPage() {
     }
   };
 
-  const regPageBg = {
-    background: `
-      linear-gradient(135deg, rgba(0,0,0,0.97) 0%, rgba(23,23,23,0.98) 50%, rgba(0,0,0,0.97) 100%),
-      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
-    `,
-    backgroundSize: '100% 100%, 48px 48px, 48px 48px',
-    backgroundColor: '#000',
-  };
-
   if (authLoading) {
     return (
       <>
         <Navigation />
-        <main className="page_main min-h-[85vh] w-full flex items-center justify-center pb-24 sm:pb-28 md:pb-32" style={regPageBg}>
-          <div className="reg-spinner" />
+        <main className="page_main page_main--registration registration-loading">
+          <div className="registration-loading__spinner">
+            <div className="reg-spinner" />
+          </div>
         </main>
         <Footer />
       </>
@@ -204,15 +207,19 @@ export default function RegisterPage() {
     return (
       <>
         <Navigation />
-        <main className="page_main min-h-[60vh] flex flex-col items-center justify-center u-container py-16 px-5 pb-24 sm:pb-28 md:pb-32" style={regPageBg}>
-          <p className="text-white/80 mb-6 font-medium">Sign in to register for passes.</p>
-          <button
-            type="button"
-            onClick={() => signIn()}
-            className="rounded-lg border-2 border-white bg-transparent px-8 py-3 font-semibold text-white hover:bg-white hover:text-black transition-colors"
-          >
-            Sign in with Google
-          </button>
+        <main className="page_main page_main--registration min-h-[60vh] flex flex-col items-center justify-center u-container py-16 px-5 pb-24 sm:pb-28 md:pb-32">
+          <div className="eyebrow_wrap u-margin-bottom-4">
+            <div className="eyebrow_layout">
+              <div className="eyebrow_marker" aria-hidden />
+              <div className="eyebrow_text u-text-style-main">
+                SIGN IN REQUIRED
+              </div>
+            </div>
+          </div>
+          <p className="text-white/80 mb-6 font-medium text-center">Sign in to register for passes.</p>
+          <div className="w-full max-w-[260px]">
+            <AwardBadge onClick={() => signIn()}>SIGN IN WITH GOOGLE</AwardBadge>
+          </div>
         </main>
         <Footer />
       </>
@@ -223,80 +230,79 @@ export default function RegisterPage() {
     return (
       <>
         <Navigation />
-        <main
-          className="page_main min-h-[85vh] w-full flex flex-col items-center justify-center py-8 sm:py-10 lg:py-12 px-5 sm:px-6 lg:px-8 pb-24 sm:pb-28 md:pb-32"
-          style={regPageBg}
-        >
-          <div className="w-full max-w-[450px] mx-auto flex-shrink-0">
-            <div className="bg-neutral-900/95 border border-white/10 rounded-xl shadow-xl shadow-black/40 p-6 sm:p-8 md:p-10">
-              <div className="flex justify-center mb-6 sm:mb-8">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white/20 flex items-center justify-center bg-white/5">
-                  <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+        <main id="main" className="page_main page_main--registration">
+          <section className="registration-profile-hero u-section" aria-labelledby="profile-hero-title">
+            <div className="eyebrow_wrap u-margin-bottom-4">
+              <div className="eyebrow_layout">
+                <div className="eyebrow_marker" aria-hidden />
+                <div className="eyebrow_text u-text-style-main">
+                  PROFILE SETUP
                 </div>
               </div>
-              <h2
-                className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-white uppercase tracking-tight mb-2"
-                style={{ fontFamily: 'var(--_typography---font--display-family)' }}
-              >
-                Complete Your Profile
-              </h2>
-              <p className="text-center text-white/60 mb-6 sm:mb-8 text-sm sm:text-base font-sans">We need a few details to get you started</p>
+            </div>
+            <h1 id="profile-hero-title" className="registration-profile-hero__title">
+              COMPLETE YOUR PROFILE
+            </h1>
+            <p className="registration-profile-hero__subtext">
+              We need a few details to get you started
+            </p>
+          </section>
 
-              <form onSubmit={handleProfileSubmit} className="space-y-4 sm:space-y-5 md:space-y-6">
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-white/70 uppercase tracking-wider mb-2 font-sans">Full Name</label>
+          <div className="u-container">
+            <div className="registration-profile-form">
+              <form onSubmit={handleProfileSubmit} className="registration-profile-form__form">
+                <div className="registration-profile-form__field">
+                  <label className="registration-profile-form__label">Full Name</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="reg-input-dark min-h-[48px]"
+                    className="registration-profile-form__input"
                     placeholder="Enter your full name"
                     required
                   />
                 </div>
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-white/70 uppercase tracking-wider mb-2 font-sans">College Name</label>
+                <div className="registration-profile-form__field">
+                  <label className="registration-profile-form__label">College Name</label>
                   <input
                     type="text"
                     value={formData.college}
                     onChange={(e) => setFormData({ ...formData, college: e.target.value })}
-                    className="reg-input-dark min-h-[48px]"
+                    className="registration-profile-form__input"
                     placeholder="Enter your college name"
                     required
                   />
                 </div>
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-white/70 uppercase tracking-wider mb-2 font-sans">Phone Number</label>
+                <div className="registration-profile-form__field">
+                  <label className="registration-profile-form__label">Phone Number</label>
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="reg-input-dark min-h-[48px]"
+                    className="registration-profile-form__input"
                     placeholder="Enter your phone number"
                     required
                   />
                 </div>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full flex items-center justify-center gap-2 mt-6 sm:mt-8 min-h-[48px] sm:min-h-[52px] py-3.5 sm:py-4 rounded-lg font-semibold bg-neutral-800 text-white border border-white/20 shadow-lg hover:bg-neutral-700 hover:text-amber-200 hover:border-amber-500/40 transition-all duration-200 disabled:opacity-70 disabled:hover:bg-neutral-800 disabled:hover:text-white disabled:hover:border-white/20"
-                >
+                <div className="registration-profile-form__cta">
                   {isLoading ? (
-                    <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
+                    <div className="registration-profile-form__submit">
+                      <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
+                    </div>
                   ) : (
-                    <>
-                      Get Gate Pass
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </>
+                    <div className="w-full max-w-[260px]">
+                      <AwardBadge type="submit" disabled={isLoading}>CONTINUE</AwardBadge>
+                    </div>
                   )}
-                </button>
+                </div>
               </form>
             </div>
           </div>
+
+          <div
+            data-wf--spacer--section-space="main"
+            className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
+          />
         </main>
         <Footer />
       </>
@@ -306,208 +312,171 @@ export default function RegisterPage() {
   return (
     <>
       <Navigation />
-      <main className="page_main min-h-[85vh] w-full pb-24 sm:pb-28 md:pb-32" style={regPageBg}>
-        <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-sm">
-          <div className="u-container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-            <h1 className="text-lg font-bold text-white" style={{ fontFamily: 'var(--_typography---font--display-family)' }}>
-              CIT Takshashila 2026
-            </h1>
-            <div className="flex items-center gap-4">
-              <span className="text-white/70 text-sm hidden sm:block truncate max-w-[120px] sm:max-w-none">{userData?.name}</span>
-              <button
-                type="button"
-                onClick={() => router.push('/register/my-pass')}
-                className="text-white/90 hover:text-white font-medium text-sm transition-colors"
-              >
-                My Pass
-              </button>
-              <button type="button" onClick={signOut} className="text-white/60 hover:text-white p-1" aria-label="Sign out">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              </button>
-            </div>
+      <main id="main" className="page_main page_main--registration">
+        <div className="u-container registration-selector-layout">
+          <div className="registration-selector-layout__left">
+            <fieldset className="registration-pass-options">
+              <legend className="registration-pass-options__legend">Choose your pass</legend>
+              <div className="registration-pass-options__list">
+                {Object.entries(PASS_TYPES).map(([key, pass]) => (
+                  <label key={key} className="registration-pass-option">
+                    <input
+                      type="radio"
+                      name="passType"
+                      value={pass.id}
+                      checked={selectedPass === pass.id}
+                      onChange={() => setSelectedPass(pass.id)}
+                      className="registration-pass-option__input"
+                    />
+                    <RegistrationPassCard
+                      id={pass.id}
+                      name={pass.name}
+                      description={passDescriptions[pass.id] || 'Access to events and activities.'}
+                      price={pass.id === 'group_events' ? (PASS_TYPES.GROUP_EVENTS.pricePerPerson ?? 250) : ((pass as { price?: number }).price ?? 0)}
+                      priceLabel={pass.id === 'group_events' ? 'per person' : undefined}
+                      icon={passIcons[pass.id] ?? passIcons.day_pass}
+                      isSelected={selectedPass === pass.id}
+                      variant="radio"
+                      isMostPopular={pass.id === 'sana_concert'}
+                    />
+                  </label>
+                ))}
+              </div>
+            </fieldset>
           </div>
-        </header>
 
-        <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 flex flex-col items-center">
-          <div className="reg-card-dark rounded-2xl border border-white/10 w-full p-5 sm:p-8 md:p-10">
-            <div className="text-center mb-8 sm:mb-10">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white uppercase tracking-tight mb-2" style={{ fontFamily: 'var(--_typography---font--display-family)' }}>
-                Choose your pass
-              </h2>
-              <p className="text-white/60 text-sm sm:text-base">Select the events you want to register for</p>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-10">
-              {Object.entries(PASS_TYPES).map(([key, pass]) => (
-                <div
-                  key={key}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setSelectedPass(pass.id)}
-                  onKeyDown={(e) => e.key === 'Enter' && setSelectedPass(pass.id)}
-                  className={`reg-pass-card-dark p-4 sm:p-5 md:p-6 ${selectedPass === pass.id ? 'reg-pass-card-dark--selected' : ''}`}
-                >
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    <div
-                      className={`p-2.5 sm:p-3 rounded-xl shrink-0 ${selectedPass === pass.id ? 'bg-[#7c3aed] text-white' : 'bg-white/10 text-white/80'
-                        }`}
-                    >
-                      {passIcons[pass.id] ?? passIcons.day_pass}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base sm:text-lg font-semibold text-white">{pass.name}</h3>
-                      <div className="mt-1.5 sm:mt-2">
-                        <span className="text-xl sm:text-2xl font-bold text-white">
-                          ₹{pass.id === 'group_events' ? PASS_TYPES.GROUP_EVENTS.pricePerPerson : (pass as { price?: number }).price}
-                        </span>
-                        {pass.id === 'group_events' && (
-                          <span className="text-white/60 text-sm ml-1">per person</span>
-                        )}
-                      </div>
-                    </div>
-                    <div
-                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selectedPass === pass.id ? 'border-[#7c3aed] bg-[#7c3aed]' : 'border-white/30'
-                        }`}
-                    >
-                      {selectedPass === pass.id && (
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </div>
+          <div className="registration-selector-layout__right registration-right-panel">
+            <div className="registration-right-panel__scroll">
+              {!selectedPass && (
+                <div className="registration-details-placeholder">
+                  <p>Select a pass to see details and proceed to payment</p>
+                </div>
+              )}
+              {selectedPass === 'group_events' && (
+                <div className="registration-team-section">
+                  <h3 className="registration-team-section__title">Team Details</h3>
+                  <div className="registration-team-section__field">
+                    <label className="registration-team-section__label">Team Name</label>
+                    <input
+                      type="text"
+                      value={teamData.teamName}
+                      onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
+                      className="registration-team-section__input"
+                      placeholder="Enter your team name"
+                      required
+                    />
                   </div>
+                  <div className="registration-team-section__members">
+                    {teamData.members.map((member, idx) => (
+                      <div key={idx} className="registration-team-member">
+                        <div className="registration-team-member__header">
+                          <h4 className="registration-team-member__title">
+                            Member {idx + 1}
+                            {idx === 0 && <span className="registration-team-member__badge">You (Leader)</span>}
+                          </h4>
+                          {idx > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => removeMember(idx)}
+                              className="registration-team-member__remove"
+                              aria-label="Remove member"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                        <div className="registration-team-member__fields">
+                          <input
+                            type="text"
+                            placeholder="Member name"
+                            value={member.name}
+                            onChange={(e) => {
+                              const newMembers = [...teamData.members];
+                              newMembers[idx]!.name = e.target.value;
+                              setTeamData({ ...teamData, members: newMembers });
+                            }}
+                            className="registration-team-member__input"
+                            required
+                          />
+                          <input
+                            type="tel"
+                            placeholder="Phone number"
+                            value={member.phone}
+                            onChange={(e) => {
+                              const newMembers = [...teamData.members];
+                              newMembers[idx]!.phone = e.target.value;
+                              setTeamData({ ...teamData, members: newMembers });
+                            }}
+                            className="registration-team-member__input"
+                            required
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {teamData.members.length < 6 && (
+                    <button
+                      type="button"
+                      onClick={() => setTeamData({ ...teamData, members: [...teamData.members, { name: '', phone: '' }] })}
+                      className="registration-team-section__add"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Add Team Member ({teamData.members.length}/6)
+                    </button>
+                  )}
                 </div>
-              ))}
+              )}
             </div>
 
-            {selectedPass === 'group_events' && (
-              <div className="rounded-xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 border border-white/10 bg-white/[0.03]">
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-2">
-                  <svg className="w-6 h-6 text-[#a78bfa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  Team Details
-                </h3>
-                <div className="mb-6">
-                  <label className="block text-xs font-medium text-white/70 uppercase tracking-wider mb-2">Team Name</label>
-                  <input
-                    type="text"
-                    value={teamData.teamName}
-                    onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
-                    className="reg-input-dark"
-                    placeholder="Enter your team name"
-                    required
-                  />
-                </div>
-                <div className="space-y-3 sm:space-y-4">
-                  {teamData.members.map((member, idx) => (
-                    <div key={idx} className="reg-member-card-dark rounded-xl p-4 sm:p-5 border border-white/10">
-                      <div className="flex items-center justify-between mb-4">
-                        <h4 className="font-semibold text-white">
-                          Member {idx + 1}
-                          {idx === 0 && <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">You (Leader)</span>}
-                        </h4>
-                        {idx > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => removeMember(idx)}
-                            className="text-red-400 hover:text-red-300 p-1 transition-colors"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        )}
-                      </div>
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <input
-                          type="text"
-                          placeholder="Member name"
-                          value={member.name}
-                          onChange={(e) => {
-                            const newMembers = [...teamData.members];
-                            newMembers[idx]!.name = e.target.value;
-                            setTeamData({ ...teamData, members: newMembers });
-                          }}
-                          className="reg-input-dark"
-                          required
-                        />
-                        <input
-                          type="tel"
-                          placeholder="Phone number"
-                          value={member.phone}
-                          onChange={(e) => {
-                            const newMembers = [...teamData.members];
-                            newMembers[idx]!.phone = e.target.value;
-                            setTeamData({ ...teamData, members: newMembers });
-                          }}
-                          className="reg-input-dark"
-                          required
-                        />
-                      </div>
+            <footer className="registration-right-panel__footer">
+              <div className="registration-right-panel__summary">
+                {selectedPass ? (
+                  <>
+                    <div className="registration-right-panel__summary-line">
+                      <span className="registration-right-panel__pass-name">
+                        {Object.values(PASS_TYPES).find((p) => p.id === selectedPass)?.name}
+                      </span>
+                      <span className="registration-right-panel__amount">₹{calculateAmount()}</span>
                     </div>
-                  ))}
-                </div>
-                {teamData.members.length < 6 && (
-                  <button
-                    type="button"
-                    onClick={() => setTeamData({ ...teamData, members: [...teamData.members, { name: '', phone: '' }] })}
-                    className="mt-4 flex items-center gap-2 text-[#a78bfa] hover:text-[#c4b5fd] font-medium transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    Add Team Member ({teamData.members.length}/6)
-                  </button>
+                    {selectedPass === 'group_events' && (
+                      <p className="registration-right-panel__pass-details">{teamData.members.length} members × ₹250</p>
+                    )}
+                  </>
+                ) : (
+                  <p className="registration-right-panel__empty">Select a pass</p>
                 )}
               </div>
-            )}
-
-            {selectedPass && (
-              <div className="rounded-xl p-4 sm:p-6 md:p-8 border border-white/10 bg-white/[0.03]">
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Payment Summary</h3>
-                <div className="flex items-center justify-between py-4 border-b border-white/10">
-                  <div>
-                    <p className="font-medium text-white">
-                      {Object.values(PASS_TYPES).find((p) => p.id === selectedPass)?.name}
-                    </p>
-                    {selectedPass === 'group_events' && (
-                      <p className="text-sm text-white/60">{teamData.members.length} members × ₹250</p>
-                    )}
-                  </div>
-                  <p className="text-2xl font-bold text-white">
-                    ₹{calculateAmount()}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handlePayment}
-                  disabled={isLoading}
-                  className="reg-btn-cta w-full mt-6 flex items-center justify-center gap-2 py-4 rounded-lg font-semibold text-white"
-                >
-                  {isLoading ? (
+              <div className="registration-right-panel__cta">
+                {isLoading ? (
+                  <div className="registration-right-panel__spinner">
                     <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
-                  ) : (
-                    <>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                      Proceed to Secure Payment
-                    </>
-                  )}
-                </button>
-                <p className="text-center text-white/50 text-sm mt-4 flex items-center justify-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                  Secured by Cashfree
-                </p>
+                  </div>
+                ) : (
+                  <div className="registration-right-panel__btn-wrap">
+                    <AwardBadge type="button" onClick={handlePayment} disabled={!selectedPass}>
+                      PROCEED TO PAYMENT
+                    </AwardBadge>
+                  </div>
+                )}
               </div>
-            )}
+              <p className="registration-right-panel__security">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                Secured by Cashfree
+              </p>
+            </footer>
           </div>
         </div>
+
+        <div
+          data-wf--spacer--section-space="main"
+          className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
+        />
       </main>
       <Footer />
     </>

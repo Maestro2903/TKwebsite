@@ -65,10 +65,10 @@ function ShowCard({ show, day, alternate = false, imageUrl }: ShowCardProps) {
             className="button_main_wrap show-card-proshows__btn"
           >
             <div className="clickable_wrap u-cover-absolute">
-              <span className="clickable_text u-sr-only">[ Buy Now ]</span>
+              <span className="clickable_text u-sr-only">[ Register ]</span>
             </div>
             <span aria-hidden className="button_main_text u-text-style-main">
-              BUY NOW
+              REGISTER
             </span>
             <span className="button_bg" aria-hidden />
           </a>
