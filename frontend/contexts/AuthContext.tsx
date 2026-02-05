@@ -9,7 +9,7 @@ import {
   useState,
 } from 'react';
 import type { User } from 'firebase/auth';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, getRedirectResult } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db, getAuthSafe } from '@/lib/firebase';
 import { signInWithGoogle, signOut as authSignOut } from '@/lib/auth';
@@ -37,6 +37,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       return;
     }
+
+    // Handle redirect result from Google sign-in
+    getRedirectResult(authInstance).catch((error) => {
+      // Silently handle redirect errors (user may have just loaded page normally)
+      console.error('Redirect result error:', error);
+    });
+
     const unsubscribe = onAuthStateChanged(authInstance, async (u) => {
       setUser(u);
       if (u) {

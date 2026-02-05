@@ -138,18 +138,30 @@ export default function SanaArenaPage() {
         }
     };
 
-    const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    const seekToPosition = (clientX: number, target: HTMLDivElement) => {
         const audio = playerAudioRef.current;
         if (!audio || !duration) return;
-        
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
+        const rect = target.getBoundingClientRect();
+        const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
         const percentage = x / rect.width;
         const newTime = percentage * duration;
-        
         audio.currentTime = newTime;
         setCurrentTime(newTime);
     };
+
+    const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+        seekToPosition(e.clientX, e.currentTarget);
+    };
+
+    const handleSeekTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+        const touch = e.changedTouches[0];
+        if (touch) seekToPosition(touch.clientX, e.currentTarget);
+    };
+    const handleSeekTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+        const touch = e.changedTouches[0];
+        if (touch) seekToPosition(touch.clientX, e.currentTarget);
+    };
+    const handleSeekTouchEnd = () => {};
 
     const formatTime = (seconds: number): string => {
         if (isNaN(seconds)) return '0:00';
@@ -164,11 +176,11 @@ export default function SanaArenaPage() {
 
             <main id="main" className="page_main">
                 <section
-                    className="relative w-full flex items-center justify-center overflow-hidden"
+                    className="relative w-full flex items-center justify-center overflow-hidden sana-hero"
                     style={{
                         marginTop: 'var(--nav-height, 64px)',
-                        height: 'calc(100vh - var(--nav-height, 64px))',
-                        minHeight: '600px',
+                        height: 'calc(100dvh - var(--nav-height, 64px))',
+                        minHeight: 'min(400px, calc(100dvh - var(--nav-height, 64px)))',
                     }}
                 >
                     {/* Background Image */}
@@ -185,17 +197,18 @@ export default function SanaArenaPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="relative z-10 text-center u-container flex flex-col items-center justify-center text-white pt-20">
-                        <div className="mt-12">
+                    <div className="relative z-10 text-center u-container flex flex-col items-center justify-center text-white px-4 pt-8 pb-24 md:pt-20 md:pb-20">
+                        <div className="mt-4 md:mt-12">
                             {/* Additional content or CTA can go here */}
                         </div>
                     </div>
 
-                    {/* Music Play/Pause Button - floating bottom-right */}
+                    {/* Music Play/Pause Button - floating bottom-right, above sticky CTA on mobile */}
                     <button
                         type="button"
                         onClick={toggleHeroPlay}
-                        className="fixed bottom-24 right-6 md:bottom-8 md:right-8 z-50 w-14 h-14 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all hover:scale-105"
+                        className="fixed bottom-20 right-4 left-[auto] md:bottom-8 md:right-8 z-50 w-12 h-12 min-w-[48px] min-h-[48px] sm:w-14 sm:h-14 rounded-full bg-white/20 hover:bg-white/30 active:scale-95 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all hover:scale-105 touch-manipulation"
+                        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}
                         aria-label={isHeroPlaying ? 'Pause music' : 'Play music'}
                     >
                         {isHeroPlaying ? (
@@ -210,12 +223,12 @@ export default function SanaArenaPage() {
                     </button>
                 </section>
 
-                {/* Music Player Section */}
-                <section className="relative w-full py-20 bg-black">
-                    <div className="u-container">
-                        <div className="grid md:grid-cols-2 gap-12 items-center">
-                            {/* Cover Image */}
-                            <div className="relative aspect-square rounded-lg overflow-hidden">
+                {/* Music Player Section - extra bottom padding on mobile for sticky CTA */}
+                <section className="relative w-full py-10 sm:py-14 md:py-20 pb-24 md:pb-20 bg-black">
+                    <div className="u-container px-4 sm:px-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
+                            {/* Cover Image - smaller on mobile */}
+                            <div className="relative aspect-square max-w-[280px] w-full mx-auto md:max-w-none md:mx-0 rounded-lg overflow-hidden">
                                 <img
                                     src="/assets/images/sana-music-cover.webp"
                                     alt="Sana Music Cover"
@@ -237,16 +250,16 @@ export default function SanaArenaPage() {
                             </div>
 
                             {/* Track List & Player */}
-                            <div className="space-y-6">
-                                <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">Sana's Music</h2>
+                            <div className="space-y-4 sm:space-y-6 min-w-0">
+                                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-8">Sana's Music</h2>
                                 
                                 {/* Current Track Info */}
                                 {currentTrackIndex !== null && currentTrackIndex < TRACKS.length && (
-                                    <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 border border-white/10">
-                                        <div className="flex items-center gap-4 mb-4">
+                                    <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-white/10">
+                                        <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                                             <button
                                                 onClick={togglePlayerPlay}
-                                                className="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all hover:scale-105 flex-shrink-0"
+                                                className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-full bg-white/20 hover:bg-white/30 active:scale-95 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all hover:scale-105 flex-shrink-0 touch-manipulation"
                                                 aria-label={isPlayerPlaying ? 'Pause' : 'Play'}
                                             >
                                                 {isPlayerPlaying ? (
@@ -271,16 +284,21 @@ export default function SanaArenaPage() {
                                             </div>
                                         </div>
                                         
-                                        {/* Progress Bar */}
+                                        {/* Progress Bar - touch-friendly min height */}
                                         <div className="space-y-2">
                                             <div
                                                 onClick={handleSeek}
-                                                className="w-full h-1.5 bg-white/10 rounded-full cursor-pointer relative group"
+                                                onTouchStart={handleSeekTouchStart}
+                                                onTouchMove={handleSeekTouchMove}
+                                                onTouchEnd={handleSeekTouchEnd}
+                                                className="w-full min-h-[28px] flex items-center cursor-pointer relative group -my-1 py-1"
                                             >
-                                                <div
-                                                    className="h-full bg-white/80 rounded-full transition-all"
-                                                    style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }}
-                                                />
+                                                <div className="w-full h-1.5 bg-white/10 rounded-full pointer-events-none">
+                                                    <div
+                                                        className="h-full bg-white/80 rounded-full transition-all"
+                                                        style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }}
+                                                    />
+                                                </div>
                                             </div>
                                             <div className="flex justify-between text-xs text-white/60">
                                                 <span>{formatTime(currentTime)}</span>
@@ -297,14 +315,14 @@ export default function SanaArenaPage() {
                                             <button
                                                 key={track.id}
                                                 onClick={() => handleTrackSelect(index)}
-                                                className={`w-full text-left p-4 rounded-lg transition-all ${
+                                                className={`w-full text-left p-3 sm:p-4 rounded-lg transition-all touch-manipulation min-h-[48px] active:scale-[0.99] ${
                                                     currentTrackIndex === index
                                                         ? 'bg-white/10 border border-white/20'
                                                         : 'bg-white/5 hover:bg-white/10 border border-transparent'
                                                 }`}
                                             >
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded bg-white/10 flex items-center justify-center flex-shrink-0">
+                                                <div className="flex items-center gap-3 sm:gap-4">
+                                                    <div className="w-10 h-10 min-w-[40px] min-h-[40px] rounded bg-white/10 flex items-center justify-center flex-shrink-0">
                                                         {currentTrackIndex === index && isPlayerPlaying ? (
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                                                 <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
@@ -326,7 +344,7 @@ export default function SanaArenaPage() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="bg-white/5 backdrop-blur-sm rounded-lg p-8 border border-white/10 text-center">
+                                    <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 sm:p-8 border border-white/10 text-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" className="mx-auto mb-4 text-white/40">
                                             <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
                                         </svg>

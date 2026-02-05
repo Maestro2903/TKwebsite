@@ -5949,322 +5949,569 @@ html {
   color: #fff;
 }
 
-/* Event Card-Inspired Pass Cards */
+/* =================================================================
+   TICKET-STYLE PASS CARDS
+   Inspired by event ticket design with price on left, content on right
+   ================================================================= */
+
+/* Grid Layout for Ticket Cards + Order Summary */
 .registration-passes-v2 {
-  padding: var(--_spacing---section-space--main) 0;
+  padding: 48px 0 32px;
 }
 
 .registration-passes-v2__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--site--gutter);
+  gap: 16px;
   align-items: stretch;
 }
 
-@media screen and (min-width: 600px) {
+@media screen and (min-width: 640px) {
   .registration-passes-v2__grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 }
 
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1024px) {
   .registration-passes-v2__grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* Mobile: horizontal scroll for pass cards */
-@media screen and (max-width: 767px) {
+@media screen and (min-width: 1280px) {
   .registration-passes-v2__grid {
-    display: flex;
-    overflow-x: auto;
-    gap: 1rem;
-    scroll-snap-type: x mandatory;
-    scroll-padding: var(--site--gutter);
-    padding-bottom: 0.5rem;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .registration-passes-v2__grid .pass-card-v2-option {
-    flex: 0 0 min(85%, 320px);
-    scroll-snap-align: start;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
   }
 }
 
-/* Pass Card - Glassy elevated panel (200–300ms transitions) */
+/* Ticket Card - Main Container */
+.ticket-card {
+  display: flex;
+  background: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  min-height: 160px;
+}
+
+/* Left Side - Price Section */
+.ticket-card__left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  min-width: 100px;
+  background: #f8f8f8;
+  position: relative;
+  border-right: 3px dashed #ddd;
+}
+
+@media screen and (min-width: 768px) {
+  .ticket-card__left {
+    padding: 32px 28px;
+    min-width: 120px;
+  }
+}
+
+/* Ticket Cutouts - Circle effect */
+.ticket-card__cutout {
+  position: absolute;
+  right: -15px;
+  width: 28px;
+  height: 28px;
+  background: #000;
+  border-radius: 50%;
+}
+
+.ticket-card__cutout--top {
+  top: -14px;
+}
+
+.ticket-card__cutout--bottom {
+  bottom: -14px;
+}
+
+/* Price Display */
+.ticket-card__price {
+  display: flex;
+  align-items: flex-start;
+  color: #111;
+  line-height: 1;
+}
+
+.ticket-card__price-currency {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 4px;
+  margin-right: 2px;
+}
+
+.ticket-card__price-amount {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+@media screen and (min-width: 768px) {
+  .ticket-card__price-amount {
+    font-size: 48px;
+  }
+}
+
+.ticket-card__price-label {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* Right Side - Content Section */
+.ticket-card__right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px;
+  position: relative;
+}
+
+@media screen and (min-width: 768px) {
+  .ticket-card__right {
+    padding: 24px 28px;
+  }
+}
+
+/* Badge for Popular/Best Value */
+.ticket-card__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, #d4af37 0%, #b8960e 100%);
+  color: #000;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 6px 12px;
+}
+
+/* Pass Name */
+.ticket-card__name {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+  line-height: 1.3;
+  padding-right: 80px;
+}
+
+@media screen and (min-width: 768px) {
+  .ticket-card__name {
+    font-size: 16px;
+  }
+}
+
+/* Description */
+.ticket-card__description {
+  display: block;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #666;
+  flex: 1;
+  margin-bottom: 12px;
+}
+
+/* Action Button */
+.ticket-card__action {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+}
+
+.ticket-card__select-btn {
+  display: inline-block;
+  padding: 8px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: #777;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.ticket-card__select-btn--active {
+  background: #3D71E9;
+}
+
+/* Selected State */
+.ticket-card--selected {
+  box-shadow: 0 0 0 3px #3D71E9;
+}
+
+.ticket-card--selected .ticket-card__left {
+  background: #f0f4ff;
+  border-right-color: #3D71E9;
+}
+
+/* Popular/Best Value State */
+.ticket-card--popular {
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+}
+
+.ticket-card--popular .ticket-card__left {
+  background: linear-gradient(180deg, #fffdf5 0%, #fff9e6 100%);
+}
+
+.ticket-card--popular.ticket-card--selected {
+  box-shadow: 0 0 0 3px #d4af37;
+}
+
+.ticket-card--popular.ticket-card--selected .ticket-card__left {
+  border-right-color: #d4af37;
+}
+
+/* Ticket Card Option (label wrapper) */
+.ticket-card-option {
+  display: block;
+  cursor: pointer;
+}
+
+.ticket-card-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* =================================================================
+   ORDER SUMMARY CARD - Matches ticket style, in same grid
+   ================================================================= */
+
+.order-summary-card {
+  background: #fff;
+  padding: 24px;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+}
+
+.order-summary-card__title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #111;
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.order-summary-card__empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.order-summary-card__empty-icon {
+  color: #ccc;
+  margin-bottom: 12px;
+}
+
+.order-summary-card__empty-icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.order-summary-card__empty-text {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+}
+
+.order-summary-card__selected {
+  margin-bottom: 16px;
+}
+
+.order-summary-card__pass-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 4px;
+}
+
+.order-summary-card__pass-details {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.order-summary-card__total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 16px;
+}
+
+.order-summary-card__total-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #666;
+}
+
+.order-summary-card__total-amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111;
+}
+
+.order-summary-card__cta {
+  margin-bottom: 12px;
+}
+
+.order-summary-card__cta-btn-wrap {
+  width: 100%;
+}
+
+.order-summary-card__security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #888;
+  margin: 0;
+}
+
+.order-summary-card__security svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* =================================================================
+   UPDATED GRID - 5 columns for passes + order summary
+   =================================================================
+   PASS CARDS V3 - Static, Clean, Even Padding (Legacy, keeping for reference)
+   ================================================================== */
+
+/* Pass Card - Static elevated panel with consistent spacing */
 .pass-card-v2 {
-  --pass-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.08) 100%);
-  overflow: visible;
+  background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
-  transition: transform 0.25s var(--pass-ease), box-shadow 0.25s var(--pass-ease), border-color 0.25s var(--pass-ease), background 0.25s var(--pass-ease);
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pass-card-v2 {
-    transition-duration: 0.01ms;
-  }
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
 .pass-card-v2::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border: 2px solid transparent;
-  pointer-events: none;
-  transition: border-color 0.25s var(--pass-ease);
+  display: none;
 }
 
-.pass-card-v2:hover {
-  transform: scale(1.02);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 24px rgba(243, 227, 172, 0.06);
-}
-
+/* Selected State - Gold border accent */
 .pass-card-v2--selected {
-  border-color: rgba(212, 175, 55, 0.6);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.1) 100%);
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.4), inset 0 0 40px rgba(243, 227, 172, 0.06);
+  border-color: rgba(212, 175, 55, 0.7);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.pass-card-v2--selected::before {
-  border-color: rgba(212, 175, 55, 0.35);
-}
-
-/* Most Popular: slightly larger, stronger contrast */
+/* Most Popular - Subtle gold accent */
 .pass-card-v2-option[data-most-popular] .pass-card-v2 {
-  transform: scale(1.03);
+  border-color: rgba(212, 175, 55, 0.3);
 }
 
-.pass-card-v2-option[data-most-popular] .pass-card-v2:hover {
-  transform: scale(1.05);
+.pass-card-v2-option[data-most-popular] .pass-card-v2--selected {
+  border-color: rgba(212, 175, 55, 0.8);
 }
 
-.pass-card-v2-option[data-most-popular] .pass-card-v2 {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.1) 100%);
-}
-
-/* Pass Card Visual Header */
+/* Pass Card Visual Header - Cleaner icon area */
 .pass-card-v2__visual {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   width: 100%;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(17, 17, 17, 0.95) 50%, rgba(243, 227, 172, 0.05) 100%);
-}
-
-.pass-card-v2__visual-icon {
-  position: absolute;
-  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0.2) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.12);
-  transition: transform 0.25s var(--pass-ease), color 0.25s var(--pass-ease);
+}
+
+.pass-card-v2__visual-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.25);
 }
 
 .pass-card-v2__visual-icon svg {
-  width: 5rem;
-  height: 5rem;
+  width: 3.5rem;
+  height: 3.5rem;
 }
 
 @media screen and (min-width: 768px) {
   .pass-card-v2__visual-icon svg {
-    width: 6rem;
-    height: 6rem;
+    width: 4rem;
+    height: 4rem;
   }
 }
 
-.pass-card-v2:hover .pass-card-v2__visual-icon {
-  color: rgba(243, 227, 172, 0.4);
-}
-
+/* Selected state - brighter icon */
 .pass-card-v2--selected .pass-card-v2__visual-icon {
-  color: rgba(243, 227, 172, 0.55);
+  color: rgba(243, 227, 172, 0.6);
 }
 
-/* Popular Badge - gold pill */
+/* Popular Badge - Compact gold label */
 .pass-card-v2__badge {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  background: linear-gradient(135deg, #d4af37 0%, #c9a227 50%, #b8960e 100%);
-  color: #1a1a1a;
-  font-size: 0.625rem;
+  top: 16px;
+  right: 16px;
+  background: linear-gradient(135deg, #d4af37 0%, #b8960e 100%);
+  color: #000;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.4rem 0.85rem;
+  letter-spacing: 0.08em;
+  padding: 6px 10px;
   z-index: 2;
   border-radius: 2px;
 }
 
-/* Pass Card Content - Like Event Card Content */
+/* Pass Card Content - Even 24px padding */
 .pass-card-v2__content {
   display: flex;
   flex-direction: column;
-  gap: var(--_spacing---space--3);
-  padding: var(--_spacing---space--5);
+  gap: 12px;
+  padding: 24px;
   flex: 1;
   min-height: 0;
-  overflow: visible;
 }
 
 .pass-card-v2__title {
-  font-family: var(--_typography---font--display-family);
-  font-weight: var(--_typography---font--primary-bold, 700);
-  font-size: 1rem;
+  font-family: var(--_typography---font--primary-family);
+  font-weight: 600;
+  font-size: 14px;
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   color: #fff;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 @media screen and (min-width: 768px) {
   .pass-card-v2__title {
-    font-size: 1.125rem;
+    font-size: 15px;
   }
 }
 
 .pass-card-v2__description {
-  opacity: 0.6;
-  font-size: 0.8125rem;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.6;
   margin: 0;
-  color: #fff;
+  color: rgba(255, 255, 255, 0.55);
   flex: 1;
+  min-height: 48px;
 }
 
 .pass-card-v2__price {
   margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: baseline;
-  gap: 0.25rem;
+  gap: 4px;
 }
 
 .pass-card-v2__price-currency {
   font-family: var(--_typography---font--primary-family);
-  font-size: 1rem;
-  font-weight: var(--_typography---font--primary-semibold, 600);
-  color: rgba(255, 255, 255, 0.7);
-  margin-right: 0.125rem;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .pass-card-v2__price-amount {
   font-family: var(--_typography---font--primary-family);
-  font-size: 1.75rem;
-  font-weight: var(--_typography---font--primary-bold, 700);
+  font-size: 28px;
+  font-weight: 700;
   color: #fff;
   letter-spacing: -0.02em;
 }
 
 @media screen and (min-width: 768px) {
   .pass-card-v2__price-amount {
-    font-size: 2rem;
+    font-size: 32px;
   }
 }
 
 .pass-card-v2__price-label {
-  font-size: 0.75rem;
-  opacity: 0.5;
-  color: #fff;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-left: 2px;
 }
 
-/* Pass Card CTA - Gold Badge Style */
+/* Pass Card CTA - not used in radio mode */
 .pass-card-v2__cta {
-  margin-top: var(--_spacing---space--4);
+  margin-top: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Selection Indicator */
+/* Selection Indicator - Clean radio circle */
 .pass-card-v2__selector {
   position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  top: 16px;
+  left: 16px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.4s cubic-bezier(0.625, 0.05, 0, 1);
   z-index: 2;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .pass-card-v2__selector-dot {
-  width: 0.625rem;
-  height: 0.625rem;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f3e3ac 0%, #f1cfa6 100%);
-  transform: scale(0);
-  transition: transform 0.4s cubic-bezier(0.625, 0.05, 0, 1);
+  background: linear-gradient(135deg, #f3e3ac 0%, #d4af37 100%);
+  opacity: 0;
 }
 
 .pass-card-v2--selected .pass-card-v2__selector {
-  border-color: rgba(243, 227, 172, 0.6);
-  background: rgba(243, 227, 172, 0.1);
+  border-color: rgba(212, 175, 55, 0.8);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .pass-card-v2--selected .pass-card-v2__selector-dot {
-  transform: scale(1);
+  opacity: 1;
 }
 
-/* Registration Layout V2 - Two Column on Desktop */
+/* Registration Layout V2 - Simple container */
 .registration-layout-v2 {
   display: flex;
   flex-direction: column;
-  gap: var(--_spacing---space--6);
-  padding-bottom: var(--_spacing---section-space--main);
-}
-
-@media screen and (min-width: 992px) {
-  .registration-layout-v2 {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 2rem;
-    align-items: start;
-  }
-}
-
-/* Mobile: bottom sticky order summary + content padding */
-@media screen and (max-width: 991px) {
-  .registration-layout-v2 {
-    padding-bottom: 12rem;
-  }
-}
-
-@media screen and (max-width: 767px) {
-  .registration-checkout-v2 {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    top: auto;
-    z-index: 100;
-    margin: 0;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
-    padding: 1rem var(--site--gutter);
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
-  }
-
-  .registration-layout-v2 {
-    padding-bottom: 14rem;
-  }
+  gap: 32px;
+  padding-bottom: 80px;
 }
 
 /* Right Panel - Checkout terminal (strong separation, sticky desktop) */
@@ -7111,4 +7358,33 @@ html {
       transparent 100%);
   z-index: 1;
   pointer-events: none;
+}
+
+/* Auth Footer - Register/Login links */
+.auth-footer {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.auth-footer-text {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+.auth-footer-link {
+  color: rgba(243, 227, 172, 0.9);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  background: none;
+  background-color: transparent;
+  box-shadow: none;
+  padding: 0;
+  border: none;
+}
+
+.auth-footer-link:hover {
+  color: rgba(243, 227, 172, 1);
 }

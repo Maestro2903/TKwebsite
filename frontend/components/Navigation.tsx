@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Navigation() {
-    const { user, signIn, signOut, loading } = useAuth();
-    const router = useRouter();
+    const { user, signOut, loading } = useAuth();
     const [isScrolled, setIsScrolled] = useState(false);
     const [scrollingDirection, setScrollingDirection] = useState<'up' | 'down'>('up');
     const [lastScrollY, setLastScrollY] = useState(0);
@@ -104,13 +103,12 @@ export default function Navigation() {
         <>
             {/* Main Navigation Bar */}
             <div
-                className={`nav_wrap${
-                    pathname?.startsWith('/sana-arena')
-                        ? ' nav_wrap--sana-arena'
-                        : pathname !== '/' && pathname !== '/proshows'
-                          ? ' nav_wrap--solid'
-                          : ''
-                }`}
+                className={`nav_wrap${pathname?.startsWith('/sana-arena')
+                    ? ' nav_wrap--sana-arena'
+                    : pathname !== '/' && pathname !== '/proshows'
+                        ? ' nav_wrap--solid'
+                        : ''
+                    }`}
                 data-scrolling-started={scrollingStarted ? 'true' : 'false'}
                 data-scrolling-top={scrollingTop ? 'true' : 'false'}
                 data-scrolling-direction={scrollingDirection}
@@ -149,19 +147,10 @@ export default function Navigation() {
                             </ul>
 
                             <div className="nav_desktop_right_btns">
-                                {/* Desktop: Auth: Sign in / My Pass + Sign out */}
+                                {/* Desktop: Auth: My Pass + Sign out when logged in */}
                                 <div className="nav-auth-status-desktop">
-                                    {!loading && !user && (
-                                        <div className="nav-auth-status">
-                                            <span className="nav-auth-status-text">Not signed in</span>
-                                            <button type="button" onClick={signIn} className="nav-auth-btn">
-                                                Sign in
-                                            </button>
-                                        </div>
-                                    )}
                                     {!loading && user && (
                                         <div className="nav-auth-status">
-                                            <span className="nav-auth-status-text">Signed in</span>
                                             <div className="flex items-center gap-2">
                                                 <Link href="/register/my-pass" className="nav-auth-link nav-auth-link--pass">
                                                     My Pass
@@ -173,57 +162,26 @@ export default function Navigation() {
                                         </div>
                                     )}
                                 </div>
-                                
-                                {/* Register Button - visible on all screen sizes */}
+
+                                {/* Register Button - visible on all screen sizes, redirects to /login */}
                                 <div className="btn-group">
-                                    {user ? (
-                                        <Link href="/register" className="btn-bubble-arrow">
-                                            <div className="btn-bubble-arrow__arrow">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" className="btn-bubble-arrow__arrow-svg">
-                                                    <polyline points="18 8 18 18 8 18" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
-                                                    <line x1="18" y1="18" x2="5" y2="5" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
-                                                </svg>
-                                            </div>
-                                            <div className="btn-bubble-arrow__content">
-                                                <span className="btn-bubble-arrow__content-text">REGISTER</span>
-                                            </div>
-                                            <div className="btn-bubble-arrow__arrow is--duplicate">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" className="btn-bubble-arrow__arrow-svg">
-                                                    <polyline points="18 8 18 18 8 18" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
-                                                    <line x1="18" y1="18" x2="5" y2="5" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
-                                                </svg>
-                                            </div>
-                                        </Link>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            onClick={async () => {
-                                                try {
-                                                    await signIn();
-                                                    router.push('/register');
-                                                } catch {
-                                                    // Sign-in failed or cancelled; user stays on current page
-                                                }
-                                            }}
-                                            className="btn-bubble-arrow"
-                                        >
-                                            <div className="btn-bubble-arrow__arrow">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" className="btn-bubble-arrow__arrow-svg">
-                                                    <polyline points="18 8 18 18 8 18" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
-                                                    <line x1="18" y1="18" x2="5" y2="5" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
-                                                </svg>
-                                            </div>
-                                            <div className="btn-bubble-arrow__content">
-                                                <span className="btn-bubble-arrow__content-text">REGISTER</span>
-                                            </div>
-                                            <div className="btn-bubble-arrow__arrow is--duplicate">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" className="btn-bubble-arrow__arrow-svg">
-                                                    <polyline points="18 8 18 18 8 18" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
-                                                    <line x1="18" y1="18" x2="5" y2="5" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
-                                                </svg>
-                                            </div>
-                                        </button>
-                                    )}
+                                    <Link href="/login" className="btn-bubble-arrow">
+                                        <div className="btn-bubble-arrow__arrow">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" className="btn-bubble-arrow__arrow-svg">
+                                                <polyline points="18 8 18 18 8 18" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
+                                                <line x1="18" y1="18" x2="5" y2="5" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
+                                            </svg>
+                                        </div>
+                                        <div className="btn-bubble-arrow__content">
+                                            <span className="btn-bubble-arrow__content-text">REGISTER</span>
+                                        </div>
+                                        <div className="btn-bubble-arrow__arrow is--duplicate">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" className="btn-bubble-arrow__arrow-svg">
+                                                <polyline points="18 8 18 18 8 18" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
+                                                <line x1="18" y1="18" x2="5" y2="5" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="1.5" />
+                                            </svg>
+                                        </div>
+                                    </Link>
                                 </div>
 
                                 <div className="nav_menu_toggle_contain">
@@ -303,84 +261,36 @@ export default function Navigation() {
                                         </Link>
                                     </li>
                                 ))}
-                                {/* My Pass link - always show, redirects to sign-in if not authenticated */}
+                                {/* My Pass link - redirects to /login if not authenticated */}
                                 <li className="nav_menu_link_wrap">
-                                    {user ? (
-                                        <Link
-                                            data-menu-item=""
-                                            href="/register/my-pass"
-                                            className={`nav_menu_link ${pathname === '/register/my-pass' ? 'w--current' : ''}`}
-                                            onClick={closeMenu}
-                                        >
-                                            <div className="nav_menu_icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
-                                                    <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
-                                                </svg>
-                                            </div>
-                                            <div className="nav_menu_text">My Pass</div>
-                                        </Link>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            data-menu-item=""
-                                            className="nav_menu_link w-full text-left cursor-pointer border-0 bg-transparent"
-                                            onClick={async () => {
-                                                closeMenu();
-                                                try {
-                                                    await signIn();
-                                                    router.push('/register/my-pass');
-                                                } catch {
-                                                    // Sign-in failed or cancelled
-                                                }
-                                            }}
-                                        >
-                                            <div className="nav_menu_icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
-                                                    <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
-                                                </svg>
-                                            </div>
-                                            <div className="nav_menu_text">My Pass</div>
-                                        </button>
-                                    )}
+                                    <Link
+                                        data-menu-item=""
+                                        href={user ? "/register/my-pass" : "/login"}
+                                        className={`nav_menu_link ${pathname === '/register/my-pass' ? 'w--current' : ''}`}
+                                        onClick={closeMenu}
+                                    >
+                                        <div className="nav_menu_icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
+                                                <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
+                                            </svg>
+                                        </div>
+                                        <div className="nav_menu_text">My Pass</div>
+                                    </Link>
                                 </li>
                                 <li className="nav_menu_link_wrap">
-                                    {user ? (
-                                        <Link
-                                            data-menu-item=""
-                                            href="/register"
-                                            className={`nav_menu_link ${pathname === '/register' ? 'w--current' : ''}`}
-                                            onClick={closeMenu}
-                                        >
-                                            <div className="nav_menu_icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
-                                                    <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
-                                                </svg>
-                                            </div>
-                                            <div className="nav_menu_text">Register</div>
-                                        </Link>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            data-menu-item=""
-                                            className="nav_menu_link w-full text-left cursor-pointer border-0 bg-transparent"
-                                            onClick={async () => {
-                                                closeMenu();
-                                                try {
-                                                    await signIn();
-                                                    router.push('/register');
-                                                } catch {
-                                                    // Sign-in failed or cancelled
-                                                }
-                                            }}
-                                        >
-                                            <div className="nav_menu_icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
-                                                    <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
-                                                </svg>
-                                            </div>
-                                            <div className="nav_menu_text">Register</div>
-                                        </button>
-                                    )}
+                                    <Link
+                                        data-menu-item=""
+                                        href="/login"
+                                        className={`nav_menu_link ${pathname === '/login' || pathname === '/register' ? 'w--current' : ''}`}
+                                        onClick={closeMenu}
+                                    >
+                                        <div className="nav_menu_icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
+                                                <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
+                                            </svg>
+                                        </div>
+                                        <div className="nav_menu_text">Register</div>
+                                    </Link>
                                 </li>
                             </ul>
                         </div>
