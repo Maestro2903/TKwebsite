@@ -25,11 +25,19 @@ export interface Pass {
 
 export interface Team {
   id: string;
+  teamId?: string;
   teamName: string;
   leaderId: string;
-  members: { name: string; phone: string }[];
-  passId: string;
+  leaderName?: string;
+  leaderEmail?: string;
+  leaderPhone?: string;
+  leaderCollege?: string;
+  members: { name: string; phone: string; email: string }[];
+  totalMembers?: number;
+  passId?: string;
   totalAmount: number;
+  status?: 'pending' | 'paid' | 'cancelled';
+  createdAt?: Date | { toDate: () => Date };
 }
 
 export interface Payment {

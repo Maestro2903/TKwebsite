@@ -32,7 +32,11 @@ export async function openCashfreeCheckout(paymentSessionId: string): Promise<vo
   await loadScript();
   const Cashfree = window.Cashfree;
   if (!Cashfree) throw new Error('Cashfree SDK not available');
-  const mode = process.env.NEXT_PUBLIC_CASHFREE_MODE === 'production' ? 'production' : 'sandbox';
+  const mode = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox';
   const cf = Cashfree({ mode });
-  await cf.checkout({ paymentSessionId, redirectTarget: '_self' });
+  
+  await cf.checkout({ 
+    paymentSessionId,
+    redirectTarget: '_modal'
+  });
 }

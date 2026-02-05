@@ -73,7 +73,7 @@ export default function RegistrationFormModal({
         const token = await auth.currentUser?.getIdToken();
         if (!token) throw new Error('Not signed in');
 
-        const res = await fetch('/api/create-order', {
+        const res = await fetch('/api/payment/create-order', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -193,6 +193,7 @@ export default function RegistrationFormModal({
               type="submit"
               disabled={submitting}
               className="flex-1 rounded bg-white py-2 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
+              style={{ color: '#000000' }}
             >
               {submitting ? 'Please wait…' : 'Pay ₹' + (pass?.amount ?? 0)}
             </button>

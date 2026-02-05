@@ -1,18 +1,22 @@
 import { Resend } from 'resend';
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
-const FROM_EMAIL = 'noreply@takshashila26.in';
+const FROM_EMAIL = 'onboarding@resend.dev'; // Using Resend test email for now
 
 export interface EmailData {
-    to: string;
-    subject: string;
-    html: string;
+  to: string;
+  subject: string;
+  html: string;
+  attachments?: Array<{
+    filename: string;
+    content: Buffer;
+  }>;
 }
 
 export const emailTemplates = {
-    welcome: (name: string) => ({
-        subject: 'Welcome to CIT Takshashila 2026!',
-        html: `
+  welcome: (name: string) => ({
+    subject: 'Welcome to CIT Takshashila 2026!',
+    html: `
       <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="color: #7c3aed; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Welcome aboard, ${name}!</h1>
         <p style="font-size: 16px; line-height: 1.6; color: #4b5563;">
@@ -32,18 +36,18 @@ export const emailTemplates = {
         </p>
       </div>
     `,
-    }),
+  }),
 
-    passConfirmation: (data: {
-        name: string;
-        amount: number;
-        passType: string;
-        college: string;
-        phone: string;
-        qrCodeUrl: string;
-    }) => ({
-        subject: 'Your Pass for CIT Takshashila 2026',
-        html: `
+  passConfirmation: (data: {
+    name: string;
+    amount: number;
+    passType: string;
+    college: string;
+    phone: string;
+    qrCodeUrl: string;
+  }) => ({
+    subject: 'Your Pass for CIT Takshashila 2026',
+    html: `
       <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="color: #7c3aed; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Registration Confirmed!</h1>
         <p style="font-size: 16px; line-height: 1.6; color: #4b5563;">
@@ -68,34 +72,41 @@ export const emailTemplates = {
         </p>
       </div>
     `,
-    }),
+  }),
 };
 
 /**
  * Sends an email using Resend
  */
-export async function sendEmail({ to, subject, html }: EmailData) {
-    if (!resend) {
-        console.warn('Resend is not initialized. Skipping email.');
-        return { success: false, error: 'Resend not configured' };
+export async function sendEmail({ to, subject, html, attachments }: EmailData) {
+  if (!resend) {
+    console.warn('Resend is not initialized. Skipping email.');
+    return { success: false, error: 'Resend not configured' };
+  }
+
+  try {
+    const emailPayload: any = {
+      from: FROM_EMAIL,
+      to,
+      subject,
+      html,
+    };
+
+    // Add attachments if provided
+    if (attachments && attachments.length > 0) {
+      emailPayload.attachments = attachments;
     }
 
-    try {
-        const { data, error } = await resend.emails.send({
-            from: FROM_EMAIL,
-            to,
-            subject,
-            html,
-        });
+    const { data, error } = await resend.emails.send(emailPayload);
 
-        if (error) {
-            console.error('Error sending email:', error);
-            return { success: false, error };
-        }
-
-        return { success: true, data };
-    } catch (err) {
-        console.error('Fatal error sending email:', err);
-        return { success: false, error: err };
+    if (error) {
+      console.error('Error sending email:', error);
+      return { success: false, error };
     }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error('Fatal error sending email:', err);
+    return { success: false, error: err };
+  }
 }

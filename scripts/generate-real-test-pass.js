@@ -79,7 +79,7 @@ async function generateRealTestPass() {
 
     // 2. Setup Data
     const passId = `functional_test_${Date.now()}`;
-    const passType = 'all_access'; // Example real pass type
+    const passType = 'sana_concert'; // Example real pass type
     const amount = 1500;
 
     // 3. Generate REAL Signed QR

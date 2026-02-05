@@ -5963,7 +5963,7 @@ html {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
-  align-items: stretch;
+  align-items: start;
 }
 
 @media screen and (min-width: 640px) {
@@ -5981,8 +5981,17 @@ html {
 
 @media screen and (min-width: 1280px) {
   .registration-passes-v2__grid {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr) minmax(200px, 260px);
     gap: 16px;
+  }
+
+  /* Make order summary span full height on large screens */
+  .registration-passes-v2__grid .order-summary-card {
+    grid-row: 1 / -1;
+    grid-column: 5;
+    align-self: start;
+    position: sticky;
+    top: calc(var(--nav-height, 64px) + 24px);
   }
 }
 
@@ -5993,7 +6002,8 @@ html {
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  min-height: 160px;
+  min-height: 180px;
+  height: 100%;
 }
 
 /* Left Side - Price Section */
@@ -6076,8 +6086,9 @@ html {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 20px 24px;
+  padding: 16px 20px;
   position: relative;
+  min-width: 0;
 }
 
 @media screen and (min-width: 768px) {
@@ -6103,14 +6114,14 @@ html {
 /* Pass Name */
 .ticket-card__name {
   display: block;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   color: #111;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  margin-bottom: 8px;
-  line-height: 1.3;
-  padding-right: 80px;
+  margin-bottom: 6px;
+  line-height: 1.25;
+  padding-right: 60px;
 }
 
 @media screen and (min-width: 768px) {
@@ -6121,12 +6132,17 @@ html {
 
 /* Description */
 .ticket-card__description {
-  display: block;
-  font-size: 13px;
-  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.45;
   color: #666;
   flex: 1;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  min-height: 52px;
 }
 
 /* Action Button */
@@ -6182,8 +6198,13 @@ html {
 
 /* Ticket Card Option (label wrapper) */
 .ticket-card-option {
-  display: block;
+  display: flex;
   cursor: pointer;
+  height: 100%;
+}
+
+.ticket-card-option .ticket-card {
+  flex: 1;
 }
 
 .ticket-card-input {

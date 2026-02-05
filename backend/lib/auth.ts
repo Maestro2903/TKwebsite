@@ -1,4 +1,4 @@
-import { GoogleAuthProvider, signInWithRedirect, signOut as firebaseSignOut } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect, signInWithPopup, signOut as firebaseSignOut, browserSessionPersistence } from 'firebase/auth';
 import { auth, getAuthSafe } from '@/lib/firebase';
 
 const FIREBASE_NOT_CONFIGURED =
@@ -13,8 +13,15 @@ export async function signInWithGoogle() {
   provider.addScope('email');
   provider.addScope('profile');
 
-  // Use redirect instead of popup for better mobile experience
-  await signInWithRedirect(realAuth, provider);
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    await realAuth.setPersistence(browserSessionPersistence);
+    sessionStorage.setItem('auth_pending', 'true');
+    await signInWithRedirect(realAuth, provider);
+  } else {
+    return await signInWithPopup(realAuth, provider);
+  }
 }
 
 export async function signOut() {

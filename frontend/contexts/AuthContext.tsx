@@ -31,6 +31,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userData, setUserData] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Fetch user profile from Firestore
+  const fetchUserProfile = useCallback(async (u: User) => {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', u.uid));
+      if (userDoc.exists()) {
+        setUserData(userDoc.data() as UserProfile);
+      } else {
+        setUserData(null);
+      }
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
+      setUserData(null);
+    }
+  }, []);
+
   useEffect(() => {
     const authInstance = getAuthSafe();
     if (!authInstance) {
@@ -38,32 +53,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Handle redirect result from Google sign-in
-    getRedirectResult(authInstance).catch((error) => {
-      // Silently handle redirect errors (user may have just loaded page normally)
-      console.error('Redirect result error:', error);
-    });
+    let isSubscribed = true;
+    const unsubRef: { current: (() => void) | null } = { current: null };
 
-    const unsubscribe = onAuthStateChanged(authInstance, async (u) => {
-      setUser(u);
-      if (u) {
-        try {
-          const userDoc = await getDoc(doc(db, 'users', u.uid));
-          if (userDoc.exists()) {
-            setUserData(userDoc.data() as UserProfile);
-          } else {
-            setUserData(null);
-          }
-        } catch {
+    const init = async () => {
+      // Check if we are returning from a redirect flow
+      if (typeof window !== 'undefined' && sessionStorage.getItem('auth_pending')) {
+        setLoading(true);
+      }
+
+      try {
+        const result = await getRedirectResult(authInstance);
+        if (result) {
+          console.log('Sign-in successful');
+        }
+      } catch (error: any) {
+        console.error('Redirect result error:', error);
+        if (error.code === 'auth/network-request-failed') {
+          alert('Network error. Please check your connection and try again.');
+        } else if (error.code !== 'auth/popup-closed-by-user') {
+          alert('Sign-in failed. Please try again.');
+        }
+      } finally {
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('auth_pending');
+        }
+      }
+
+      if (!isSubscribed) return;
+
+      unsubRef.current = onAuthStateChanged(authInstance, async (u) => {
+        if (!isSubscribed) return;
+        setUser(u);
+        if (u) {
+          await fetchUserProfile(u);
+        } else {
           setUserData(null);
         }
-      } else {
-        setUserData(null);
-      }
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+        setLoading(false);
+      });
+    };
+
+    init();
+
+    return () => {
+      isSubscribed = false;
+      if (unsubRef.current) unsubRef.current();
+    };
+  }, [fetchUserProfile]);
 
   const signIn = useCallback(async () => {
     try {

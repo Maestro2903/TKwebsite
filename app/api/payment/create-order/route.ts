@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminAuth, getAdminFirestore } from '@/lib/firebase-admin';
+import { getAdminAuth, getAdminFirestore } from '@/backend/lib/firebase-admin';
 import { PASS_TYPES } from '@/lib/types';
 import { checkRateLimit } from '@/backend/lib/rate-limit';
 
@@ -54,7 +54,17 @@ export async function POST(req: NextRequest) {
     }
 
     const orderId = `order_${Date.now()}_${userId.substring(0, 8)}`;
-    const customerPhone = teamData?.phone || '9999999999';
+    
+    // Validate and format phone number
+    let customerPhone = teamData?.phone || '9999999999';
+    customerPhone = customerPhone.replace(/\D/g, ''); // Remove non-digits
+    if (customerPhone.length < 10) {
+      return NextResponse.json({ error: 'Invalid phone number. Must be at least 10 digits.' }, { status: 400 });
+    }
+    if (customerPhone.length === 10 && !customerPhone.startsWith('+')) {
+      customerPhone = '+91' + customerPhone; // Add India country code
+    }
+    
     const customerName = teamData?.name || '';
     const customerEmail = teamData?.email || '';
 
@@ -106,7 +116,17 @@ export async function POST(req: NextRequest) {
         phone: customerPhone,
       },
       teamId: teamId || null,
+      teamMemberCount: body.teamMemberCount || null,
     });
+
+    // If this is a group registration, update the team document with the orderId
+    if (teamId && passType === 'group_events') {
+      await db.collection('teams').doc(teamId).update({
+        orderId: orderId,
+        paymentStatus: 'pending',
+        updatedAt: new Date(),
+      });
+    }
 
     return NextResponse.json({
       orderId: data.order_id,

@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type PassType = 'DAY_PASS' | 'GROUP_EVENTS_PASS' | 'PROSHOW_PASS' | 'ALL_ACCESS' | 'group_events';
+export type PassType = 'day_pass' | 'group_events' | 'proshow' | 'sana_concert';
 
 export type PaymentStatus = 'pending' | 'success' | 'failed';
 
@@ -43,6 +43,7 @@ export interface TeamMember {
   memberId: string;
   name: string;
   phone: string;
+  email: string;
   isLeader: boolean;
   attendance: {
     checkedIn: boolean;

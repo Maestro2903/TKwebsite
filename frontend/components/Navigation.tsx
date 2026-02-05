@@ -292,6 +292,28 @@ export default function Navigation() {
                                         <div className="nav_menu_text">Register</div>
                                     </Link>
                                 </li>
+                                {/* Sign out in mobile menu when logged in */}
+                                {user && (
+                                    <li className="nav_menu_link_wrap">
+                                        <button
+                                            type="button"
+                                            data-menu-item=""
+                                            className="nav_menu_link"
+                                            onClick={() => {
+                                                closeMenu();
+                                                signOut();
+                                            }}
+                                            style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', font: 'inherit', color: 'inherit', padding: 0 }}
+                                        >
+                                            <div className="nav_menu_icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
+                                                    <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
+                                                </svg>
+                                            </div>
+                                            <div className="nav_menu_text">Sign out</div>
+                                        </button>
+                                    </li>
+                                )}
                             </ul>
                         </div>
                     </div>

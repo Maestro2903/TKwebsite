@@ -18,7 +18,7 @@ export type RegistrationPass = {
 export const REGISTRATION_PASSES: RegistrationPass[] = [
   {
     id: 'day-pass',
-    passType: 'DAY_PASS',
+    passType: 'day_pass',
     amount: 500,
     emoji: '🎟️',
     title: 'DAY PASS',
@@ -31,7 +31,7 @@ export const REGISTRATION_PASSES: RegistrationPass[] = [
   },
   {
     id: 'group-events-pass',
-    passType: 'GROUP_EVENTS_PASS',
+    passType: 'group_events',
     amount: 250,
     emoji: '👥',
     title: 'GROUP EVENTS PASS',
@@ -44,7 +44,7 @@ export const REGISTRATION_PASSES: RegistrationPass[] = [
   },
   {
     id: 'proshow-pass',
-    passType: 'PROSHOW_PASS',
+    passType: 'proshow',
     amount: 1000,
     emoji: '🎤',
     title: 'PROSHOW PASS (DAY 1 + DAY 3)',
@@ -57,7 +57,7 @@ export const REGISTRATION_PASSES: RegistrationPass[] = [
   },
   {
     id: 'all-access-pass',
-    passType: 'ALL_ACCESS',
+    passType: 'sana_concert',
     amount: 1500,
     emoji: '🎶',
     title: 'ALL-ACCESS PASS (BEST VALUE)',

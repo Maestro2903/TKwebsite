@@ -56,7 +56,7 @@ export default function PassCard({ pass, onRegister }: PassCardProps) {
               className="mt-6 w-full border border-white/30 py-3 text-xs tracking-widest uppercase text-white bg-transparent hover:bg-white hover:!text-black transition pointer-events-auto cursor-pointer"
               onClick={() => onRegister?.(pass)}
             >
-              REGISTER
+              {pass.passType === 'group_events' ? 'CREATE TEAM AND PAY' : 'PAY NOW'}
             </button>
           </div>
         </div>

@@ -67,7 +67,7 @@ async function generateTestPass() {
 
     const passData = {
         userId,
-        passType: 'pro_show', // Example pass type
+        passType: 'proshow', // Example pass type
         amount: 999,
         paymentId: `test_pay_${Date.now()}`,
         status: 'success',

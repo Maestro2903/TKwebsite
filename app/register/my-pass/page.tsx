@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { PASS_TYPES } from '@/lib/types';
+import { generatePassPDF } from '@/lib/pdfGenerator';
 
 interface PassDoc {
   id: string;
@@ -30,6 +31,7 @@ export default function MyPassPage() {
   const { user, loading, signIn } = useAuth();
   const [passes, setPasses] = useState<PassDoc[]>([]);
   const [fetchLoading, setFetchLoading] = useState(true);
+  const [downloadingPassId, setDownloadingPassId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -64,6 +66,25 @@ export default function MyPassPage() {
       cancelled = true;
     };
   }, [user]);
+
+  const handleDownloadPDF = async (pass: PassDoc) => {
+    if (!user) return;
+
+    setDownloadingPassId(pass.id);
+    try {
+      await generatePassPDF({
+        userId: user.uid,
+        passType: pass.passType,
+        amount: pass.amount,
+        qrCode: pass.qrCode,
+      });
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setDownloadingPassId(null);
+    }
+  };
 
   if (loading || !user) {
     return (
@@ -123,17 +144,40 @@ export default function MyPassPage() {
                 </h2>
                 <p className="mt-1 text-white/70">₹{pass.amount}</p>
                 {pass.qrCode && (
-                  <div className="mt-4 flex justify-center">
+                  <div className="mt-4 mb-2 flex justify-center items-center py-6">
                     <img
                       src={pass.qrCode}
                       alt="Pass QR code"
-                      className="h-[200px] w-[200px] rounded border border-white/10 bg-white"
+                      className="w-full max-w-[280px] h-auto aspect-square object-contain rounded bg-white"
+                      style={{ padding: '12px' }}
                     />
                   </div>
                 )}
                 <p className="mt-2 text-center text-xs text-white/50">
                   Show this QR at entry
                 </p>
+                <button
+                  onClick={() => handleDownloadPDF(pass)}
+                  disabled={downloadingPassId === pass.id}
+                  className="mt-4 w-full rounded bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {downloadingPassId === pass.id ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Generating PDF...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Download as PDF
+                    </span>
+                  )}
+                </button>
               </li>
             ))}
           </ul>

@@ -69,7 +69,7 @@ async function run() {
 
     const testEmail = 'mtejeshx37@gmail.com';
     const passId = `final_paid_test_${Date.now()}`;
-    const passType = 'premium_events';
+    const passType = 'proshow';
     const amount = 3000;
 
     console.log(`Generating pass for ${userData.name} (Sending to: ${testEmail})...`);
