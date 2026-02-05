@@ -7,11 +7,16 @@ interface HeroSectionProps {
     onShowReelClick?: () => void;
 }
 
-const videoSources = [
-    { src: '/videos/hero-bg-new.webm', type: 'video/webm' },
-    { src: '/videos/hero-bg-new.mp4', type: 'video/mp4' },
+// Desktop/Tablet video sources (landscape)
+const desktopVideoSources = [
+    { src: '/videos/hero-bg-optimized.webm', type: 'video/webm' },
+    { src: '/videos/hero-bg.mp4', type: 'video/mp4' },
 ];
-const videoSrc = videoSources[0].src; /* for data attributes / fallback */
+
+// Mobile video sources (portrait)
+const mobileVideoSources = [
+    { src: '/videos/hero-bg-mobile-optimized.webm', type: 'video/webm' },
+];
 
 export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -19,6 +24,30 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
     const [playerStatus, setPlayerStatus] = useState<'idle' | 'loading' | 'ready' | 'playing' | 'paused'>('idle');
     const [playerActivated, setPlayerActivated] = useState(false);
     const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Detect mobile on mount and window resize
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const mediaQuery = window.matchMedia('(max-width: 767px)');
+
+        const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+            setIsMobile(e.matches);
+        };
+
+        // Set initial value
+        handleChange(mediaQuery);
+
+        // Listen for changes
+        mediaQuery.addEventListener('change', handleChange);
+
+        return () => mediaQuery.removeEventListener('change', handleChange);
+    }, []);
+
+    // Select video sources based on device
+    const videoSources = isMobile ? mobileVideoSources : desktopVideoSources;
+    const videoSrc = videoSources[0].src; /* for data attributes / fallback */
 
     // IntersectionObserver: only start loading video when section is near viewport
     useEffect(() => {
@@ -107,10 +136,12 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                     className="bunny-bg"
                 >
                     <video
+                        key={isMobile ? 'mobile' : 'desktop'}
                         ref={videoRef}
-                        preload={shouldLoadVideo ? "metadata" : "none"}
-                        width={1920}
-                        height={1080}
+                        poster="/assets/images/hero-poster.webp"
+                        preload={shouldLoadVideo ? "auto" : "none"}
+                        width={isMobile ? 1440 : 1920}
+                        height={isMobile ? 2560 : 1080}
                         playsInline
                         muted
                         loop

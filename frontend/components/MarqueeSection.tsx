@@ -1,11 +1,12 @@
 'use client';
 
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 
 /** Optimized video: preload=metadata (saves RAM), pauses when off-screen, centered */
 function ScalingVideo() {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -15,6 +16,7 @@ function ScalingVideo() {
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
+                        setShouldLoadVideo(true);
                         video.play().catch(() => {});
                     } else {
                         video.pause();
@@ -30,12 +32,13 @@ function ScalingVideo() {
     return (
         <video
             ref={videoRef}
-            src="/videos/cover-final-2.mp4"
+            src={shouldLoadVideo ? "/videos/cover-final-2-optimized.mp4" : undefined}
             autoPlay
             loop
             muted
             playsInline
-            preload="metadata"
+            poster="/assets/images/marquee-video-poster.webp"
+            preload={shouldLoadVideo ? "metadata" : "none"}
             className="scaling-video__element u-zindex-1"
         />
     );

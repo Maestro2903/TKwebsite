@@ -120,10 +120,10 @@ export default function Navigation() {
                         <Link href="/" aria-label="Home Page" className="nav_mobile_logo" onClick={closeMenu}>
                             <div className="u-max-width-full">
                                 <img
-                                    src="/tk-logo.svg"
+                                    src="/assets/images/tk-logo.webp"
                                     alt="TK Logo"
                                     className="u-svg"
-                                    style={{ width: 'auto', height: '40px', display: 'block' }}
+                                    style={{ width: 'auto', height: '60px', display: 'block' }}
                                 />
                             </div>
                         </Link>

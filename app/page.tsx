@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
@@ -8,11 +9,20 @@ import AboutSection from '@/components/AboutSection';
 import FeaturedClientsSection from '@/components/FeaturedClientsSection';
 import MarqueeSection from '@/components/MarqueeSection';
 import ScalingVideoSection from '@/components/ScalingVideoSection';
-import ServicesAndWorksSection from '@/components/ServicesAndWorksSection';
-import SponsorsSection from '@/components/SponsorsSection';
-import CTASection from '@/components/CTASection';
 import Lightbox from '@/components/Lightbox';
 import { useLenis } from '@/hooks/useLenis';
+
+const ServicesAndWorksSection = dynamic(() => import('@/components/ServicesAndWorksSection'), {
+  loading: () => <div style={{ minHeight: '800px' }} />,
+});
+
+const SponsorsSection = dynamic(() => import('@/components/SponsorsSection'), {
+  loading: () => <div style={{ minHeight: '240px' }} />,
+});
+
+const CTASection = dynamic(() => import('@/components/CTASection'), {
+  loading: () => <div style={{ minHeight: '500px' }} />,
+});
 
 export default function Home() {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);

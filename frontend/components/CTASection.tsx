@@ -8,14 +8,16 @@ const CTAGlbViewer = dynamic(() => import('./CTAGlbViewer'), {
     loading: () => <div className="_3d_absolute hide-mobile" style={{ background: 'transparent' }} />,
 });
 
-const CTA_VIDEO_SRC = '/videos/3d-zeit.mp4';
+const CTA_VIDEO_SRC = '/videos/3d-zeit-optimized.mp4';
 
 /** Match hide-mobile / _3d_absolute_mobile breakpoint: only one video decode (desktop = Spline or fallback; mobile = single video). */
 const MOBILE_QUERY = '(max-width: 767px)';
 
 export default function CTASection() {
     const [isMobile, setIsMobile] = useState(false);
-    const [shouldLoadSpline, setShouldLoadSpline] = useState(false);
+    const [ctaInView, setCtaInView] = useState(false);
+    const [shouldLoadMobileVideo, setShouldLoadMobileVideo] = useState(false);
+    const [wants3D, setWants3D] = useState(false);
     const sectionRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
@@ -27,15 +29,16 @@ export default function CTASection() {
         return () => mql.removeEventListener('change', update);
     }, []);
 
-    // Lazy load Spline only when section is near viewport
+    // Mark CTA as in-view (used to gate media loading)
     useEffect(() => {
-        if (shouldLoadSpline || typeof window === 'undefined' || !sectionRef.current) return;
+        if (ctaInView || typeof window === 'undefined' || !sectionRef.current) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        setShouldLoadSpline(true);
+                        setCtaInView(true);
+                        setShouldLoadMobileVideo(true);
                         observer.disconnect();
                     }
                 });
@@ -46,7 +49,7 @@ export default function CTASection() {
         observer.observe(sectionRef.current);
 
         return () => observer.disconnect();
-    }, [shouldLoadSpline]);
+    }, [ctaInView]);
 
     return (
         <section ref={sectionRef} id="section_cta" className="section_cta u-section">
@@ -64,20 +67,37 @@ export default function CTASection() {
             </div>
             <div className="_3d_wrap">
                 <div className="_3d_canvas">
-                    {shouldLoadSpline && !isMobile ? (
+                    {/* Desktop: remove 3D from initial load; only enable after user intent */}
+                    {wants3D && ctaInView && !isMobile ? (
                         <Suspense fallback={<div className="_3d_absolute hide-mobile" style={{ background: 'transparent' }} />}>
                             <CTAGlbViewer />
                         </Suspense>
                     ) : !isMobile ? (
                         <div className="_3d_absolute hide-mobile" style={{ background: 'transparent' }} />
                     ) : null}
+                    {!isMobile && !wants3D && (
+                        <button
+                            type="button"
+                            onClick={() => setWants3D(true)}
+                            className="_3d_absolute hide-mobile"
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: 'inherit',
+                            }}
+                            aria-label="Enable 3D effect"
+                        />
+                    )}
                     {isMobile && (
                         <video
-                            src={CTA_VIDEO_SRC}
+                            src={shouldLoadMobileVideo ? CTA_VIDEO_SRC : undefined}
                             autoPlay
                             loop
                             muted
                             playsInline
+                            preload={shouldLoadMobileVideo ? 'metadata' : 'none'}
+                            poster="/assets/images/cta-poster.webp"
                             className="_3d_absolute_mobile"
                         />
                     )}

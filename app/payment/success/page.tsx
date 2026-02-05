@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
@@ -89,5 +89,26 @@ export default function PaymentSuccessPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <>
+          <Navigation />
+          <main className="page_main page_main--registration registration-loading">
+            <div className="registration-loading__spinner">
+              <div className="reg-spinner" />
+              <p style={{ marginTop: '1rem', color: 'var(--color-text-secondary)' }}>Loading...</p>
+            </div>
+          </main>
+          <Footer />
+        </>
+      }
+    >
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }
