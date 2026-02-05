@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   experimental: {
     serverComponentsHmrCache: false,
   },
+  turbopack: {},
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
