@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { useAuth } from '@/contexts/AuthContext';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
-import { PASS_TYPES } from '@/lib/types';
-import { generatePassPDF } from '@/lib/pdfGenerator';
+import { db } from '@/lib/firebase/clientApp';
+import { useAuth } from '@/features/auth/AuthContext';
+import Navigation from '@/components/layout/Navigation';
+import Footer from '@/components/layout/Footer';
+import { PASS_TYPES } from '@/types/passes';
+import { generatePassPDF } from '@/features/passes/pdfGenerator.client';
 
 interface PassDoc {
   id: string;

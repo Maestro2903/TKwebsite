@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminAuth, getAdminFirestore } from '@/backend/lib/firebase-admin';
-import { PASS_TYPES } from '@/lib/types';
-import { checkRateLimit } from '@/backend/lib/rate-limit';
+import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/adminApp';
+import { PASS_TYPES } from '@/types/passes';
+import { checkRateLimit } from '@/lib/security/rateLimiter';
 
 const CASHFREE_BASE =
   process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production'
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     }
 
     const orderId = `order_${Date.now()}_${userId.substring(0, 8)}`;
-    
+
     // Validate and format phone number
     let customerPhone = teamData?.phone || '9999999999';
     customerPhone = customerPhone.replace(/\D/g, ''); // Remove non-digits
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     if (customerPhone.length === 10 && !customerPhone.startsWith('+')) {
       customerPhone = '+91' + customerPhone; // Add India country code
     }
-    
+
     const customerName = teamData?.name || '';
     const customerEmail = teamData?.email || '';
 

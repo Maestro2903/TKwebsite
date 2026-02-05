@@ -5,9 +5,17 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "download-assets": "node scripts/download-external-assets.mjs",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:init": "node scripts/db/init-collections.js",
+    "db:clear": "node scripts/db/clear-database.js",
+    "db:debug": "node scripts/db/debug-collections.js",
+    "users:list": "node scripts/users/list-users.js",
+    "users:find": "node scripts/users/find-user.js",
+    "users:dump": "node scripts/users/dump-users.js",
+    "test:email": "node scripts/testing/test-email.js",
+    "test:pdf": "node scripts/testing/test-server-pdf.mjs",
+    "test:payment": "node scripts/testing/simulate-paid-flow.js"
   },
   "dependencies": {
     "@paper-design/shaders-react": "^0.0.71",

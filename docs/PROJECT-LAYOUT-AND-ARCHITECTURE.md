@@ -115,8 +115,11 @@ zeitmedia-clone/
 │   ├── tk-logo.svg
 │   └── favicon.ico
 ├── scripts/
-│   ├── copy-dirtyline-font.sh
-│   └── download-external-assets.mjs
+│   ├── db/                       # Database utilities (init, clear, debug)
+│   ├── users/                    # User management (list, find, dump)
+│   ├── testing/                  # Test helpers (email, PDF, payment)
+│   ├── admin/                    # Admin tasks
+│   └── utils/                    # Shell utilities
 ├── docs/
 │   ├── DESIGN-LANGUAGE.md
 │   └── PROJECT-LAYOUT-AND-ARCHITECTURE.md  (this file)
@@ -129,8 +132,7 @@ zeitmedia-clone/
 ├── postcss.config.mjs
 ├── tsconfig.json
 ├── eslint.config.mjs
-├── README.md
-└── y2k.tsx                       # Y2K-style utility/component (if used)
+└── README.md
 ```
 
 ---
@@ -184,7 +186,15 @@ zeitmedia-clone/
 
 ### 4.4 Path aliases
 
-- `@/*` → project root (e.g. `@/components/...`, `@/lib/...`, `@/contexts/...`). Defined in `tsconfig.json` under `compilerOptions.paths`.
+- `@/*` → project root (e.g. `@/backend/...`, `@/app/...`)
+- `@/components/*` → `./frontend/components/*`
+- `@/contexts/*` → `./frontend/contexts/*`
+- `@/hooks/*` → `./frontend/hooks/*`
+- `@/lib/*` → `./backend/lib/*` (use this, NOT `@/backend/lib`)
+
+Defined in `tsconfig.json` under `compilerOptions.paths`.
+
+> **Import Convention:** Always use `@/lib/*` for backend library imports, never `@/backend/lib/*`.
 
 ---
 

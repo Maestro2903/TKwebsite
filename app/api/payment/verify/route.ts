@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import QRCode from 'qrcode';
-import { sendEmail, emailTemplates } from '@/backend/lib/email';
-import { getAdminFirestore } from '@/lib/firebase-admin';
-import { createQRPayload } from '@/lib/qr-signing';
+import { sendEmail, emailTemplates } from '@/features/email/emailService';
+import { getAdminFirestore } from '@/lib/firebase/adminApp';
+import { createQRPayload } from '@/features/passes/qrService';
 
 const CASHFREE_BASE =
   process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production'

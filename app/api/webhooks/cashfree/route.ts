@@ -1,11 +1,11 @@
 import * as admin from 'firebase-admin';
 import crypto from 'crypto';
 import { NextResponse } from 'next/server';
-import { getAdminFirestore } from '@/lib/firebase-admin';
+import { getAdminFirestore } from '@/lib/firebase/adminApp';
 import QRCode from 'qrcode';
-import { createQRPayload } from '@/lib/qr-signing';
-import { sendEmail, emailTemplates } from '@/backend/lib/email';
-import { generatePassPDFBuffer } from '@/backend/lib/pdfGeneratorServer';
+import { createQRPayload } from '@/features/passes/qrService';
+import { sendEmail, emailTemplates } from '@/features/email/emailService';
+import { generatePassPDFBuffer } from '@/features/passes/pdfGenerator.server';
 
 function verifySignature(timestamp: string, rawBody: string, signature: string, secret: string): boolean {
   const signStr = timestamp + rawBody;

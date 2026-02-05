@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminAuth, getAdminFirestore } from '@/lib/firebase-admin';
-import { verifySignedQR } from '@/backend/lib/qr-signing';
-import { checkRateLimit } from '@/backend/lib/rate-limit';
+import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/adminApp';
+import { verifySignedQR } from '@/features/passes/qrService';
+import { checkRateLimit } from '@/lib/security/rateLimiter';
 
 /**
  * POST /api/passes/scan

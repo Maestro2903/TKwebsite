@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/features/auth/AuthContext';
 import { useLenis } from '@/hooks/useLenis';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
-import RegistrationPassesGrid from '@/components/RegistrationPassesGrid';
-import GroupRegistrationModal from '@/components/GroupRegistrationModal';
-import { openCashfreeCheckout } from '@/lib/cashfree';
-import type { RegistrationPass } from '@/lib/registrationPassesData';
+import Navigation from '@/components/layout/Navigation';
+import Footer from '@/components/layout/Footer';
+import RegistrationPassesGrid from '@/components/sections/registration/RegistrationPassesGrid';
+import GroupRegistrationModal from '@/components/sections/registration/GroupRegistrationModal';
+import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
+import type { RegistrationPass } from '@/data/passes';
 
 export default function PassSelectionPage() {
     useLenis();
@@ -40,13 +40,13 @@ export default function PassSelectionPage() {
         }
 
         if (!user || !userData) return;
-        
+
         setSubmitting(true);
         try {
             const token = await user.getIdToken();
             const res = await fetch('/api/payment/create-order', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
@@ -63,14 +63,14 @@ export default function PassSelectionPage() {
             });
 
             if (!res.ok) throw new Error('Failed to create order');
-            
+
             const { sessionId, orderId } = await res.json();
             await openCashfreeCheckout(sessionId);
-            
+
             // Verify payment after modal closes
             const verifyRes = await fetch('/api/payment/verify', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },

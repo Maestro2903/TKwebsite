@@ -1,10 +1,10 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/features/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Navigation from '@/components/Navigation';
-import { AwardBadge } from '@/components/AwardBadge';
+import Navigation from '@/components/layout/Navigation';
+import { AwardBadge } from '@/components/decorative/AwardBadge';
 import { useLenis } from '@/hooks/useLenis';
 
 export default function LoginPage() {

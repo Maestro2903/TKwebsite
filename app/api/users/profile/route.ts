@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminAuth, getAdminFirestore } from '@/lib/firebase-admin';
-import { validateProfileInput, sanitizeInput } from '@/lib/validation';
-import { sendEmail, emailTemplates } from '@/backend/lib/email';
-import { checkRateLimit } from '@/backend/lib/rate-limit';
+import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/adminApp';
+import { validateProfileInput, sanitizeInput } from '@/lib/security/validation';
+import { sendEmail, emailTemplates } from '@/features/email/emailService';
+import { checkRateLimit } from '@/lib/security/rateLimiter';
 
 /**
  * GET /api/users/profile

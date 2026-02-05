@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminAuth, getAdminFirestore } from '@/lib/firebase-admin';
-import { checkRateLimit } from '@/backend/lib/rate-limit';
+import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/adminApp';
+import { checkRateLimit } from '@/lib/security/rateLimiter';
 import * as admin from 'firebase-admin';
 
 /**

@@ -1,9 +1,9 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
-import StickyRegisterCTA from '@/components/StickyRegisterCTA';
+import Navigation from '@/components/layout/Navigation';
+import Footer from '@/components/layout/Footer';
+import StickyRegisterCTA from '@/components/layout/StickyRegisterCTA';
 import { useLenis } from '@/hooks/useLenis';
 
 // Music tracks configuration - update these paths when you provide the files

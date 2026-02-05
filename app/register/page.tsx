@@ -1,9 +1,9 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/features/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import Navigation from '@/components/Navigation';
+import Navigation from '@/components/layout/Navigation';
 import { useLenis } from '@/hooks/useLenis';
 
 export default function RegisterPage() {

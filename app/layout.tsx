@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
+import "@/styles/globals.css";
+import { AuthProvider } from "@/features/auth/AuthContext";
 
 export const metadata: Metadata = {
   title: "CIT Takshashila | Innovation Meets Culture",

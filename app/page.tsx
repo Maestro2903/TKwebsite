@@ -2,25 +2,25 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
-import HeroSection from '@/components/HeroSection';
-import AboutSection from '@/components/AboutSection';
-import FeaturedClientsSection from '@/components/FeaturedClientsSection';
-import MarqueeSection from '@/components/MarqueeSection';
-import ScalingVideoSection from '@/components/ScalingVideoSection';
-import Lightbox from '@/components/Lightbox';
+import Navigation from '@/components/layout/Navigation';
+import Footer from '@/components/layout/Footer';
+import HeroSection from '@/components/sections/home/HeroSection';
+import AboutSection from '@/components/sections/home/AboutSection';
+import FeaturedClientsSection from '@/components/sections/home/FeaturedClientsSection';
+import MarqueeSection from '@/components/sections/home/MarqueeSection';
+import ScalingVideoSection from '@/components/sections/home/ScalingVideoSection';
+import Lightbox from '@/components/ui/Lightbox';
 import { useLenis } from '@/hooks/useLenis';
 
-const ServicesAndWorksSection = dynamic(() => import('@/components/ServicesAndWorksSection'), {
+const ServicesAndWorksSection = dynamic(() => import('@/components/sections/home/ServicesAndWorksSection'), {
   loading: () => <div style={{ minHeight: '800px' }} />,
 });
 
-const SponsorsSection = dynamic(() => import('@/components/SponsorsSection'), {
+const SponsorsSection = dynamic(() => import('@/components/sections/home/SponsorsSection'), {
   loading: () => <div style={{ minHeight: '240px' }} />,
 });
 
-const CTASection = dynamic(() => import('@/components/CTASection'), {
+const CTASection = dynamic(() => import('@/components/sections/home/CTASection'), {
   loading: () => <div style={{ minHeight: '500px' }} />,
 });
 

@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
-import EventCategorySwitch from '@/components/EventCategorySwitch';
-import EventsGrid from '@/components/EventsGrid';
-import StickyRegisterCTA from '@/components/StickyRegisterCTA';
+import Navigation from '@/components/layout/Navigation';
+import Footer from '@/components/layout/Footer';
+import EventCategorySwitch from '@/components/sections/events/EventCategorySwitch';
+import EventsGrid from '@/components/sections/events/EventsGrid';
+import StickyRegisterCTA from '@/components/layout/StickyRegisterCTA';
 import { useLenis } from '@/hooks/useLenis';
-import type { EventItem } from '@/lib/eventsData';
+import type { EventItem } from '@/data/events';
 
 export default function EventsPage() {
   useLenis();
@@ -18,7 +18,7 @@ export default function EventsPage() {
 
   // Code-split eventsData - only load on events page
   useEffect(() => {
-    import('@/lib/eventsData').then((module) => {
+    import('@/data/events').then((module) => {
       const eventsData = category === 'non-technical' ? module.NON_TECHNICAL_EVENTS : module.TECHNICAL_EVENTS;
       setEvents(eventsData);
       setIsLoading(false);
