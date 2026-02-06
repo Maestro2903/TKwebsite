@@ -43,9 +43,13 @@ export async function POST(req: NextRequest) {
     }
 
     const payments = await response.json();
-    const paymentStatus = payments[0]?.payment_status || 'FAILED';
 
-    if (paymentStatus !== 'SUCCESS') {
+    // Check if ANY payment for this order was successful
+    const successfulPayment = Array.isArray(payments)
+      ? payments.find((p: any) => p.payment_status === 'SUCCESS')
+      : payments.payment_status === 'SUCCESS' ? payments : null;
+
+    if (!successfulPayment) {
       return NextResponse.json(
         { error: 'Payment not successful' },
         { status: 400 }

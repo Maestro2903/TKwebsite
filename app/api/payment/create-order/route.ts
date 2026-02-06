@@ -119,13 +119,63 @@ export async function POST(req: NextRequest) {
       teamMemberCount: body.teamMemberCount || null,
     });
 
-    // If this is a group registration, update the team document with the orderId
-    if (teamId && passType === 'group_events') {
-      await db.collection('teams').doc(teamId).update({
-        orderId: orderId,
-        paymentStatus: 'pending',
-        updatedAt: new Date(),
-      });
+    // For group registration, create the team document here to ensure ACID consistency
+    if (passType === 'group_events') {
+      const teamId = body.teamId;
+      if (!teamId) throw new Error('Missing teamId for group registration');
+
+      // Check if team already exists to avoid duplicates
+      const teamRef = db.collection('teams').doc(teamId);
+      const teamDoc = await teamRef.get();
+
+      if (!teamDoc.exists) {
+        // Construct members array for the team document
+        const membersData = [
+          // Leader (the account user)
+          {
+            memberId: `leader_${Date.now()}_${userId.substring(0, 8)}`,
+            name: customerName,
+            phone: customerPhone,
+            email: customerEmail,
+            isLeader: true,
+            attendance: { checkedIn: false, checkInTime: null, checkedInBy: null },
+          },
+          // Other members from request
+          ...(body.members || []).map((m: any, idx: number) => ({
+            memberId: `member_${Date.now()}_${idx}`,
+            name: m.name.trim(),
+            phone: m.phone.trim(),
+            email: m.email.trim(),
+            isLeader: false,
+            attendance: { checkedIn: false, checkInTime: null, checkedInBy: null },
+          })),
+        ];
+
+        await teamRef.set({
+          teamId,
+          teamName: (body.teamName || customerName).trim(),
+          leaderId: userId,
+          leaderName: customerName,
+          leaderEmail: customerEmail,
+          leaderPhone: customerPhone,
+          leaderCollege: (body.college || body.teamData?.college || '').trim(),
+          members: membersData,
+          totalMembers: membersData.length,
+          totalAmount: amount,
+          status: 'pending',
+          orderId: orderId,
+          paymentStatus: 'pending',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      } else {
+        // If team exists, just update the order reference
+        await teamRef.update({
+          orderId: orderId,
+          paymentStatus: 'pending',
+          updatedAt: new Date(),
+        });
+      }
     }
 
     return NextResponse.json({

@@ -28,15 +28,23 @@ function loadScript(): Promise<void> {
   });
 }
 
-export async function openCashfreeCheckout(paymentSessionId: string): Promise<void> {
+export async function openCashfreeCheckout(paymentSessionId: string, orderId?: string): Promise<void> {
   await loadScript();
   const Cashfree = window.Cashfree;
   if (!Cashfree) throw new Error('Cashfree SDK not available');
   const mode = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox';
   const cf = Cashfree({ mode });
-  
-  await cf.checkout({ 
+
+  // Get the base URL for the callback
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const returnUrl = orderId
+    ? `${baseUrl}/payment/callback?order_id=${orderId}`
+    : `${baseUrl}/payment/callback`;
+
+  await cf.checkout({
     paymentSessionId,
-    redirectTarget: '_modal'
+    returnUrl,
+    redirectTarget: '_self', // Redirect in same window to trigger callback verification
   });
 }
+

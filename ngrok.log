@@ -1,0 +1,8 @@
+t=2026-02-06T11:06:02+0530 lvl=info msg="open config file" path=/dev/null err=nil
+ERROR:  Error reading configuration file '/dev/null': `version` property is required.
+ERROR:  
+ERROR:  If you're upgrading from an older version of ngrok, you can run:
+ERROR:  
+ERROR:      ngrok config upgrade
+ERROR:  
+ERROR:  to upgrade to the new format and add the version number.

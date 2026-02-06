@@ -1,10 +1,13 @@
 'use client';
 
+import * as React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/clientApp';
 import { useAuth } from '@/features/auth/AuthContext';
 import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 
 const PRICE_PER_PERSON = 250;
 
@@ -151,30 +154,10 @@ export default function GroupRegistrationModal({
             const email = user.email || user.providerData?.[0]?.email || '';
             const name = user.displayName || email || 'Team Leader';
 
-            // Create team document
+            // Team ID generated here but document created by server
             const teamId = `team_${Date.now()}_${uid.substring(0, 8)}`;
 
-            // Save team to Firestore
-            await setDoc(doc(db, 'teams', teamId), {
-                teamId,
-                teamName: teamName.trim(),
-                leaderId: uid,
-                leaderName: name,
-                leaderEmail: email,
-                leaderPhone: leaderPhone.trim(),
-                leaderCollege: leaderCollege.trim(),
-                members: members.map((m) => ({
-                    name: m.name.trim(),
-                    phone: m.phone.trim(),
-                    email: m.email.trim(),
-                })),
-                totalMembers,
-                totalAmount,
-                status: 'pending',
-                createdAt: serverTimestamp(),
-            });
-
-            // Update user document
+            // Update user document (allowed by rules)
             await setDoc(
                 doc(db, 'users', uid),
                 {
@@ -183,12 +166,12 @@ export default function GroupRegistrationModal({
                     email,
                     college: leaderCollege.trim(),
                     phone: leaderPhone.trim(),
-                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
                 },
                 { merge: true }
             );
 
-            // Create payment order
+            // Create payment order and team document via server
             const token = await auth.currentUser?.getIdToken();
             if (!token) throw new Error('Not signed in');
 
@@ -204,10 +187,17 @@ export default function GroupRegistrationModal({
                     amount: totalAmount,
                     teamMemberCount: totalMembers,
                     teamId,
+                    teamName: teamName.trim() || name,
+                    members: members.map(m => ({
+                        name: m.name,
+                        phone: m.phone,
+                        email: m.email
+                    })),
                     teamData: {
                         name,
                         email,
                         phone: leaderPhone.trim(),
+                        college: leaderCollege.trim(),
                     },
                 }),
             });
@@ -217,12 +207,13 @@ export default function GroupRegistrationModal({
                 throw new Error(data.error || 'Failed to create order');
             }
 
-            const data = (await res.json()) as { sessionId?: string };
+            const data = (await res.json()) as { sessionId?: string; orderId?: string };
             const sessionId = data.sessionId;
+            const orderId = data.orderId;
             if (!sessionId) throw new Error('No payment session');
 
             onClose();
-            await openCashfreeCheckout(sessionId);
+            await openCashfreeCheckout(sessionId, orderId);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Something went wrong');
         } finally {
@@ -242,7 +233,7 @@ export default function GroupRegistrationModal({
             onClick={(e) => e.target === overlayRef.current && onClose()}
         >
             <div
-                className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-lg border border-white/15 bg-black p-6 shadow-xl"
+                className="w-full max-w-lg max-h-[90vh] overflow-y-auto overscroll-contain rounded-lg border border-white/15 bg-black p-6 shadow-xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -364,50 +355,52 @@ export default function GroupRegistrationModal({
                                 </p>
                             </div>
                         ) : (
-                            <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2">
-                                {members.map((member, index) => (
-                                    <div
-                                        key={member.id}
-                                        className="p-4 rounded-lg border border-white/10 bg-white/5 space-y-3"
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm font-medium text-white/80">
-                                                Member {index + 1}
-                                            </span>
-                                            <button
-                                                type="button"
-                                                onClick={() => removeMember(member.id)}
-                                                className="text-red-400 hover:text-red-300 text-sm"
-                                            >
-                                                Remove
-                                            </button>
-                                        </div>
-                                        <div className="grid gap-3">
-                                            <input
-                                                type="text"
-                                                value={member.name}
-                                                onChange={(e) => updateMember(member.id, 'name', e.target.value)}
-                                                placeholder="Full Name *"
-                                                className="w-full rounded border border-white/20 bg-white/5 px-3 py-2 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none text-sm"
-                                            />
-                                            <input
-                                                type="tel"
-                                                value={member.phone}
-                                                onChange={(e) => updateMember(member.id, 'phone', e.target.value)}
-                                                placeholder="Phone Number *"
-                                                className="w-full rounded border border-white/20 bg-white/5 px-3 py-2 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none text-sm"
-                                            />
-                                            <input
-                                                type="email"
-                                                value={member.email}
-                                                onChange={(e) => updateMember(member.id, 'email', e.target.value)}
-                                                placeholder="Email ID *"
-                                                className="w-full rounded border border-white/20 bg-white/5 px-3 py-2 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none text-sm"
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                            <ScrollArea className="h-[40vh] w-full rounded-md border border-white/10">
+                                <div className="p-4 space-y-4">
+                                    {members.map((member, index) => (
+                                        <React.Fragment key={member.id}>
+                                            <div className="p-4 rounded-lg border border-white/10 bg-white/5 space-y-3">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-sm font-medium text-white/80">
+                                                        Member {index + 1}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeMember(member.id)}
+                                                        className="text-red-400 hover:text-red-300 text-sm"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                                <div className="grid gap-3">
+                                                    <input
+                                                        type="text"
+                                                        value={member.name}
+                                                        onChange={(e) => updateMember(member.id, 'name', e.target.value)}
+                                                        placeholder="Full Name *"
+                                                        className="w-full rounded border border-white/20 bg-white/5 px-3 py-2 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none text-sm"
+                                                    />
+                                                    <input
+                                                        type="tel"
+                                                        value={member.phone}
+                                                        onChange={(e) => updateMember(member.id, 'phone', e.target.value)}
+                                                        placeholder="Phone Number *"
+                                                        className="w-full rounded border border-white/20 bg-white/5 px-3 py-2 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none text-sm"
+                                                    />
+                                                    <input
+                                                        type="email"
+                                                        value={member.email}
+                                                        onChange={(e) => updateMember(member.id, 'email', e.target.value)}
+                                                        placeholder="Email ID *"
+                                                        className="w-full rounded border border-white/20 bg-white/5 px-3 py-2 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none text-sm"
+                                                    />
+                                                </div>
+                                            </div>
+                                            {index < members.length - 1 && <Separator className="my-2" />}
+                                        </React.Fragment>
+                                    ))}
+                                </div>
+                            </ScrollArea>
                         )}
                     </div>
                 )}
