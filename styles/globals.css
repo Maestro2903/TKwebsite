@@ -4172,16 +4172,17 @@ html {
     gap: 1rem;
   }
 
-  /* Services Section */
+  /* Services Section - keep sticky animation on mobile */
   .sticky-card {
     padding-top: 2.5rem;
     padding-bottom: 2.5rem;
-    position: relative;
     height: auto;
   }
 
   .sticky-card-wrap {
-    position: relative;
+    position: sticky;
+    top: 0;
+    min-height: 100vh;
     height: auto;
   }
 
@@ -4415,65 +4416,56 @@ html {
 }
 
 /* =================================================================
-   PIXELCARD COMPONENT - Interactive Hover-Driven Animation
-   Accent interaction, not main page element
+   PIXELCARD COMPONENT - Interactive Hover-Driven Pixel Animation
+   Pixels appear/disappear on hover (appear/disappear/shimmer)
    ================================================================= */
 
-.pixel-card {
-  position: relative;
-  overflow: hidden;
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  transition: border-color 0.35s cubic-bezier(0.625, 0.05, 0, 1),
-    box-shadow 0.35s cubic-bezier(0.625, 0.05, 0, 1);
-}
-
-.pixel-card:hover,
-.pixel-card:focus-visible {
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 40px rgba(255, 255, 255, 0.03);
-  outline: none;
-}
-
-/* Canvas - visual only, subtle opacity */
-.pixel-card__canvas {
-  position: absolute;
-  inset: 0;
+.pixel-canvas {
   width: 100%;
   height: 100%;
+  display: block;
+  position: absolute;
+  inset: 0;
   pointer-events: none;
-  opacity: 0.6;
   z-index: 1;
 }
 
-/* Desktop - increase canvas visibility */
-@media screen and (min-width: 1024px) {
-  .pixel-card__canvas {
-    opacity: 0.8;
-  }
+.pixel-card {
+  height: 400px;
+  width: 300px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 5;
+  border: 1px solid #27272a;
+  border-radius: 25px;
+  isolation: isolate;
+  transition: border-color 200ms cubic-bezier(0.5, 1, 0.89, 1);
+  user-select: none;
+  background: #000;
+  cursor: default;
 }
 
-/* Gradient overlay for depth */
-.pixel-card__gradient {
+.pixel-card::before {
+  content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg,
-      rgba(0, 0, 0, 0.2) 0%,
-      rgba(0, 0, 0, 0.6) 100%);
+  margin: auto;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #09090b, transparent 85%);
+  opacity: 0;
+  transition: opacity 800ms cubic-bezier(0.5, 1, 0.89, 1);
   pointer-events: none;
   z-index: 2;
 }
 
-/* Content layer - above canvas */
-.pixel-card__content {
-  position: relative;
-  z-index: 3;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  /* Re-enable specifically on interactive children */
+.pixel-card:hover::before,
+.pixel-card:focus-within::before {
+  opacity: 1;
 }
+
+/* Card content should use position: absolute - stacks above canvas */
 
 /* Variant-specific border accents on hover */
 .pixel-card--default:hover {
@@ -4495,22 +4487,16 @@ html {
   box-shadow: 0 0 50px rgba(255, 45, 149, 0.08);
 }
 
-/* Touch devices - reduce motion, ensure always active */
+/* Touch devices - show canvas subtle */
 @media (hover: none) {
-  .pixel-card__canvas {
-    opacity: 0.4;
-  }
-
-  .pixel-card__gradient {
-    background: linear-gradient(180deg,
-        rgba(0, 0, 0, 0.1) 0%,
-        rgba(0, 0, 0, 0.7) 100%);
+  .pixel-canvas {
+    opacity: 0.5;
   }
 }
 
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-  .pixel-card__canvas {
+  .pixel-canvas {
     display: none;
   }
 
