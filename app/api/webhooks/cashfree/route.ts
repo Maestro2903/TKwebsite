@@ -152,6 +152,8 @@ export async function POST(req: Request) {
           phone: userData.phone ?? '-',
           college: userData.college ?? '-',
           qrCode: qrCodeUrl,
+          teamName: passData.teamSnapshot?.teamName,
+          members: passData.teamSnapshot?.members,
         });
 
         // Send email with PDF attachment

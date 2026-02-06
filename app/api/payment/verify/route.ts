@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { sendEmail, emailTemplates } from '@/features/email/emailService';
 import { getAdminFirestore } from '@/lib/firebase/adminApp';
 import { createQRPayload } from '@/features/passes/qrService';
+import { generatePassPDFBuffer } from '@/features/passes/pdfGenerator.server';
 
 const CASHFREE_BASE =
   process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production'
@@ -164,11 +165,39 @@ export async function POST(req: NextRequest) {
         qrCodeUrl: qrCodeUrl,
       });
 
-      await sendEmail({
-        to: userData.email as string,
-        subject: emailTemplate.subject,
-        html: emailTemplate.html,
-      });
+      // Generate PDF pass and send with attachment
+      try {
+        const pdfBuffer = await generatePassPDFBuffer({
+          passType: paymentData.passType,
+          amount: paymentData.amount,
+          userName: userData.name ?? 'User',
+          email: userData.email,
+          phone: userData.phone ?? '-',
+          college: userData.college ?? '-',
+          qrCode: qrCodeUrl,
+          teamName: passData.teamSnapshot?.teamName,
+          members: passData.teamSnapshot?.members,
+        });
+
+        await sendEmail({
+          to: userData.email as string,
+          subject: emailTemplate.subject,
+          html: emailTemplate.html,
+          attachments: [
+            {
+              filename: `takshashila-pass-${paymentData.passType}.pdf`,
+              content: pdfBuffer,
+            },
+          ],
+        });
+      } catch (pdfErr) {
+        console.error('PDF generation error in verify, sending email without attachment', pdfErr);
+        await sendEmail({
+          to: userData.email as string,
+          subject: emailTemplate.subject,
+          html: emailTemplate.html,
+        });
+      }
     }
 
     return NextResponse.json({

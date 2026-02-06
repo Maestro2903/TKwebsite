@@ -18,6 +18,10 @@ interface PassDoc {
   status: string;
   qrCode: string;
   createdAt?: { toDate: () => Date };
+  teamSnapshot?: {
+    teamName: string;
+    members: Array<{ name: string; isLeader?: boolean }>;
+  };
 }
 
 const passTypeLabel: Record<string, string> = {
@@ -136,6 +140,8 @@ export default function MyPassPage() {
         passType: pass.passType,
         amount: pass.amount,
         qrCode: pass.qrCode,
+        teamName: pass.teamSnapshot?.teamName,
+        members: pass.teamSnapshot?.members,
       });
     } catch (error) {
       console.error('Error downloading PDF:', error);

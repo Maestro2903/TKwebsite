@@ -123,7 +123,7 @@ export default function Navigation() {
                                     src="/assets/images/tk-logo.webp"
                                     alt="TK Logo"
                                     className="u-svg"
-                                    style={{ width: 'auto', height: '60px', display: 'block' }}
+                                    style={{ width: 'auto', height: '72px', display: 'block' }}
                                 />
                             </div>
                         </Link>
@@ -133,13 +133,12 @@ export default function Navigation() {
                     <div className="nav_desktop_right_wrap u-column-8">
                         <div className="nav_desktop_right">
                             <ul data-nav-desktop-links="" className="nav_desktop_links_wrap">
-                                {navLinks.map((link, index) => (
+                                {navLinks.map((link) => (
                                     <li key={link.href}>
                                         <Link
                                             href={link.href}
                                             className={`nav_desktop_link ${pathname === link.href ? 'w--current' : ''}`}
                                         >
-                                            <div className="nav_desktop_link_subtext">{String(index + 1).padStart(2, '0')}</div>
                                             <div className="nav_desktop_link_text">{link.label}</div>
                                         </Link>
                                     </li>
