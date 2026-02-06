@@ -80,13 +80,15 @@ export default function RegistrationFormModal({
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
+            userId: uid,
             passType: pass.passType,
             amount: pass.amount,
-            customer: {
+            teamData: {
               uid,
+              name,
               email,
               phone: phone.trim(),
-              name,
+              college: college.trim(),
             },
           }),
         });
@@ -96,12 +98,14 @@ export default function RegistrationFormModal({
           throw new Error(data.error || 'Failed to create order');
         }
 
-        const data = (await res.json()) as { payment_session_id?: string };
-        const sessionId = data.payment_session_id;
-        if (!sessionId) throw new Error('No payment session');
+        const data = (await res.json()) as { sessionId?: string; orderId?: string };
+        const sessionId = data.sessionId;
+        const orderId = data.orderId;
+
+        if (!sessionId || !orderId) throw new Error('No payment session');
 
         onClose();
-        await openCashfreeCheckout(sessionId);
+        await openCashfreeCheckout(sessionId, orderId);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong');
       } finally {

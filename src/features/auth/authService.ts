@@ -1,4 +1,4 @@
-import { GoogleAuthProvider, signInWithRedirect, signInWithPopup, signOut as firebaseSignOut, browserSessionPersistence } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
 import { auth, getAuthSafe } from '@/lib/firebase/clientApp';
 
 const FIREBASE_NOT_CONFIGURED =
@@ -13,15 +13,9 @@ export async function signInWithGoogle() {
   provider.addScope('email');
   provider.addScope('profile');
 
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-  if (isMobile) {
-    await realAuth.setPersistence(browserSessionPersistence);
-    sessionStorage.setItem('auth_pending', 'true');
-    await signInWithRedirect(realAuth, provider);
-  } else {
-    return await signInWithPopup(realAuth, provider);
-  }
+  // Using signInWithPopup for all devices to ensure a consistent experience
+  // and resolve issues where redirects might be disruptive or popup is expected.
+  return await signInWithPopup(realAuth, provider);
 }
 
 export async function signOut() {

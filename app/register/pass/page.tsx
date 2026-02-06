@@ -51,40 +51,32 @@ export default function PassSelectionPage() {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
+                    userId: user.uid,
                     passType: pass.passType,
                     amount: pass.amount,
-                    userId: user.uid,
                     teamData: {
+                        uid: user.uid,
                         name: userData.name,
                         email: userData.email,
                         phone: userData.phone,
+                        college: userData.college || '',
                     }
                 }),
             });
 
-            if (!res.ok) throw new Error('Failed to create order');
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.error || 'Failed to create order');
+            }
 
             const { sessionId, orderId } = await res.json();
-            await openCashfreeCheckout(sessionId);
+            if (!sessionId || !orderId) throw new Error('Invalid server response');
 
-            // Verify payment after modal closes
-            const verifyRes = await fetch('/api/payment/verify', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ orderId }),
-            });
-
-            if (verifyRes.ok) {
-                router.push('/register/my-pass');
-            } else {
-                alert('Payment verification failed. Please contact support if amount was deducted.');
-            }
+            // Redirect to Cashfree - this will eventually return to /payment/callback
+            await openCashfreeCheckout(sessionId, orderId);
         } catch (err) {
             console.error('Payment error:', err);
-            alert('Payment failed. Please try again.');
+            alert(err instanceof Error ? err.message : 'Payment initialization failed. Please try again.');
         } finally {
             setSubmitting(false);
         }
