@@ -4,6 +4,7 @@
 /* Fonts now loaded locally from reset.css (InterDisplay) */
 @import './reset.css';
 @import './components.css';
+@import './glowing-dots-grid.css';
 
 :root {
   --site--viewport-max: 90;
