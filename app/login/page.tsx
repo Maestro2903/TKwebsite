@@ -17,8 +17,12 @@ export default function LoginPage() {
     setSigningIn(true);
     try {
       await signIn();
-    } catch {
-      // auth/popup-closed-by-user or other errors - user stays on page
+    } catch (err: any) {
+      console.error('Google Sign-In Error:', err);
+      // Only show alert for errors other than user closing the popup
+      if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-by-user') {
+        alert(`Sign-in failed: ${err.message || 'Unknown error'}`);
+      }
     } finally {
       setSigningIn(false);
     }
@@ -136,17 +140,18 @@ export default function LoginPage() {
               {/* Auth Form */}
               <div className="auth-form">
                 <div className="auth-form-fields items-center">
-                  {signingIn ? (
-                    <div className="flex justify-center items-center h-[54px]">
-                      <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
-                    </div>
-                  ) : (
-                    <div className="w-full max-w-[260px]">
-                      <AwardBadge type="button" onClick={handleGoogleSignIn} disabled={signingIn}>
-                        SIGN IN WITH GOOGLE
-                      </AwardBadge>
-                    </div>
-                  )}
+                  <div className="w-full max-w-[260px]">
+                    <AwardBadge type="button" onClick={handleGoogleSignIn} disabled={signingIn}>
+                      {signingIn ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="reg-spinner w-4 h-4 border-2 border-white/30 border-t-white" />
+                          <span>SIGNING IN...</span>
+                        </div>
+                      ) : (
+                        "SIGN IN WITH GOOGLE"
+                      )}
+                    </AwardBadge>
+                  </div>
                 </div>
               </div>
 

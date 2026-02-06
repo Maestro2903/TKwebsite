@@ -57,11 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubRef: { current: (() => void) | null } = { current: null };
 
     const init = async () => {
-      // Check if we are returning from a redirect flow
-      if (typeof window !== 'undefined' && sessionStorage.getItem('auth_pending')) {
-        setLoading(true);
-      }
-
       try {
         const result = await getRedirectResult(authInstance);
         if (result) {
@@ -73,10 +68,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           alert('Network error. Please check your connection and try again.');
         } else if (error.code !== 'auth/popup-closed-by-user') {
           alert('Sign-in failed. Please try again.');
-        }
-      } finally {
-        if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('auth_pending');
         }
       }
 
