@@ -38,27 +38,6 @@ export default function FabricGridBackground() {
 
             time += 0.01;
 
-            ctx.beginPath();
-
-            // Draw vertical lines with wave distortion
-            for (let i = 0; i <= cols; i++) {
-                const x = i * gridSize;
-                ctx.moveTo(x, 0);
-
-                for (let j = 0; j <= rows; j++) {
-                    const y = j * gridSize;
-                    // Simple wave effect: x + offset based on y and time
-                    const xOffset = Math.sin(y * 0.01 + time) * 10 * Math.sin(time * 0.5);
-                    const yOffset = Math.cos(x * 0.01 + time) * 10 * Math.cos(time * 0.5);
-
-                    // To be more efficient we could just draw lines, but to curve them we'd need many segments.
-                    // For a "graph texture", straight lines that move might be enough, but "fabric" implies curvature.
-                    // Let's draw slight curves or just offset vertices.
-
-                    // Actually, drawing a mesh of lines is expensive if we do every pixel.
-                    // Let's just draw lines connecting points that move.
-                }
-            }
 
             // Optimization: Draw grid by connecting vertices
             const vertices: { x: number, y: number }[][] = [];

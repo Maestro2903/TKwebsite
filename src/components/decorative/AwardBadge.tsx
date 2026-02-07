@@ -1,6 +1,6 @@
 'use client';
 
-import React from "react";
+import React, { useId } from "react";
 import Link from "next/link";
 
 interface AwardBadgeProps {
@@ -20,6 +20,12 @@ const badgeContent = (children: React.ReactNode, variant: AwardBadgeProps['varia
 );
 
 export const AwardBadge = ({ children, className = "", onClick, type = 'button', disabled = false, variant = 'default', href }: AwardBadgeProps) => {
+    const id = useId();
+    const buttonGradientId = `buttonGradient-${id}`;
+    const glowId = `glow-${id}`;
+    const rainbowGradientId = `rainbowGradient-${id}`;
+    const coloredBlurId = `coloredBlur-${id}`;
+
     if (variant === 'gold-solid') {
         return (
             <button
@@ -41,26 +47,26 @@ export const AwardBadge = ({ children, className = "", onClick, type = 'button',
                 <div className="award-badge-simple__bg">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 54" className="w-full h-auto">
                         <defs>
-                            <linearGradient id="buttonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <linearGradient id={buttonGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stopColor="#f3e3ac" />
                                 <stop offset="50%" stopColor="#ddd" />
                                 <stop offset="100%" stopColor="#f1cfa6" />
                             </linearGradient>
-                            <filter id="glow">
-                                <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                            <filter id={glowId}>
+                                <feGaussianBlur stdDeviation="4" result={coloredBlurId} />
                                 <feMerge>
-                                    <feMergeNode in="coloredBlur" />
+                                    <feMergeNode in={coloredBlurId} />
                                     <feMergeNode in="SourceGraphic" />
                                 </feMerge>
                             </filter>
                         </defs>
-                        <rect width="260" height="54" fill="url(#buttonGradient)" />
+                        <rect width="260" height="54" fill={`url(#${buttonGradientId})`} />
                         <rect x="4" y="4" width="252" height="46" fill="transparent" stroke="#bbb" strokeWidth="1" />
                         <g className="award-badge-simple__rainbow" opacity="0">
-                            <rect width="260" height="54" fill="url(#rainbowGradient)" />
+                            <rect width="260" height="54" fill={`url(#${rainbowGradientId})`} />
                         </g>
                         <defs>
-                            <linearGradient id="rainbowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <linearGradient id={rainbowGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stopColor="hsl(358, 100%, 62%)" stopOpacity="0.3">
                                     <animate attributeName="stop-color"
                                         values="hsl(358, 100%, 62%); hsl(30, 100%, 50%); hsl(60, 100%, 50%); hsl(96, 100%, 50%); hsl(233, 85%, 47%); hsl(271, 85%, 47%); hsl(358, 100%, 62%)"
@@ -104,33 +110,33 @@ export const AwardBadge = ({ children, className = "", onClick, type = 'button',
             <div className="award-badge-simple__bg">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 54" className="w-full h-auto">
                     <defs>
-                        <linearGradient id="buttonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id={buttonGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stopColor="#f3e3ac" />
                             <stop offset="50%" stopColor="#ddd" />
                             <stop offset="100%" stopColor="#f1cfa6" />
                         </linearGradient>
-                        <filter id="glow">
-                            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                        <filter id={glowId}>
+                            <feGaussianBlur stdDeviation="4" result={coloredBlurId} />
                             <feMerge>
-                                <feMergeNode in="coloredBlur" />
+                                <feMergeNode in={coloredBlurId} />
                                 <feMergeNode in="SourceGraphic" />
                             </feMerge>
                         </filter>
                     </defs>
 
                     {/* Main background - sharp edges */}
-                    <rect width="260" height="54" fill="url(#buttonGradient)" />
+                    <rect width="260" height="54" fill={`url(#${buttonGradientId})`} />
 
                     {/* Border - sharp edges */}
                     <rect x="4" y="4" width="252" height="46" fill="transparent" stroke="#bbb" strokeWidth="1" />
 
                     {/* Animated rainbow overlay - only visible on hover */}
                     <g className="award-badge-simple__rainbow" opacity="0">
-                        <rect width="260" height="54" fill="url(#rainbowGradient)" />
+                        <rect width="260" height="54" fill={`url(#${rainbowGradientId})`} />
                     </g>
 
                     <defs>
-                        <linearGradient id="rainbowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id={rainbowGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stopColor="hsl(358, 100%, 62%)" stopOpacity="0.3">
                                 <animate attributeName="stop-color"
                                     values="hsl(358, 100%, 62%); hsl(30, 100%, 50%); hsl(60, 100%, 50%); hsl(96, 100%, 50%); hsl(233, 85%, 47%); hsl(271, 85%, 47%); hsl(358, 100%, 62%)"
