@@ -7583,3 +7583,64 @@ html {
     position: relative;
     z-index: 1;
 }
+
+/* Horizontal scroll section - Services & Works (after ScalingVideo) */
+.Horizontal {
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.Horizontal__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0.25rem;
+    padding: 0.5rem;
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.Horizontal__bg-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+}
+
+.Horizontal__bg-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    max-width: 120px;
+    max-height: 120px;
+}
+
+.Horizontal__container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.Horizontal__text.heading-xl {
+    display: flex;
+    width: max-content;
+    white-space: nowrap;
+    gap: 0.15em;
+    padding-left: 100vw;
+    margin: 0;
+    color: inherit;
+    font-size: clamp(2rem, 10vw, 12rem);
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.Horizontal__char {
+    display: inline-block;
+}

@@ -17,20 +17,20 @@ function ShowCard({ show, day, alternate = false, imageUrl }: ShowCardProps) {
   // Derive display fields from existing data
   const category = show.subtitle || 'Proshow';
   const title = show.title;
-  const description = show.isReveal 
+  const description = show.isReveal
     ? 'Details coming soon. Stay tuned for an amazing experience!'
     : `Experience ${title} on Day ${day} of Takshashila 26.`;
 
   return (
-    <article 
+    <article
       className={`show-card-proshows ${alternate ? 'show-card-proshows--alternate' : ''}`}
       aria-labelledby={`show-${show.id}-title`}
     >
       <div className={`show-card-proshows__image ${show.id === 'day1-jeeva' ? 'show-card-proshows__image--align-top' : ''}`}>
         {imageUrl ? (
-          <Image 
-            src={imageUrl} 
-            alt="" 
+          <Image
+            src={imageUrl}
+            alt=""
             fill
             loading="lazy"
             className="show-card-proshows__image-img"
@@ -41,24 +41,24 @@ function ShowCard({ show, day, alternate = false, imageUrl }: ShowCardProps) {
           <div className="show-card-proshows__image-placeholder" aria-hidden="true" />
         )}
       </div>
-      
+
       <div className="show-card-proshows__info">
         <div className="show-card-proshows__category">
           {category.toUpperCase()}
         </div>
-        
+
         <h3 id={`show-${show.id}-title`} className="show-card-proshows__title">
           {title}
         </h3>
-        
+
         <p className="show-card-proshows__description">
           {description}
         </p>
-        
+
         <div className="show-card-proshows__meta">
           <span className="show-card-proshows__date">Day {day}</span>
         </div>
-        
+
         <div className="show-card-proshows__cta">
           <a
             href={REGISTER_URL}
