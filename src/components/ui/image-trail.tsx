@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
-import './ImageTrail.css';
+import './image-trail.css';
 
 function lerp(a: number, b: number, n: number) {
     return (1 - n) * a + n * b;
@@ -48,6 +48,9 @@ class ImageItem {
     initEvents() {
         window.addEventListener('resize', this.resize);
     }
+    destroy() {
+        window.removeEventListener('resize', this.resize);
+    }
     getRect() {
         this.rect = this.DOM.el.getBoundingClientRect();
     }
@@ -66,6 +69,9 @@ class ImageTrailVariant1 {
     mousePos: { x: number; y: number };
     lastMousePos: { x: number; y: number };
     cacheMousePos: { x: number; y: number };
+    rafId: number | null = null;
+    handlePointerMove: (ev: MouseEvent | TouchEvent) => void;
+    isDestroyed: boolean = false;
 
     constructor(container: HTMLElement) {
         this.container = container;
@@ -82,19 +88,19 @@ class ImageTrailVariant1 {
         this.lastMousePos = { x: 0, y: 0 };
         this.cacheMousePos = { x: 0, y: 0 };
 
-        const handlePointerMove = (ev: MouseEvent | TouchEvent) => {
+        this.handlePointerMove = (ev: MouseEvent | TouchEvent) => {
             const rect = this.container.getBoundingClientRect();
             this.mousePos = getLocalPointerPos(ev, rect);
         };
-        container.addEventListener('mousemove', handlePointerMove);
-        container.addEventListener('touchmove', handlePointerMove);
+        container.addEventListener('mousemove', this.handlePointerMove);
+        container.addEventListener('touchmove', this.handlePointerMove);
 
         const initRender = (ev: MouseEvent | TouchEvent) => {
             const rect = this.container.getBoundingClientRect();
             this.mousePos = getLocalPointerPos(ev, rect);
             this.cacheMousePos = { ...this.mousePos };
 
-            requestAnimationFrame(() => this.render());
+            this.rafId = requestAnimationFrame(() => this.render());
 
             container.removeEventListener('mousemove', initRender);
             container.removeEventListener('touchmove', initRender);
@@ -103,7 +109,21 @@ class ImageTrailVariant1 {
         container.addEventListener('touchmove', initRender);
     }
 
+    destroy() {
+        this.isDestroyed = true;
+        if (this.rafId !== null) {
+            cancelAnimationFrame(this.rafId);
+        }
+        this.container.removeEventListener('mousemove', this.handlePointerMove);
+        this.container.removeEventListener('touchmove', this.handlePointerMove);
+        this.images.forEach(img => {
+            gsap.killTweensOf(img.DOM.el);
+            img.destroy();
+        });
+    }
+
     render() {
+        if (this.isDestroyed) return;
         let distance = getMouseDistance(this.mousePos, this.lastMousePos);
         this.cacheMousePos.x = lerp(this.cacheMousePos.x, this.mousePos.x, 0.1);
         this.cacheMousePos.y = lerp(this.cacheMousePos.y, this.mousePos.y, 0.1);
@@ -115,7 +135,7 @@ class ImageTrailVariant1 {
         if (this.isIdle && this.zIndexVal !== 1) {
             this.zIndexVal = 1;
         }
-        requestAnimationFrame(() => this.render());
+        this.rafId = requestAnimationFrame(() => this.render());
     }
 
     showNextImage() {
@@ -197,7 +217,11 @@ export default function ImageTrail({ items = [], variant = 1, className, childre
         if (!containerRef.current) return;
 
         const Cls = variantMap[variant as keyof typeof variantMap] || variantMap[1];
-        new Cls(containerRef.current);
+        const instance = new Cls(containerRef.current);
+
+        return () => {
+            instance.destroy();
+        };
     }, [variant, items]);
 
     return (

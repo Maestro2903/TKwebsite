@@ -155,10 +155,10 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                     {/* Hero center logo overlay - Takshashila text (तक्षशिला) */}
                     <div className="hero_center_logo" aria-hidden>
                         <Image
-                            src="/takshashika-logo-new.png"
+                            src="/images/hero-center-new.png"
                             alt="Takshashila"
-                            width={1120}
-                            height={644}
+                            width={4096}
+                            height={2016}
                             priority
                             className="hero_center_logo__img hero_center_logo__img--text"
                         />

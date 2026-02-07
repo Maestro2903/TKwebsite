@@ -125,7 +125,7 @@ export function ImageCursorTrail({
     }
   }, [fadeAnimation]);
 
-  // Default to a 100x100px square if no explicit classes are provided.
+  // Default to a 32x32px square if no explicit classes are provided.
   const imgClasses = imgClassName ?? imgClass ?? 'w-[32px] h-[32px]';
 
   return (
