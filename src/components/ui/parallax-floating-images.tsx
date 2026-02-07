@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useMotionTemplate, MotionValue } from 'framer-motion';
 
 interface ParallaxFloatingImagesProps {
     images: string[];
     className?: string;
+    mode?: 'section' | 'global';
 }
 
 // Predefined positions to avoid the center (where text is)
@@ -75,21 +76,40 @@ function useGlobalMouse() {
     return { mouseX, mouseY };
 }
 
-export default function ParallaxFloatingImages({ images, className }: ParallaxFloatingImagesProps) {
-    // Scroll Parallax - Global window scroll
-    const { scrollY } = useScroll();
+export default function ParallaxFloatingImages({ images, className, mode = 'section' }: ParallaxFloatingImagesProps) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const { scrollY } = useScroll(); // Global scroll
+    const { scrollYProgress } = useScroll({ // Section scroll
+        target: containerRef,
+        offset: ['start end', 'end start'],
+    });
+
+    const isGlobal = mode === 'global';
+
+    // Choose the driver and range based on mode
+    const scrollValue = isGlobal ? scrollY : scrollYProgress;
+    const inputRange = isGlobal ? [0, 1000] : [0, 1];
 
     return (
         <div
-            className={`fixed inset-0 w-full h-full pointer-events-none overflow-hidden ${className}`}
-            style={{ zIndex: 0 }}
+            ref={containerRef}
+            className={`${isGlobal ? 'fixed' : 'absolute'} inset-0 w-full h-full pointer-events-none overflow-hidden ${className}`}
+            style={{ zIndex: isGlobal ? 0 : undefined }}
         >
-            <ParallaxItems images={images} scrollY={scrollY} />
+            <ParallaxItems
+                images={images}
+                scrollValue={scrollValue}
+                inputRange={inputRange}
+            />
         </div>
     );
 }
 
-function ParallaxItems({ images, scrollY }: { images: string[], scrollY: MotionValue<number> }) {
+function ParallaxItems({ images, scrollValue, inputRange }: {
+    images: string[],
+    scrollValue: MotionValue<number>,
+    inputRange: number[]
+}) {
     const { mouseX, mouseY } = useGlobalMouse();
 
     return (
@@ -99,8 +119,9 @@ function ParallaxItems({ images, scrollY }: { images: string[], scrollY: MotionV
                     key={i}
                     src={src}
                     index={i}
-                    position={POSITIONS[i % POSITIONS.length]} // Cycle through positions if more images than positions
-                    scrollY={scrollY}
+                    position={POSITIONS[i % POSITIONS.length]}
+                    scrollValue={scrollValue}
+                    inputRange={inputRange}
                     mouseX={mouseX}
                     mouseY={mouseY}
                 />
@@ -113,23 +134,21 @@ interface ParallaxItemProps {
     src: string;
     index: number;
     position: typeof POSITIONS[number];
-    scrollY: MotionValue<number>;
+    scrollValue: MotionValue<number>;
+    inputRange: number[];
     mouseX: MotionValue<number>;
     mouseY: MotionValue<number>;
 }
 
-function ParallaxItem({ src, index, position, scrollY, mouseX, mouseY }: ParallaxItemProps) {
-    const scrollFactor = (index % 2 === 0 ? 1 : -1) * (50 + index * 5); // Revised factor
+function ParallaxItem({ src, index, position, scrollValue, inputRange, mouseX, mouseY }: ParallaxItemProps) {
+    const scrollFactor = (index % 2 === 0 ? 1 : -1) * (50 + index * 5);
     const mouseFactor = (index % 2 === 0 ? -1 : 1) * (20 + index * 5);
 
-    // Map global scroll pixels to parallax movement
-    // e.g. every 1000px scrolled, move by scrollFactor
-    const y = useTransform(scrollY, [0, 1000], [0, scrollFactor]);
+    const y = useTransform(scrollValue, inputRange, [0, scrollFactor]);
     const xMouse = useTransform(mouseX, (val) => val * mouseFactor);
     const yMouse = useTransform(mouseY, (val) => val * mouseFactor);
 
     // Combine transforms: scroll Y + mouse Y
-    // x is just mouse X
     const x = xMouse;
     const totalY = useMotionTemplate`calc(${y}px + ${yMouse}px)`;
 

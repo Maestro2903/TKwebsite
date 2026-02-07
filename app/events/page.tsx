@@ -67,7 +67,7 @@ export default function EventsPage() {
   return (
     <>
       <FabricGridBackground />
-      <ParallaxFloatingImages images={[...FONT1_IMAGES, ...Y2K_IMAGES]} className="opacity-50" />
+      <ParallaxFloatingImages images={[...FONT1_IMAGES, ...Y2K_IMAGES]} className="opacity-50" mode="global" />
       <Navigation />
 
       <main id="main" className="page_main page_main--events relative z-10">
