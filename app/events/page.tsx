@@ -5,7 +5,7 @@ import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import EventCategorySwitch from '@/components/sections/events/EventCategorySwitch';
 import EventsGrid from '@/components/sections/events/EventsGrid';
-import StickyRegisterCTA from '@/components/layout/StickyRegisterCTA';
+import FabricGridBackground from '@/components/decorative/FabricGridBackground';
 import { useLenis } from '@/hooks/useLenis';
 import type { EventItem } from '@/data/events';
 
@@ -63,25 +63,23 @@ export default function EventsPage() {
 
   return (
     <>
+      <FabricGridBackground />
       <Navigation />
 
-      <main id="main" className="page_main page_main--events">
-        <div
-          data-wf--spacer--section-space="main"
-          className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
-        />
-
+      <main id="main" className="page_main page_main--events relative z-10">
         <EventCategorySwitch value={category} onChange={setCategory} isHidden={categoryBarHidden} />
 
-        {isLoading ? (
-          <div className="events-loading">
-            <div className="events-loading__spinner">
-              <div className="events-spinner" aria-label="Loading events" />
+        <div className="mt-5">
+          {isLoading ? (
+            <div className="events-loading">
+              <div className="events-loading__spinner">
+                <div className="events-spinner" aria-label="Loading events" />
+              </div>
             </div>
-          </div>
-        ) : (
-          <EventsGrid key={category} events={memoizedEvents} category={category} />
-        )}
+          ) : (
+            <EventsGrid key={category} events={memoizedEvents} category={category} />
+          )}
+        </div>
 
         <div
           data-wf--spacer--section-space="main"
@@ -90,8 +88,6 @@ export default function EventsPage() {
       </main>
 
       <Footer />
-
-      <StickyRegisterCTA />
     </>
   );
 }

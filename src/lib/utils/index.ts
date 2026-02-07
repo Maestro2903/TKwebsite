@@ -1,2 +1,2 @@
 export * from './cn';
-export * from './svgConverter';
+// svgConverter uses sharp (Node-only); import from '@/lib/utils/svgConverter' in server code only

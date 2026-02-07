@@ -74,13 +74,6 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     image: '/images/event/nontech/PAINT%20THE%20TOWN.webp',
   },
   {
-    id: 'graphite-ty',
-    name: 'GRAPHITE-TY',
-    description:
-      'Bring ideas to life on paper through sketching, shading, and detail-driven pencil artistry.',
-    image: '/images/event/nontech/PAINT%20THE%20TOWN.webp',
-  },
-  {
     id: 'gaming-event',
     name: 'GAMING EVENT',
     description:
@@ -103,7 +96,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
   },
   {
     id: 'filmfinatics',
-    name: 'FILMFINATICS',
+    name: 'FILM FINATICS',
     description:
       'Turn a simple idea into a powerful short film using creativity, emotion, and cinematic storytelling.',
     image: '/images/event/nontech/FILMFINATICS.webp',

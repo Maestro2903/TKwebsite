@@ -105,9 +105,11 @@ export default function Navigation() {
             <div
                 className={`nav_wrap${pathname?.startsWith('/sana-arena')
                     ? ' nav_wrap--sana-arena'
-                    : pathname !== '/' && pathname !== '/proshows'
-                        ? ' nav_wrap--solid'
-                        : ''
+                    : pathname?.startsWith('/events')
+                        ? ' nav_wrap--events'
+                        : pathname !== '/' && pathname !== '/proshows'
+                            ? ' nav_wrap--solid'
+                            : ''
                     }`}
                 data-scrolling-started={scrollingStarted ? 'true' : 'false'}
                 data-scrolling-top={scrollingTop ? 'true' : 'false'}

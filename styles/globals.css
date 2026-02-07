@@ -211,6 +211,20 @@ html {
   mix-blend-mode: normal !important;
 }
 
+/* Events page: match FabricGridBackground (#0a0a0a) and grid tone */
+.nav_wrap.nav_wrap--events {
+  background-color: #0a0a0a !important;
+  background: #0a0a0a !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 1px solid rgba(51, 51, 51, 0.8) !important;
+}
+
+/* Events page: align sticky category bar below actual nav height (no overlap) */
+.page_main--events {
+  --nav-height: 85px;
+}
+
 /* All pages except home: solid black navbar (always black, no scroll effect) */
 .nav_wrap.nav_wrap--solid {
   background-color: #000 !important;
@@ -2900,132 +2914,23 @@ html {
   margin: 0;
 }
 
-/* Sticky events category bar – hides on scroll down, shows on scroll up */
-.events-category-switch {
-  position: sticky;
-  top: calc(var(--nav-height, 45px) + 10px);
-  z-index: 40;
-  background: rgba(0, 0, 0, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  justify-content: center;
-  padding: 0.75rem var(--site--gutter);
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
-}
-
+/* Sticky events category bar – hide on scroll down, show on scroll up (visuals in component) */
 .events-category-switch--hidden {
   transform: translateY(-100%);
   -webkit-transform: translateY(-100%);
   pointer-events: none;
 }
 
-.events-category-switch__inner {
-  width: 100%;
-  max-width: 28rem;
-  display: flex;
-  justify-content: center;
-}
-
-.events-category-switch__track {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 400px;
-  height: 70px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 9999px;
-  padding: 0.375rem;
-  gap: 0.625rem; /* 10px */
-}
-
-.events-category-switch__slider {
-  position: absolute;
-  left: 0.375rem;
-  top: 0.375rem;
-  bottom: 0.375rem;
-  width: calc(50% - 0.375rem - 0.3125rem); /* account for half of 10px gap */
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 9999px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateX(calc(var(--selected-index, 0) * 100%));
-  pointer-events: none;
-}
-
-.events-category-switch__tab {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  min-width: 0;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.65);
-  cursor: pointer;
-  padding: 0.5rem 1.25rem;
-  border-radius: 9999px;
-  transition: color 0.25s ease;
-}
-
-.events-category-switch__tab:hover {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.events-category-switch__tab[aria-selected="true"] {
-  color: #fff;
-}
-
-/* Mobile: sit below taller nav, larger touch targets, compact padding, no tap flash */
 @media screen and (max-width: 767px) {
   .events-category-switch {
-    top: calc(56px + 10px); /* mobile nav is taller than --nav-height, +10px gap */
-    padding: 0.625rem var(--site--gutter);
     padding-left: max(var(--site--gutter), env(safe-area-inset-left));
     padding-right: max(var(--site--gutter), env(safe-area-inset-right));
   }
-
-  .events-category-switch__inner {
-    max-width: none;
-  }
-
-  .events-category-switch__track {
-    width: 100%;
-    min-width: 0;
-    padding: 0.375rem;
-  }
-
-  .events-category-switch__tab {
-    min-height: 44px;
-    padding: 0.5rem 1rem;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
 }
 
-@media screen and (max-width: 479px) {
-  .events-category-switch {
-    top: calc(52px + 10px);
-    padding: 0.5rem max(var(--site--gutter), env(safe-area-inset-left));
-    padding-right: max(var(--site--gutter), env(safe-area-inset-right));
-  }
-
-  .events-category-switch__tab {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.6875rem;
-  }
-}
-
-/* Events page: clear fixed nav and add spacing for category switch + events */
+/* Events page: clear fixed nav, tab bar flush under nav */
 .page_main--events {
-  padding-top: calc(var(--nav-height, 45px) + env(safe-area-inset-top, 0px) + 0.5rem);
+  padding-top: calc(var(--nav-height, 85px) + env(safe-area-inset-top, 0px));
 }
 
 /* Events page: move spacers down and even out above/below events grid */
@@ -3046,7 +2951,7 @@ html {
 
 @media screen and (max-width: 767px) {
   .page_main--events {
-    padding-top: calc(56px + env(safe-area-inset-top, 0px) + 0.5rem);
+    padding-top: calc(var(--nav-height, 85px) + env(safe-area-inset-top, 0px));
     /* Reserve space so last event card can scroll above sticky CTA */
     padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   }
@@ -3060,7 +2965,7 @@ html {
 
 @media screen and (max-width: 479px) {
   .page_main--events {
-    padding-top: calc(52px + env(safe-area-inset-top, 0px) + 0.5rem);
+    padding-top: calc(var(--nav-height, 85px) + env(safe-area-inset-top, 0px));
   }
   .page_main--events .u-section-spacer.w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 {
     height: 1.5rem;
@@ -3068,11 +2973,6 @@ html {
   .page_main--events > .u-section-spacer.w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490:first-of-type {
     margin-top: 0.5rem;
   }
-}
-
-.events-category-switch__tab:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.8);
-  outline-offset: 2px;
 }
 
 .events-grid {
