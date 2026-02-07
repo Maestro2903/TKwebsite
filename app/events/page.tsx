@@ -6,8 +6,11 @@ import Footer from '@/components/layout/Footer';
 import EventCategorySwitch from '@/components/sections/events/EventCategorySwitch';
 import EventsGrid from '@/components/sections/events/EventsGrid';
 import FabricGridBackground from '@/components/decorative/FabricGridBackground';
+import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
 import { useLenis } from '@/hooks/useLenis';
 import type { EventItem } from '@/data/events';
+import { Y2K_IMAGES } from '@/data/y2k-images';
+import { FONT1_IMAGES } from '@/data/font1-images';
 
 const SCROLL_THRESHOLD_DESKTOP = 60;
 const SCROLL_THRESHOLD_MOBILE = 100; // higher so bar doesn’t hide too easily on touch scroll
@@ -64,6 +67,7 @@ export default function EventsPage() {
   return (
     <>
       <FabricGridBackground />
+      <ParallaxFloatingImages images={[...FONT1_IMAGES, ...Y2K_IMAGES]} className="opacity-50" />
       <Navigation />
 
       <main id="main" className="page_main page_main--events relative z-10">

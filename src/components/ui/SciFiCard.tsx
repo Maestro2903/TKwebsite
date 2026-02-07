@@ -126,10 +126,10 @@ const SciFiCard: React.FC<SciFiCardProps> = ({ name, description, image, onClick
                                     name.length > 40
                                         ? 'text-xs'
                                         : name.length > 28
-                                          ? 'text-sm'
-                                          : name.length > 18
-                                            ? 'text-base'
-                                            : 'text-sm sm:text-lg'
+                                            ? 'text-sm'
+                                            : name.length > 18
+                                                ? 'text-base'
+                                                : 'text-base sm:text-lg'
                                 )}
                             >
                                 {name}
