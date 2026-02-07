@@ -20,23 +20,23 @@ const SciFiCard: React.FC<SciFiCardProps> = ({ name, description, image, onClick
     return (
         <div
             onClick={onClick}
-            className={`relative w-full aspect-[2/3] bg-[#1a1a1a] border border-neutral-800 shadow-2xl flex flex-col overflow-hidden select-none group cursor-pointer transition-all duration-300 hover:border-neutral-600 ${className}`}
+            className={`sci-fi-card relative w-full aspect-[2/3] bg-[#1a1a1a] border border-neutral-800 shadow-2xl flex flex-col overflow-hidden select-none group cursor-pointer transition-all duration-300 hover:border-neutral-600 ${className}`}
         >
             {/* --- Top Border Strip --- */}
-            <div className="h-6 w-full flex items-center justify-between px-2 border-b border-neutral-700 bg-[#151515] relative z-10">
-                <X size={10} className="text-neutral-500" />
-                <div className="flex gap-4 text-[8px] tracking-[0.2em] text-neutral-600 uppercase font-bold">
+            <div className="h-6 w-full flex items-center justify-between px-2 border-b border-neutral-700 bg-[#151515] relative z-10 min-h-0 shrink-0">
+                <X size={10} className="text-neutral-500 shrink-0" />
+                <div className="flex gap-2 sm:gap-4 text-[8px] tracking-[0.2em] text-neutral-600 uppercase font-bold min-w-0 overflow-hidden">
                     <span>System Cover</span>
-                    <span className="hidden sm:inline">///</span>
+                    <span>///</span>
                     <span>Data Link</span>
-                    <span className="hidden sm:inline">///</span>
+                    <span>///</span>
                     <span>Secure</span>
                 </div>
-                <X size={10} className="text-neutral-500" />
+                <X size={10} className="text-neutral-500 shrink-0" />
             </div>
 
             {/* --- Main Content Area --- */}
-            <div className="flex-1 relative flex">
+            <div className="flex-1 relative flex min-h-0">
                 {/* Left Vertical Rail */}
                 <div className="w-8 h-full flex flex-col items-center justify-center gap-16 border-r border-neutral-800 bg-[#151515]">
                     <div className="w-3 h-3 rounded-full bg-[#0a0a0a] border border-neutral-700 shadow-[inset_0_1px_2px_rgba(0,0,0,0.8)]" />
@@ -44,14 +44,14 @@ const SciFiCard: React.FC<SciFiCardProps> = ({ name, description, image, onClick
                     <div className="w-3 h-3 rounded-full bg-[#0a0a0a] border border-neutral-700 shadow-[inset_0_1px_2px_rgba(0,0,0,0.8)]" />
                 </div>
 
-                {/* Central Display Zone */}
-                <div className="flex-1 flex flex-col p-4 pb-0 bg-[#1a1a1a] relative">
+                {/* Central Display Zone — no padding so image fills fully on all screen sizes */}
+                <div className="sci-fi-card__display flex-1 flex flex-col p-0 pb-0 bg-[#1a1a1a] relative min-w-0">
 
                     {/* Inner Screen Container */}
-                    <div className="relative w-full flex-1 flex flex-col">
+                    <div className="relative w-full flex-1 flex flex-col min-h-0">
 
-                        {/* The Screen (Void / Image) — fixed height so poster is same size on every card */}
-                        <div className="h-[220px] min-h-[200px] flex-shrink-0 w-full bg-[#050505] border border-neutral-700 relative overflow-hidden group-hover:border-neutral-500 transition-colors duration-300 sm:h-[260px] sm:min-h-[240px]"
+                        {/* The Screen (Void / Image) — aspect-ratio so poster proportions stay same on all devices */}
+                        <div className="aspect-[16/10] w-full flex-shrink-0 bg-[#050505] border border-neutral-700 relative overflow-hidden group-hover:border-neutral-500 transition-colors duration-300"
                             style={{ clipPath: 'polygon(0 0, 100% 0, 100% 88%, 92% 100%, 8% 100%, 0 88%)' }}>
 
                             {/* Image Container */}
@@ -64,8 +64,8 @@ const SciFiCard: React.FC<SciFiCardProps> = ({ name, description, image, onClick
                                 />
                             </div>
 
-                            {/* Inner Decorative Lines */}
-                            <div className="absolute inset-0 border-[0.5px] border-neutral-800 m-1 opacity-50 z-10 pointer-events-none"
+                            {/* Inner Decorative Lines — minimal margin so image fills the screen on all sizes */}
+                            <div className="absolute inset-0 border-[0.5px] border-neutral-800 m-0.5 opacity-50 z-10 pointer-events-none"
                                 style={{ clipPath: 'polygon(0 0, 100% 0, 100% 88%, 92% 100%, 8% 100%, 0 88%)' }}></div>
 
                             {/* Subtle Grid overlay inside screen */}
@@ -83,7 +83,7 @@ const SciFiCard: React.FC<SciFiCardProps> = ({ name, description, image, onClick
                     </div>
 
                     {/* Lower Control Panel */}
-                    <div className="h-auto mt-2 flex flex-col gap-2">
+                    <div className="h-auto mt-2 flex flex-col gap-2 min-w-0">
 
                         {/* Row 1: Indicators */}
                         <div className="flex justify-between items-end pb-2">
@@ -108,7 +108,7 @@ const SciFiCard: React.FC<SciFiCardProps> = ({ name, description, image, onClick
                         </div>
 
                         {/* Row 2: Ruler Strip */}
-                        <div className="border-y border-neutral-800 py-1 flex justify-between items-center text-[8px] font-bold text-neutral-500 font-orbitron">
+                        <div className="border-y border-neutral-800 py-1 flex justify-between items-center text-[8px] font-bold text-neutral-500 font-orbitron min-w-0 overflow-hidden">
                             {Array.from({ length: 12 }).map((_, i) => (
                                 <div key={i} className="flex flex-col items-center gap-1">
                                     <span className="opacity-50">{i + 1}</span>
@@ -118,11 +118,18 @@ const SciFiCard: React.FC<SciFiCardProps> = ({ name, description, image, onClick
                         </div>
 
                         {/* Row 3: Footer — Event name + Register button */}
-                        <div className="min-h-[96px] bg-[#151515] border border-neutral-800 mt-2 p-3 flex flex-col gap-3 relative overflow-hidden group-hover:border-neutral-600 transition-colors">
+                        <div className="min-h-[96px] bg-[#151515] border border-neutral-800 mt-2 p-3 flex flex-col gap-3 relative overflow-hidden group-hover:border-neutral-600 transition-colors shrink-0">
                             <h2
                                 className={cn(
-                                    'font-orbitron font-bold tracking-tighter text-neutral-300 line-clamp-2 leading-tight pr-2 z-10',
-                                    name.length > 28 ? 'text-sm' : name.length > 18 ? 'text-base' : 'text-lg'
+                                    'sci-fi-card__title font-orbitron font-bold tracking-tighter text-neutral-300 line-clamp-2 leading-tight pr-2 z-10 min-w-0 break-words',
+                                    // Mobile: smaller sizes so long names fit; desktop: same tiers, short names get text-lg
+                                    name.length > 40
+                                        ? 'text-xs'
+                                        : name.length > 28
+                                          ? 'text-sm'
+                                          : name.length > 18
+                                            ? 'text-base'
+                                            : 'text-sm sm:text-lg'
                                 )}
                             >
                                 {name}

@@ -3012,6 +3012,12 @@ html {
   min-width: 0;
 }
 
+/* Events page: SciFiCard image area — no padding so image fills fully on all screen sizes */
+.page_main--events .event-card .sci-fi-card__display {
+  padding: 0;
+  padding-bottom: 0;
+}
+
 /* Image wrapper: overflow hidden ONLY here; no border to avoid grey bar */
 .event-card__image {
   aspect-ratio: 756 / 430;
