@@ -7,9 +7,11 @@ export type EventCategory = 'non-technical' | 'technical';
 interface EventCategorySwitchProps {
   value: EventCategory;
   onChange: (value: EventCategory) => void;
+  /** When true, the sticky bar is hidden (e.g. after scrolling down) */
+  isHidden?: boolean;
 }
 
-export default function EventCategorySwitch({ value, onChange }: EventCategorySwitchProps) {
+export default function EventCategorySwitch({ value, onChange, isHidden = false }: EventCategorySwitchProps) {
   const tabListRef = useRef<HTMLDivElement>(null);
 
   const handleKeyDown = useCallback(
@@ -29,36 +31,48 @@ export default function EventCategorySwitch({ value, onChange }: EventCategorySw
 
   return (
     <div
-      ref={tabListRef}
-      className="events-category-switch"
-      role="tablist"
-      aria-label="Event category"
-      onKeyDown={handleKeyDown}
+      className={`events-category-switch ${isHidden ? 'events-category-switch--hidden' : ''}`}
+      aria-hidden={isHidden}
     >
-      <button
-        type="button"
-        role="tab"
-        aria-selected={value === 'non-technical'}
-        aria-controls="events-grid-non-technical"
-        id="tab-non-technical"
-        className="events-category-switch__tab"
-        onClick={() => onChange('non-technical')}
-        tabIndex={value === 'non-technical' ? 0 : -1}
+      <div
+        ref={tabListRef}
+        className="events-category-switch__inner"
+        role="tablist"
+        aria-label="Event category"
+        onKeyDown={handleKeyDown}
       >
-        NON-TECHNICAL EVENTS
-      </button>
-      <button
-        type="button"
-        role="tab"
-        aria-selected={value === 'technical'}
-        aria-controls="events-grid-technical"
-        id="tab-technical"
-        className="events-category-switch__tab"
-        onClick={() => onChange('technical')}
-        tabIndex={value === 'technical' ? 0 : -1}
-      >
-        TECHNICAL EVENTS
-      </button>
+        <div className="events-category-switch__track">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={value === 'non-technical'}
+            aria-controls="events-grid-non-technical"
+            id="tab-non-technical"
+            className="events-category-switch__tab"
+            onClick={() => onChange('non-technical')}
+            tabIndex={value === 'non-technical' ? 0 : -1}
+          >
+            Non-Technical
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={value === 'technical'}
+            aria-controls="events-grid-technical"
+            id="tab-technical"
+            className="events-category-switch__tab"
+            onClick={() => onChange('technical')}
+            tabIndex={value === 'technical' ? 0 : -1}
+          >
+            Technical
+          </button>
+          <span
+            className="events-category-switch__slider"
+            aria-hidden
+            style={{ ['--selected-index' as string]: value === 'technical' ? 1 : 0 }}
+          />
+        </div>
+      </div>
     </div>
   );
 }
