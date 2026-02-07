@@ -3,6 +3,9 @@
 import { useEffect, useRef } from 'react';
 import { useGSAP } from '@/hooks/useGSAP';
 
+import { Y2K_IMAGES } from '@/data/y2k-images';
+import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
+
 // Flagship events - Takshashila
 const PROJECTS = [
     {
@@ -157,7 +160,8 @@ export default function ServicesAndWorksSection() {
     }, [isLoading, gsapModules]);
 
     return (
-        <div ref={sectionRef} data-wf--section--theme="inherit" className="u-section services-works-section">
+        <div ref={sectionRef} data-wf--section--theme="inherit" className="u-section services-works-section" style={{ position: 'relative' }}>
+            <ParallaxFloatingImages images={Y2K_IMAGES} className="z-0" />
             {/* Spacer */}
             <div
                 data-wf--spacer--section-space="main"

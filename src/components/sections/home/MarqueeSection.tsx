@@ -17,7 +17,7 @@ function ScalingVideo() {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
                         setShouldLoadVideo(true);
-                        video.play().catch(() => {});
+                        video.play().catch(() => { });
                     } else {
                         video.pause();
                     }
@@ -52,205 +52,158 @@ const IMAGE_URLS = {
     haniff: '/assets/marquee/haniff1.avif',
 } as const;
 
+import { Y2K_IMAGES } from '@/data/y2k-images';
+import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
+
 export default function MarqueeSection() {
     return (
-        <section className="u-section u-zindex-2" style={{ overflow: 'hidden' }}>
-            <div
-                data-wf--spacer--section-space="small"
-                className="u-section-spacer w-variant-d422cbd0-f212-c815-68df-63414354c21d u-ignore-trim"
-            />
+        <section className="u-section u-zindex-2" style={{ overflow: 'hidden', position: 'relative' }}>
+            <ParallaxFloatingImages images={Y2K_IMAGES} className="z-0" />
 
-            {/* Row 1 - Scrolls Right */}
-            <div
-                data-marquee-direction="right"
-                className="marquee-advanced is-bts-1"
-            >
-                <div data-marquee-scroll-target="" className="marquee-advanced__scroll">
-                    {/* Collection 1 */}
-                    <div data-marquee-collection-target="" className="marquee-advanced__collection">
-                        <p className="marquee__advanced__p">Dive Deep.</p>
-                        <div className="home_marquee_image_wrap">
-                            <img
-                                width={160}
-                                loading="eager"
-                                alt=""
-                                src={IMAGE_URLS.rect38}
-                                className="u-cover-absolute"
-                            />
-                        </div>
-                        <p className="marquee__advanced__p">Rise High.</p>
-                        <div className="home_marquee_image_wrap">
-                            <img
-                                width={160}
-                                loading="eager"
-                                alt=""
-                                src={IMAGE_URLS.main}
-                                sizes="160px"
-                                className="u-cover-absolute"
-                            />
-                        </div>
-                    </div>
-                    {/* Collection 1 Duplicate for infinite scroll */}
-                    <div data-marquee-collection-target="" className="marquee-advanced__collection">
-                        <p className="marquee__advanced__p">Dive Deep.</p>
-                        <div className="home_marquee_image_wrap">
-                            <Image
-                                width={160}
-                                height={160}
-                                loading="lazy"
-                                alt=""
-                                src={IMAGE_URLS.rect38}
-                                className="u-cover-absolute"
-                                sizes="160px"
-                            />
-                        </div>
-                        <p className="marquee__advanced__p">Rise High.</p>
-                        <div className="home_marquee_image_wrap">
-                            <Image
-                                width={160}
-                                height={160}
-                                loading="lazy"
-                                alt=""
-                                src={IMAGE_URLS.main}
-                                sizes="160px"
-                                className="u-cover-absolute"
-                            />
-                        </div>
-                    </div>
-                    {/* Collection 1 Second Duplicate for safety on wide screens */}
-                    <div data-marquee-collection-target="" className="marquee-advanced__collection">
-                        <p className="marquee__advanced__p">Dive Deep.</p>
-                        <div className="home_marquee_image_wrap">
-                            <Image
-                                width={160}
-                                height={160}
-                                loading="lazy"
-                                alt=""
-                                src={IMAGE_URLS.rect38}
-                                className="u-cover-absolute"
-                                sizes="160px"
-                            />
-                        </div>
-                        <p className="marquee__advanced__p">Rise High.</p>
-                        <div className="home_marquee_image_wrap">
-                            <Image
-                                width={160}
-                                height={160}
-                                loading="lazy"
-                                alt=""
-                                src={IMAGE_URLS.main}
-                                sizes="160px"
-                                className="u-cover-absolute"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Row 2 - Scrolls Left */}
-            <div
-                data-marquee-direction="left"
-                className="marquee-advanced is-bts-2"
-            >
-                <div data-marquee-scroll-target="" className="marquee-advanced__scroll u-text-trim-off">
-                    {/* Collection 2 */}
-                    <div data-marquee-collection-target="" className="marquee-advanced__collection">
-                        <p className="marquee__advanced__p">The Voyage Begins.</p>
-                        <div className="home_marquee_image_wrap">
-                            <img
-                                width={160}
-                                loading="eager"
-                                alt=""
-                                src={IMAGE_URLS.image1113}
-                                className="u-cover-absolute"
-                            />
-                        </div>
-                        <p className="marquee__advanced__p">That&apos;s the Takshashila Spirit.</p>
-                        <div className="home_marquee_image_wrap">
-                            <img
-                                width={160}
-                                loading="eager"
-                                alt=""
-                                src={IMAGE_URLS.haniff}
-                                sizes="160px"
-                                className="u-cover-absolute"
-                            />
-                        </div>
-                    </div>
-                    {/* Collection 2 Duplicate */}
-                    <div data-marquee-collection-target="" className="marquee-advanced__collection">
-                        <p className="marquee__advanced__p">The Voyage Begins.</p>
-                        <div className="home_marquee_image_wrap">
-                            <Image
-                                width={160}
-                                height={160}
-                                loading="lazy"
-                                alt=""
-                                src={IMAGE_URLS.image1113}
-                                className="u-cover-absolute"
-                                sizes="160px"
-                            />
-                        </div>
-                        <p className="marquee__advanced__p">That&apos;s the Takshashila Spirit.</p>
-                        <div className="home_marquee_image_wrap">
-                            <Image
-                                width={160}
-                                height={160}
-                                loading="lazy"
-                                alt=""
-                                src={IMAGE_URLS.haniff}
-                                sizes="160px"
-                                className="u-cover-absolute"
-                            />
-                        </div>
-                    </div>
-                    {/* Collection 2 Second Duplicate */}
-                    <div data-marquee-collection-target="" className="marquee-advanced__collection">
-                        <p className="marquee__advanced__p">The Voyage Begins.</p>
-                        <div className="home_marquee_image_wrap">
-                            <Image
-                                width={160}
-                                height={160}
-                                loading="lazy"
-                                alt=""
-                                src={IMAGE_URLS.image1113}
-                                className="u-cover-absolute"
-                                sizes="160px"
-                            />
-                        </div>
-                        <p className="marquee__advanced__p">That&apos;s the Takshashila Spirit.</p>
-                        <div className="home_marquee_image_wrap">
-                            <Image
-                                width={160}
-                                height={160}
-                                loading="lazy"
-                                alt=""
-                                src={IMAGE_URLS.haniff}
-                                sizes="160px"
-                                className="u-cover-absolute"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Scaling Video Small Box */}
-            <div className="scaling-element__small-box">
+            <div className="relative z-10">
                 <div
-                    data-flip-id="scaling-video"
-                    className="scaling-video__wrapper"
+                    data-wf--spacer--section-space="small"
+                    className="u-section-spacer w-variant-d422cbd0-f212-c815-68df-63414354c21d u-ignore-trim"
+                />
+
+                {/* Row 1 - Scrolls Right */}
+                <div
+                    data-marquee-direction="right"
+                    className="marquee-advanced is-bts-1"
                 >
-                    <div className="scaling-video">
-                        <ScalingVideo />
-                        <div className="scaling-video-overlay" />
+                    <div data-marquee-scroll-target="" className="marquee-advanced__scroll">
+                        {/* Collection 1 */}
+                        <div data-marquee-collection-target="" className="marquee-advanced__collection">
+                            <p className="marquee__advanced__p">Dive Deep.</p>
+                            <div className="home_marquee_image_wrap">
+                                <img
+                                    width={160}
+                                    loading="eager"
+                                    alt=""
+                                    src={IMAGE_URLS.rect38}
+                                    className="u-cover-absolute"
+                                />
+                            </div>
+                            <p className="marquee__advanced__p">Rise High.</p>
+                            <div className="home_marquee_image_wrap">
+                                <img
+                                    width={160}
+                                    loading="eager"
+                                    alt=""
+                                    src={IMAGE_URLS.main}
+                                    sizes="160px"
+                                    className="u-cover-absolute"
+                                />
+                            </div>
+                        </div>
+                        {/* Collection 1 Duplicate for infinite scroll */}
+                        <div data-marquee-collection-target="" className="marquee-advanced__collection">
+                            <p className="marquee__advanced__p">Dive Deep.</p>
+                            <div className="home_marquee_image_wrap">
+                                <Image
+                                    width={160}
+                                    height={160}
+                                    loading="lazy"
+                                    alt=""
+                                    src={IMAGE_URLS.rect38}
+                                    className="u-cover-absolute"
+                                    sizes="160px"
+                                />
+                            </div>
+                            <p className="marquee__advanced__p">Rise High.</p>
+                            <div className="home_marquee_image_wrap">
+                                <Image
+                                    width={160}
+                                    height={160}
+                                    loading="lazy"
+                                    alt=""
+                                    src={IMAGE_URLS.main}
+                                    sizes="160px"
+                                    className="u-cover-absolute"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div
-                data-wf--spacer--section-space="small"
-                className="u-section-spacer w-variant-d422cbd0-f212-c815-68df-63414354c21d u-ignore-trim"
-            />
+                {/* Row 2 - Scrolls Left */}
+                <div
+                    data-marquee-direction="left"
+                    className="marquee-advanced is-bts-2"
+                >
+                    <div data-marquee-scroll-target="" className="marquee-advanced__scroll u-text-trim-off">
+                        {/* Collection 2 */}
+                        <div data-marquee-collection-target="" className="marquee-advanced__collection">
+                            <p className="marquee__advanced__p">The Voyage Begins.</p>
+                            <div className="home_marquee_image_wrap">
+                                <img
+                                    width={160}
+                                    loading="eager"
+                                    alt=""
+                                    src={IMAGE_URLS.image1113}
+                                    className="u-cover-absolute"
+                                />
+                            </div>
+                            <p className="marquee__advanced__p">That&apos;s the Takshashila Spirit.</p>
+                            <div className="home_marquee_image_wrap">
+                                <img
+                                    width={160}
+                                    loading="eager"
+                                    alt=""
+                                    src={IMAGE_URLS.haniff}
+                                    sizes="160px"
+                                    className="u-cover-absolute"
+                                />
+                            </div>
+                        </div>
+                        {/* Collection 2 Duplicate */}
+                        <div data-marquee-collection-target="" className="marquee-advanced__collection">
+                            <p className="marquee__advanced__p">The Voyage Begins.</p>
+                            <div className="home_marquee_image_wrap">
+                                <Image
+                                    width={160}
+                                    height={160}
+                                    loading="lazy"
+                                    alt=""
+                                    src={IMAGE_URLS.image1113}
+                                    className="u-cover-absolute"
+                                    sizes="160px"
+                                />
+                            </div>
+                            <p className="marquee__advanced__p">That&apos;s the Takshashila Spirit.</p>
+                            <div className="home_marquee_image_wrap">
+                                <Image
+                                    width={160}
+                                    height={160}
+                                    loading="lazy"
+                                    alt=""
+                                    src={IMAGE_URLS.haniff}
+                                    sizes="160px"
+                                    className="u-cover-absolute"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Scaling Video Small Box */}
+                <div className="scaling-element__small-box">
+                    <div
+                        data-flip-id="scaling-video"
+                        className="scaling-video__wrapper"
+                    >
+                        <div className="scaling-video">
+                            <ScalingVideo />
+                            <div className="scaling-video-overlay" />
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    data-wf--spacer--section-space="small"
+                    className="u-section-spacer w-variant-d422cbd0-f212-c815-68df-63414354c21d u-ignore-trim"
+                />
+            </div>
         </section>
     );
 }

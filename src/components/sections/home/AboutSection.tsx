@@ -3,6 +3,9 @@
 import { useEffect, useRef } from 'react';
 import { useGSAP } from '@/hooks/useGSAP';
 
+import { Y2K_IMAGES } from '@/data/y2k-images';
+import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
+
 // Exact HTML structure from original Zeit Media website for About Section with GSAP animations
 export default function AboutSection() {
     const sectionRef = useRef<HTMLDivElement>(null);
@@ -120,13 +123,14 @@ export default function AboutSection() {
     }, [isLoading, gsapModules]);
 
     return (
-        <div ref={sectionRef} className="u-section u-zindex-3">
+        <div ref={sectionRef} className="u-section u-zindex-3" style={{ position: 'relative' }}>
+            <ParallaxFloatingImages images={Y2K_IMAGES} className="z-0" />
             <div
                 data-wf--spacer--section-space="large"
                 className="u-section-spacer w-variant-8cc18b30-4618-8767-0111-f6abfe45aaa3 u-ignore-trim"
             />
 
-            <div className="u-container u-grid-custom">
+            <div className="u-container u-grid-custom relative z-10">
                 <div className="about_heading u-column-8">
                     <h2
                         ref={headingRef}

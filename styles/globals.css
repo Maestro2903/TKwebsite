@@ -714,6 +714,7 @@ html {
   position: relative;
   z-index: 15;
   background-color: var(--_theme---background, #0a0a0a);
+  margin-top: 1.5rem;
 }
 
 /* =================================================================
@@ -885,14 +886,14 @@ html {
   width: 100vw;
   position: relative;
   overflow: hidden;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .sponsors_marquee_collection {
   display: flex;
   align-items: center;
-  gap: 3rem;
+  gap: 1.5rem;
   padding-left: 2rem;
   padding-right: 2rem;
 }
@@ -927,8 +928,13 @@ html {
   }
 
   .sponsors_marquee_collection {
-    gap: 2rem;
+    gap: 1rem;
   }
+}
+
+/* Increase marquee speed specifically for sponsors section */
+.marquee-advanced.sponsors_marquee .marquee-advanced__scroll {
+  animation-duration: 15s;
 }
 
 /* CTA Section */
@@ -4233,7 +4239,7 @@ html {
 
   /* CTA Section */
   .section_cta {
-    min-height: 80vh;
+    min-height: 70vh;
   }
 
   ._3d_heading {

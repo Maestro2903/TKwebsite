@@ -3,12 +3,16 @@
 import { useRef } from 'react';
 import Image from 'next/image';
 
+import { Y2K_IMAGES } from '@/data/y2k-images';
+import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
+
 export default function FeaturedClientsSection() {
     const sectionRef = useRef<HTMLElement>(null);
 
     return (
-        <div>
-            <section ref={sectionRef} className="section_home_client section_wrap cit_section">
+        <div style={{ position: 'relative' }}>
+            <ParallaxFloatingImages images={Y2K_IMAGES} className="z-0" />
+            <section ref={sectionRef} className="section_home_client section_wrap cit_section relative z-10">
                 <div className="featured_client_component cit_about_component">
                     <div className="cit_about_contain u-container">
                         <div className="cit_about_grid">

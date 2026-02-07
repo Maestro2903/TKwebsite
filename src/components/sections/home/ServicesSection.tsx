@@ -3,6 +3,9 @@
 import { useEffect, useRef } from 'react';
 import { useGSAP } from '@/hooks/useGSAP';
 
+import { Y2K_IMAGES } from '@/data/y2k-images';
+import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
+
 // Exact HTML structure from original Zeit Media website for Services Section
 export default function ServicesSection() {
     const sectionRef = useRef<HTMLElement>(null);
@@ -59,7 +62,8 @@ export default function ServicesSection() {
     }, [isLoading, gsapModules]);
 
     return (
-        <section ref={sectionRef} data-wf--section--theme="inherit" className="u-section">
+        <section ref={sectionRef} data-wf--section--theme="inherit" className="u-section" style={{ position: 'relative' }}>
+            <ParallaxFloatingImages images={Y2K_IMAGES} className="z-0" />
             <div
                 data-wf--spacer--section-space="main"
                 className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"

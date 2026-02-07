@@ -1,59 +1,48 @@
 'use client';
 
-import React, { Suspense, useState, useEffect, useRef } from 'react';
-import dynamic from 'next/dynamic';
+import React, { useState, useEffect, useRef } from 'react';
+import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
 
-const CTAGlbViewer = dynamic(() => import('@/components/decorative/CTAGlbViewer'), {
-    ssr: false,
-    loading: () => <div className="_3d_absolute hide-mobile" style={{ background: 'transparent' }} />,
-});
-
-const CTA_VIDEO_SRC = '/videos/3d-zeit-optimized.mp4';
-
-/** Match hide-mobile / _3d_absolute_mobile breakpoint: only one video decode (desktop = Spline or fallback; mobile = single video). */
-const MOBILE_QUERY = '(max-width: 767px)';
+const Y2K_IMAGES = [
+    '/assets/y2k-icons/AI_generated_3D_star_icon_created_from_metallic_chrome_liquid_material_PNG-removebg-preview.png',
+    '/assets/y2k-icons/CHROMESTARS-removebg-preview.png',
+    '/assets/y2k-icons/Download_premium_png_of_Human_skull_png_icon_sticker__3D_rendering__transparent-removebg-preview.png',
+    '/assets/y2k-icons/Holographic_Vinyl-removebg-preview.png',
+    '/assets/y2k-icons/Silver_3D_Polaris-removebg-preview.png',
+    '/assets/y2k-icons/_chrome_stars__Sticker_for_Sale_by_metallirakas-removebg-preview.png',
+    '/assets/y2k-icons/download__2_-removebg-preview (1).png',
+    '/assets/y2k-icons/download__2_-removebg-preview.png',
+    '/assets/y2k-icons/download__3_-removebg-preview.png',
+    '/assets/y2k-icons/pic_is_not_mine_-removebg-preview.png',
+];
 
 export default function CTASection() {
-    const [isMobile, setIsMobile] = useState(false);
-    const [ctaInView, setCtaInView] = useState(false);
-    const [shouldLoadMobileVideo, setShouldLoadMobileVideo] = useState(false);
-    const [wants3D, setWants3D] = useState(false);
     const sectionRef = useRef<HTMLElement>(null);
 
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-        const mql = window.matchMedia(MOBILE_QUERY);
-        const update = () => setIsMobile(mql.matches);
-        update();
-        mql.addEventListener('change', update);
-        return () => mql.removeEventListener('change', update);
-    }, []);
-
-    // Mark CTA as in-view (used to gate media loading)
-    useEffect(() => {
-        if (ctaInView || typeof window === 'undefined' || !sectionRef.current) return;
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setCtaInView(true);
-                        setShouldLoadMobileVideo(true);
-                        observer.disconnect();
-                    }
-                });
-            },
-            { rootMargin: '200px' } // Start loading 200px before entering viewport
-        );
-
-        observer.observe(sectionRef.current);
-
-        return () => observer.disconnect();
-    }, [ctaInView]);
-
     return (
-        <section ref={sectionRef} id="section_cta" className="section_cta u-section">
-            <div className="cta_wrap u-container">
+        <section ref={sectionRef} id="section_cta" className="section_cta u-section" style={{ position: 'relative', overflow: 'hidden' }}>
+            {/* Background Flame */}
+            <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+                <img
+                    src="/assets/flame-bg.png"
+                    alt=""
+                    className="opacity-60 mix-blend-screen object-cover"
+                    style={{
+                        width: '85%',
+                        maxWidth: 'none',
+                        height: 'auto',
+                    }}
+                />
+            </div>
+
+            {/* Scattered Images */}
+            <ParallaxFloatingImages
+                images={Y2K_IMAGES}
+                className="z-10"
+            />
+
+            {/* Text Content */}
+            <div className="cta_wrap u-container relative z-20 flex flex-col justify-center items-center h-full pointer-events-none" style={{ transform: 'scale(0.85)' }}>
                 <div className="_3d_heading_wrap">
                     <div className="_3d_heading">Let&apos;s</div>
                     <div className="_3d_heading">Embark</div>
@@ -63,44 +52,6 @@ export default function CTASection() {
                 </div>
                 <div className="_3d_heading_wrap is-last">
                     <div className="_3d_heading">Voyage</div>
-                </div>
-            </div>
-            <div className="_3d_wrap">
-                <div className="_3d_canvas">
-                    {/* Desktop: remove 3D from initial load; only enable after user intent */}
-                    {wants3D && ctaInView && !isMobile ? (
-                        <Suspense fallback={<div className="_3d_absolute hide-mobile" style={{ background: 'transparent' }} />}>
-                            <CTAGlbViewer />
-                        </Suspense>
-                    ) : !isMobile ? (
-                        <div className="_3d_absolute hide-mobile" style={{ background: 'transparent' }} />
-                    ) : null}
-                    {!isMobile && !wants3D && (
-                        <button
-                            type="button"
-                            onClick={() => setWants3D(true)}
-                            className="_3d_absolute hide-mobile"
-                            style={{
-                                background: 'transparent',
-                                border: 'none',
-                                cursor: 'pointer',
-                                color: 'inherit',
-                            }}
-                            aria-label="Enable 3D effect"
-                        />
-                    )}
-                    {isMobile && (
-                        <video
-                            src={shouldLoadMobileVideo ? CTA_VIDEO_SRC : undefined}
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            preload={shouldLoadMobileVideo ? 'metadata' : 'none'}
-                            poster="/assets/images/cta-poster.webp"
-                            className="_3d_absolute_mobile"
-                        />
-                    )}
                 </div>
             </div>
         </section>
