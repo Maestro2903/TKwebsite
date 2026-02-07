@@ -60,7 +60,7 @@ const SciFiCard: React.FC<SciFiCardProps> = ({ name, description, image, onClick
                                     src={image}
                                     alt={name}
                                     fill
-                                    className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500 grayscale group-hover:grayscale-0"
+                                    className="object-cover opacity-80 transition-opacity duration-500"
                                 />
                             </div>
 
