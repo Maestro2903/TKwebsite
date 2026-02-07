@@ -123,7 +123,7 @@ export default function Navigation() {
                                     src="/assets/images/tk-logo.webp"
                                     alt="TK Logo"
                                     className="u-svg"
-                                    style={{ width: 'auto', height: '72px', display: 'block' }}
+                                    style={{ width: 'auto', height: '58px', display: 'block' }}
                                 />
                             </div>
                         </Link>
@@ -155,7 +155,7 @@ export default function Navigation() {
                                                     My Pass
                                                 </Link>
                                                 <button type="button" onClick={signOut} className="nav-auth-btn subtle">
-                                                    Sign out
+                                                    Sign Out
                                                 </button>
                                             </div>
                                         </div>
@@ -172,7 +172,7 @@ export default function Navigation() {
                                             </svg>
                                         </div>
                                         <div className="btn-bubble-arrow__content">
-                                            <span className="btn-bubble-arrow__content-text">REGISTER</span>
+                                            <span className="btn-bubble-arrow__content-text">Register</span>
                                         </div>
                                         <div className="btn-bubble-arrow__arrow is--duplicate">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" className="btn-bubble-arrow__arrow-svg">
@@ -309,7 +309,7 @@ export default function Navigation() {
                                                     <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
                                                 </svg>
                                             </div>
-                                            <div className="nav_menu_text">Sign out</div>
+                                            <div className="nav_menu_text">Sign Out</div>
                                         </button>
                                     </li>
                                 )}

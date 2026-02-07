@@ -10,7 +10,7 @@ export default function Footer() {
             <div className="footer_contain u-container">
                 <nav className="footer_layout u-grid-above">
                     <div className="footer_left_wrap">
-                        <div id="w-node-_70a1202c-0356-a69f-1ade-01bdf897f8ee-3814999f" className="u-width-full">
+                        <div id="w-node-_70a1202c-0356-a69f-1ade-01bdf897f8ee-3814999f" className="u-width-full footer_text_block">
                             <div className="footer_main_title">Innovation Meets Culture</div>
                             <div className="u-max-width-50ch">
                                 <p className="u-text-style-main u-opacity-60">

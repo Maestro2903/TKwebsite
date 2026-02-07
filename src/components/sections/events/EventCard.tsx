@@ -24,6 +24,7 @@ function EventCard({ name, description, image, id }: EventCardProps) {
           loading="lazy"
           sizes="(max-width: 767px) 100vw, (max-width: 991px) 50vw, 33vw"
           className="u-cover-absolute"
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
         />
       </div>
       <div className="event-content">

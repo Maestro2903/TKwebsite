@@ -36,12 +36,12 @@ function SponsorLogo({ filename }: { filename: string }) {
     const alt = filename.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
     return (
         <div className="sponsors_marquee_logo">
-            <Image 
-                src={src} 
-                alt={alt} 
+            <Image
+                src={src}
+                alt={alt}
                 width={640}
                 height={256}
-                loading="lazy" 
+                loading="lazy"
                 className="sponsors_marquee_logo_img"
                 sizes="(max-width: 767px) 224px, 640px"
             />

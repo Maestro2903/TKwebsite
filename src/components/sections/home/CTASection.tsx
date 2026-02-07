@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
 
 const Y2K_IMAGES = [
@@ -57,3 +57,4 @@ export default function CTASection() {
         </section>
     );
 }
+
