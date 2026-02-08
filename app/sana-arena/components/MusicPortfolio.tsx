@@ -58,7 +58,7 @@ const TimeDisplay = ({
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      const options = {
+      const options: Intl.DateTimeFormatOptions = {
         timeZone: cfg.timeZone,
         hour12: true,
         hour: "numeric",
