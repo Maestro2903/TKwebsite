@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type PassType = 'day_pass' | 'group_events' | 'proshow' | 'sana_concert';
+export type PassType = 'test_pass' | 'day_pass' | 'group_events' | 'proshow' | 'sana_concert';
 
 export type PaymentStatus = 'pending' | 'success' | 'failed';
 
