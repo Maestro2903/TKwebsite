@@ -8,6 +8,8 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { X } from 'lucide-react';
+
 
 const PRICE_PER_PERSON = 250;
 
@@ -226,284 +228,320 @@ export default function GroupRegistrationModal({
     return (
         <div
             ref={overlayRef}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-labelledby="group-registration-title"
             onClick={(e) => e.target === overlayRef.current && onClose()}
         >
             <div
-                className="w-full max-w-lg max-h-[90vh] overflow-y-auto overscroll-contain rounded-lg border border-white/15 bg-black p-6 shadow-xl"
+                className="w-full max-w-lg max-h-[90vh] overflow-y-auto overscroll-contain bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative group"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header */}
-                <div className="mb-6 flex items-center justify-between">
-                    <div>
-                        <h2 id="group-registration-title" className="text-xl font-semibold text-white">
-                            Group Event Registration
-                        </h2>
-                        <p className="text-sm text-white/60 mt-1">
-                            Step {step === 'leader' ? '1' : step === 'members' ? '2' : '3'} of 3
-                        </p>
+                {/* --- Top Tech Border --- */}
+                <div className="h-6 w-full flex items-center justify-between px-2 border-b border-neutral-800 bg-[#151515] sticky top-0 z-20">
+                    <div className="flex gap-2 text-[8px] tracking-[0.2em] text-neutral-500 uppercase font-bold font-orbitron">
+                        <span>SYS.REG.01</span>
+                        <span>///</span>
+                        <span>SECURE</span>
                     </div>
                     <button
                         type="button"
-                        className="text-2xl text-white/70 hover:text-white"
+                        className="text-neutral-500 hover:text-white transition-colors"
                         aria-label="Close"
                         onClick={onClose}
                     >
-                        ×
+                        <X size={12} strokeWidth={1.5} />
                     </button>
                 </div>
 
-                {/* Progress bar */}
-                <div className="mb-6 h-1 w-full rounded-full bg-white/10">
-                    <div
-                        className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
-                        style={{
-                            width: step === 'leader' ? '33%' : step === 'members' ? '66%' : '100%',
-                        }}
-                    />
-                </div>
+                <div className="p-6 relative">
+                    {/* Corner Accents */}
+                    <div className="absolute top-6 right-6 w-3 h-3 border-t border-r border-neutral-600 pointer-events-none" />
+                    <div className="absolute bottom-6 left-6 w-3 h-3 border-b border-l border-neutral-600 pointer-events-none" />
 
-                {/* Step 1: Team Leader Info */}
-                {step === 'leader' && (
-                    <div className="space-y-4">
-                        <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-white/10">
-                            <p className="text-white/80 text-sm">
-                                👋 You are registering as the <strong className="text-white">Team Leader</strong>
-                            </p>
-                            <p className="text-white/60 text-xs mt-1">
-                                Logged in as: {user?.displayName || user?.email}
-                            </p>
-                        </div>
-
-                        <div>
-                            <label htmlFor="team-name" className="mb-1 block text-sm text-white/80">
-                                Team Name <span className="text-red-400">*</span>
-                            </label>
-                            <input
-                                id="team-name"
-                                type="text"
-                                required
-                                value={teamName}
-                                onChange={(e) => setTeamName(e.target.value)}
-                                placeholder="e.g., The Innovators"
-                                className="w-full rounded border border-white/20 bg-white/5 px-3 py-2.5 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="leader-phone" className="mb-1 block text-sm text-white/80">
-                                Your Phone <span className="text-red-400">*</span>
-                            </label>
-                            <input
-                                id="leader-phone"
-                                type="tel"
-                                required
-                                value={leaderPhone}
-                                onChange={(e) => setLeaderPhone(e.target.value)}
-                                placeholder="9876543210"
-                                className="w-full rounded border border-white/20 bg-white/5 px-3 py-2.5 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="leader-college" className="mb-1 block text-sm text-white/80">
-                                Your College <span className="text-red-400">*</span>
-                            </label>
-                            <input
-                                id="leader-college"
-                                type="text"
-                                required
-                                value={leaderCollege}
-                                onChange={(e) => setLeaderCollege(e.target.value)}
-                                placeholder="Your college name"
-                                className="w-full rounded border border-white/20 bg-white/5 px-3 py-2.5 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
-                            />
+                    {/* Header */}
+                    <div className="mb-8">
+                        <h2 id="group-registration-title" className="text-xl md:text-2xl font-bold text-white font-orbitron tracking-tight mb-2 uppercase">
+                            Group Registration
+                        </h2>
+                        <div className="flex items-center gap-3 text-[10px] tracking-widest text-neutral-500 uppercase font-orbitron">
+                            <span>Step {step === 'leader' ? '01' : step === 'members' ? '02' : '03'}</span>
+                            <div className="h-[1px] flex-1 bg-neutral-800"></div>
+                            <span>Total Steps: 03</span>
                         </div>
                     </div>
-                )}
 
-                {/* Step 2: Add Team Members */}
-                {step === 'members' && (
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="text-lg font-medium text-white">Add Team Members</h3>
-                                <p className="text-sm text-white/60">
-                                    {members.length} member{members.length !== 1 ? 's' : ''} added
-                                </p>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={addMember}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 transition text-sm font-medium"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                </svg>
-                                Add Member
-                            </button>
+                    {/* Progress bar */}
+                    <div className="mb-8 h-[2px] w-full bg-neutral-800">
+                        <div
+                            className="h-full bg-neutral-400 transition-all duration-300 relative"
+                            style={{
+                                width: step === 'leader' ? '33%' : step === 'members' ? '66%' : '100%',
+                            }}
+                        >
+                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
                         </div>
+                    </div>
 
-                        {members.length === 0 ? (
-                            <div className="p-8 rounded-lg border border-dashed border-white/20 text-center">
-                                <p className="text-white/60">No team members added yet</p>
-                                <p className="text-sm text-white/40 mt-1">
-                                    Click "Add Member" to add team members, or proceed with just yourself
-                                </p>
+                    {/* Step 1: Team Leader Info */}
+                    {step === 'leader' && (
+                        <div className="space-y-6">
+                            <div className="p-4 bg-[#151515] border border-neutral-800 flex items-start gap-3">
+                                <div className="w-1 h-full min-h-[2rem] bg-neutral-700" />
+                                <div>
+                                    <p className="text-neutral-300 text-sm font-orbitron tracking-wide uppercase mb-1">
+                                        Team Leader Identity
+                                    </p>
+                                    <p className="text-neutral-500 text-xs font-mono">
+                                        // {user?.displayName || user?.email}
+                                    </p>
+                                </div>
                             </div>
-                        ) : (
-                            <ScrollArea className="h-[40vh] w-full rounded-md border border-white/10">
-                                <div className="p-4 space-y-4">
-                                    {members.map((member, index) => (
-                                        <React.Fragment key={member.id}>
-                                            <div className="p-4 rounded-lg border border-white/10 bg-white/5 space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-sm font-medium text-white/80">
-                                                        Member {index + 1}
+
+                            <div className="space-y-4">
+                                <div className="group/input">
+                                    <label htmlFor="team-name" className="mb-2 block text-xs text-neutral-500 font-orbitron tracking-widest uppercase">
+                                        Team Name <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        id="team-name"
+                                        type="text"
+                                        required
+                                        value={teamName}
+                                        onChange={(e) => setTeamName(e.target.value)}
+                                        placeholder="ENTER TEAM DESIGNATION"
+                                        className="w-full bg-[#0a0a0a] border border-neutral-800 px-4 py-3 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
+                                    />
+                                </div>
+
+                                <div className="group/input">
+                                    <label htmlFor="leader-phone" className="mb-2 block text-xs text-neutral-500 font-orbitron tracking-widest uppercase">
+                                        Comms Frequency (Phone) <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        id="leader-phone"
+                                        type="tel"
+                                        required
+                                        value={leaderPhone}
+                                        onChange={(e) => setLeaderPhone(e.target.value)}
+                                        placeholder="0000000000"
+                                        className="w-full bg-[#0a0a0a] border border-neutral-800 px-4 py-3 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
+                                    />
+                                </div>
+
+                                <div className="group/input">
+                                    <label htmlFor="leader-college" className="mb-2 block text-xs text-neutral-500 font-orbitron tracking-widest uppercase">
+                                        Affiliation (College) <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        id="leader-college"
+                                        type="text"
+                                        required
+                                        value={leaderCollege}
+                                        onChange={(e) => setLeaderCollege(e.target.value)}
+                                        placeholder="INSTITUTE NAME"
+                                        className="w-full bg-[#0a0a0a] border border-neutral-800 px-4 py-3 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 2: Add Team Members */}
+                    {step === 'members' && (
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
+                                <div>
+                                    <h3 className="text-sm font-orbitron text-white uppercase tracking-wider">Unit Members</h3>
+                                    <p className="text-[10px] text-neutral-500 font-mono mt-1">
+                                        COUNT: {members.length} // MAX: UNLIMITED
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={addMember}
+                                    className="px-3 py-1.5 border border-neutral-700 bg-neutral-800/50 text-neutral-300 text-xs font-orbitron hover:bg-neutral-700 transition flex items-center gap-2"
+                                >
+                                    <span>+</span> ADD UNIT
+                                </button>
+                            </div>
+
+                            {members.length === 0 ? (
+                                <div className="py-12 border border-dashed border-neutral-800 bg-[#0a0a0a] text-center flex flex-col items-center justify-center">
+                                    <div className="w-8 h-8 mb-3 opacity-20 border border-white rounded-full flex items-center justify-center">
+                                        <span className="text-xl">+</span>
+                                    </div>
+                                    <p className="text-neutral-500 text-xs font-mono uppercase">No units assigned</p>
+                                    <p className="text-neutral-700 text-[10px] mt-1 font-mono">
+                                        Initialize additional members or proceed solo
+                                    </p>
+                                </div>
+                            ) : (
+                                <ScrollArea className="h-[40vh] w-full border border-neutral-800 bg-[#0a0a0a]">
+                                    <div className="p-4 space-y-4">
+                                        {members.map((member, index) => (
+                                            <div key={member.id} className="p-4 border border-neutral-800 bg-[#151515] relative group/item">
+                                                <div className="absolute top-0 left-0 w-[2px] h-full bg-neutral-800 group-hover/item:bg-neutral-600 transition-colors" />
+
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <span className="text-[10px] font-orbitron text-neutral-500 uppercase tracking-widest">
+                                                        Unit 0{index + 1}
                                                     </span>
                                                     <button
                                                         type="button"
                                                         onClick={() => removeMember(member.id)}
-                                                        className="text-red-400 hover:text-red-300 text-sm"
+                                                        className="text-neutral-600 hover:text-red-400 transition-colors"
+                                                        aria-label="Remove member"
                                                     >
-                                                        Remove
+                                                        <X size={12} />
                                                     </button>
                                                 </div>
-                                                <div className="grid gap-3">
+
+                                                <div className="grid gap-2">
                                                     <input
                                                         type="text"
                                                         value={member.name}
                                                         onChange={(e) => updateMember(member.id, 'name', e.target.value)}
-                                                        placeholder="Full Name *"
-                                                        className="w-full rounded border border-white/20 bg-white/5 px-3 py-2 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none text-sm"
+                                                        placeholder="FULL NAME"
+                                                        className="w-full bg-transparent border-b border-neutral-800 py-1 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
                                                     />
-                                                    <input
-                                                        type="tel"
-                                                        value={member.phone}
-                                                        onChange={(e) => updateMember(member.id, 'phone', e.target.value)}
-                                                        placeholder="Phone Number *"
-                                                        className="w-full rounded border border-white/20 bg-white/5 px-3 py-2 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none text-sm"
-                                                    />
-                                                    <input
-                                                        type="email"
-                                                        value={member.email}
-                                                        onChange={(e) => updateMember(member.id, 'email', e.target.value)}
-                                                        placeholder="Email ID *"
-                                                        className="w-full rounded border border-white/20 bg-white/5 px-3 py-2 text-white placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none text-sm"
-                                                    />
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <input
+                                                            type="tel"
+                                                            value={member.phone}
+                                                            onChange={(e) => updateMember(member.id, 'phone', e.target.value)}
+                                                            placeholder="PHONE"
+                                                            className="w-full bg-transparent border-b border-neutral-800 py-1 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
+                                                        />
+                                                        <input
+                                                            type="email"
+                                                            value={member.email}
+                                                            onChange={(e) => updateMember(member.id, 'email', e.target.value)}
+                                                            placeholder="EMAIL"
+                                                            className="w-full bg-transparent border-b border-neutral-800 py-1 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
-                                            {index < members.length - 1 && <Separator className="my-2" />}
-                                        </React.Fragment>
-                                    ))}
-                                </div>
-                            </ScrollArea>
-                        )}
-                    </div>
-                )}
-
-                {/* Step 3: Review & Pay */}
-                {step === 'review' && (
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-medium text-white">Review Your Registration</h3>
-
-                        {/* Team Info */}
-                        <div className="p-4 rounded-lg border border-white/10 bg-white/5">
-                            <h4 className="text-sm font-medium text-white/60 mb-2">TEAM DETAILS</h4>
-                            <p className="text-white font-semibold text-lg">{teamName}</p>
+                                        ))}
+                                    </div>
+                                </ScrollArea>
+                            )}
                         </div>
+                    )}
 
-                        {/* Team Leader */}
-                        <div className="p-4 rounded-lg border border-white/10 bg-white/5">
-                            <h4 className="text-sm font-medium text-white/60 mb-2">TEAM LEADER</h4>
-                            <p className="text-white">{user?.displayName || user?.email}</p>
-                            <p className="text-white/60 text-sm">{leaderPhone}</p>
-                        </div>
+                    {/* Step 3: Review & Pay */}
+                    {step === 'review' && (
+                        <div className="space-y-6">
+                            <div>
+                                <h3 className="text-sm font-orbitron text-white uppercase tracking-wider mb-4">Registration Summary</h3>
 
-                        {/* Team Members */}
-                        {members.length > 0 && (
-                            <div className="p-4 rounded-lg border border-white/10 bg-white/5">
-                                <h4 className="text-sm font-medium text-white/60 mb-2">
-                                    TEAM MEMBERS ({members.length})
-                                </h4>
-                                <div className="space-y-2">
-                                    {members.map((m, i) => (
-                                        <div key={m.id} className="flex justify-between text-sm">
-                                            <span className="text-white">{i + 1}. {m.name}</span>
-                                            <span className="text-white/60">{m.phone}</span>
+                                <div className="border border-neutral-800 bg-[#0a0a0a] divide-y divide-neutral-800">
+                                    <div className="p-3 flex justify-between items-center">
+                                        <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Team Designation</span>
+                                        <span className="text-sm text-white font-mono">{teamName}</span>
+                                    </div>
+                                    <div className="p-3 flex justify-between items-center">
+                                        <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Leader ID</span>
+                                        <div className="text-right">
+                                            <div className="text-sm text-white font-mono">{user?.displayName || user?.email}</div>
+                                            <div className="text-[10px] text-neutral-600 font-mono">{leaderPhone}</div>
                                         </div>
-                                    ))}
+                                    </div>
+                                    {members.length > 0 && (
+                                        <div className="p-3">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Additional Units</span>
+                                                <span className="text-[10px] text-neutral-500 font-mono">{members.length} Count</span>
+                                            </div>
+                                            <div className="space-y-1 pl-2 border-l border-neutral-800">
+                                                {members.map((m, i) => (
+                                                    <div key={m.id} className="flex justify-between text-xs font-mono">
+                                                        <span className="text-neutral-400">{i + 1}. {m.name}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                        )}
 
-                        {/* Pricing */}
-                        <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30">
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-white/80">Price per person</span>
-                                <span className="text-white">₹{PRICE_PER_PERSON}</span>
-                            </div>
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-white/80">Total participants</span>
-                                <span className="text-white">{totalMembers} (1 leader + {members.length} members)</span>
-                            </div>
-                            <div className="border-t border-white/10 pt-3 flex justify-between items-center">
-                                <span className="text-lg font-semibold text-white">Total Amount</span>
-                                <span className="text-2xl font-bold text-white">₹{totalAmount}</span>
+                            {/* Pricing Display */}
+                            <div className="p-4 bg-[#151515] border border-neutral-700 relative overflow-hidden">
+                                {/* Diagonal lines bg */}
+                                <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 10px)' }}></div>
+
+                                <div className="relative z-10 flex justify-between items-end">
+                                    <div>
+                                        <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
+                                        <div className="text-xs text-neutral-400 font-mono">
+                                            {totalMembers} PAX × ₹{PRICE_PER_PERSON}
+                                        </div>
+                                    </div>
+                                    <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
+                                        ₹{totalAmount}
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    )}
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="mt-6 border border-red-900/50 bg-red-900/10 p-3 flex items-start gap-2">
+                            <div className="w-1 h-3 mt-1 bg-red-500 shrink-0" />
+                            <p className="text-xs text-red-200 font-mono uppercase tracking-wide">
+                                ERROR: {error}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Navigation Buttons */}
+                    <div className="flex gap-4 mt-8 pt-4 border-t border-neutral-800">
+                        {step !== 'leader' && (
+                            <button
+                                type="button"
+                                onClick={goToPrevStep}
+                                disabled={submitting}
+                                className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition disabled:opacity-50 tracking-widest"
+                            >
+                                Back
+                            </button>
+                        )}
+                        {step === 'leader' && (
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition tracking-widest"
+                            >
+                                Abort
+                            </button>
+                        )}
+                        {step !== 'review' ? (
+                            <button
+                                type="button"
+                                onClick={goToNextStep}
+                                className="flex-1 bg-black text-white border border-white py-3 text-xs font-bold font-orbitron uppercase hover:bg-neutral-800 transition tracking-widest"
+                            >
+                                Proceed
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={submitting}
+                                className="flex-1 bg-white text-black border border-white py-3 text-xs font-bold font-orbitron uppercase hover:bg-neutral-200 transition disabled:opacity-50 tracking-widest shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                            >
+                                {submitting ? 'PROCESSING...' : `INITIATE PAYMENT`}
+                            </button>
+                        )}
                     </div>
-                )}
+                </div>
 
-                {/* Error Message */}
-                {error && (
-                    <p className="mt-4 text-sm text-red-400 p-3 rounded bg-red-500/10 border border-red-500/20" role="alert">
-                        {error}
-                    </p>
-                )}
-
-                {/* Navigation Buttons */}
-                <div className="flex gap-3 mt-6 pt-4 border-t border-white/10">
-                    {step !== 'leader' && (
-                        <button
-                            type="button"
-                            onClick={goToPrevStep}
-                            disabled={submitting}
-                            className="flex-1 rounded border border-white/20 py-2.5 text-sm font-medium text-white/80 hover:bg-white/5 transition disabled:opacity-50"
-                        >
-                            Back
-                        </button>
-                    )}
-                    {step === 'leader' && (
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="flex-1 rounded border border-white/20 py-2.5 text-sm font-medium text-white/80 hover:bg-white/5 transition"
-                        >
-                            Cancel
-                        </button>
-                    )}
-                    {step !== 'review' ? (
-                        <button
-                            type="button"
-                            onClick={goToNextStep}
-                            className="flex-1 rounded bg-gradient-to-r from-purple-500 to-pink-500 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                        >
-                            Continue
-                        </button>
-                    ) : (
-                        <button
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={submitting}
-                            className="flex-1 rounded bg-gradient-to-r from-purple-500 to-pink-500 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-                        >
-                            {submitting ? 'Processing...' : `Pay ₹${totalAmount}`}
-                        </button>
-                    )}
+                {/* --- Bottom Border Strip --- */}
+                <div className="h-4 w-full flex items-center justify-end px-2 border-t border-neutral-800 bg-[#151515] text-[6px] text-neutral-600 font-orbitron uppercase">
+                    <span>SECURE CONNECTION ESTABLISHED</span>
                 </div>
             </div>
         </div>

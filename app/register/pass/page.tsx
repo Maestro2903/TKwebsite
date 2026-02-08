@@ -10,6 +10,7 @@ import RegistrationPassesGrid from '@/components/sections/registration/Registrat
 import GroupRegistrationModal from '@/components/sections/registration/GroupRegistrationModal';
 import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import type { RegistrationPass } from '@/data/passes';
+import Font1Text from '@/components/ui/Font1Text';
 
 export default function PassSelectionPage() {
     useLenis();
@@ -112,9 +113,9 @@ export default function PassSelectionPage() {
                     <p className="text-sm tracking-widest uppercase text-white/60 mb-4">
                         CIT TAKSHASHILA 2026
                     </p>
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-                        Choose Your Pass
-                    </h1>
+                    <div className="mb-8">
+                        <Font1Text text="CHOOSE YOUR PASS" height={50} className="md:h-[60px]" />
+                    </div>
                     <p className="text-lg text-white/70 max-w-2xl mx-auto">
                         Select the pass that best fits your festival experience. All passes include access to campus activities and events.
                     </p>

@@ -9,14 +9,29 @@ import { cn } from '@/lib/utils';
 interface SciFiCardProps {
     name: string;
     description?: string;
-    image: string;
+    image?: string;
     onClick?: () => void;
     /** When set, footer shows AwardBadge "Register" button linking here */
     registerHref?: string;
+    /** Custom action handler (alternative to registerHref) */
+    onAction?: () => void;
+    /** Label for the action button (default: "Register") */
+    actionLabel?: string;
     className?: string;
+    children?: React.ReactNode;
 }
 
-const SciFiCard: React.FC<SciFiCardProps> = ({ name, description, image, onClick, registerHref, className = '' }) => {
+const SciFiCard: React.FC<SciFiCardProps> = ({
+    name,
+    description,
+    image,
+    onClick,
+    registerHref,
+    onAction,
+    actionLabel = "Register",
+    className = '',
+    children
+}) => {
     return (
         <div
             onClick={onClick}
@@ -54,14 +69,23 @@ const SciFiCard: React.FC<SciFiCardProps> = ({ name, description, image, onClick
                         <div className="aspect-[16/10] w-full flex-shrink-0 bg-[#050505] border border-neutral-700 relative overflow-hidden group-hover:border-neutral-500 transition-colors duration-300"
                             style={{ clipPath: 'polygon(0 0, 100% 0, 100% 88%, 92% 100%, 8% 100%, 0 88%)' }}>
 
-                            {/* Image Container */}
-                            <div className="absolute inset-0 z-0">
-                                <Image
-                                    src={image}
-                                    alt={name}
-                                    fill
-                                    className="object-cover opacity-80 transition-opacity duration-500"
-                                />
+                            {/* Content Container (Image or Children) */}
+                            <div className="absolute inset-0 z-0 flex items-center justify-center">
+                                {children ? (
+                                    <div className="w-full h-full p-4 overflow-hidden relative">
+                                        {/* Optional: Add some scanline/grid background for text mode too */}
+                                        <div className="relative z-10 w-full h-full flex flex-col items-center justify-center text-center">
+                                            {children}
+                                        </div>
+                                    </div>
+                                ) : image ? (
+                                    <Image
+                                        src={image}
+                                        alt={name}
+                                        fill
+                                        className="object-cover opacity-80 transition-opacity duration-500"
+                                    />
+                                ) : null}
                             </div>
 
                             {/* Inner Decorative Lines — minimal margin so image fills the screen on all sizes */}
@@ -134,9 +158,13 @@ const SciFiCard: React.FC<SciFiCardProps> = ({ name, description, image, onClick
                             >
                                 {name}
                             </h2>
-                            {registerHref && (
+                            {(registerHref || onAction) && (
                                 <div className="mt-auto z-10" onClick={(e) => e.stopPropagation()}>
-                                    <AwardBadge href={registerHref}>Register</AwardBadge>
+                                    {registerHref ? (
+                                        <AwardBadge href={registerHref}>{actionLabel}</AwardBadge>
+                                    ) : (
+                                        <AwardBadge onClick={onAction}>{actionLabel}</AwardBadge>
+                                    )}
                                 </div>
                             )}
                             {/* Corner Accents */}
