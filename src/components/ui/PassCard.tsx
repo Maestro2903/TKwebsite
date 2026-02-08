@@ -19,7 +19,7 @@ export default function PassCard({ pass, onRegister }: PassCardProps) {
   const parsedUnit = rawUnit || null; // e.g., "person" from "₹250 / person"
 
   return (
-    <div className="relative w-full aspect-[2/3] bg-[#1a1a1a] border border-neutral-800 shadow-2xl flex flex-col overflow-hidden select-none group cursor-pointer transition-all duration-300 hover:border-neutral-600">
+    <div className="relative w-full aspect-[2/3] max-w-[360px] mx-auto bg-[#1a1a1a] border border-neutral-800 shadow-2xl flex flex-col overflow-hidden select-none group cursor-pointer transition-all duration-300 hover:border-neutral-600">
       {/* Top Border Strip */}
       <div className="h-6 w-full flex items-center justify-between px-2 border-b border-neutral-700 bg-[#151515] relative z-10 min-h-0 shrink-0">
         <X size={10} className="text-neutral-500 shrink-0" />

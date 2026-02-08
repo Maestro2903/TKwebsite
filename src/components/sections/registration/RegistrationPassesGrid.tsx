@@ -58,7 +58,7 @@ export default function RegistrationPassesGrid({ onRegisterClick }: Registration
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-10 mt-20" role="list" aria-label="Pass selection">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 mt-20 px-4 sm:px-0" role="list" aria-label="Pass selection">
       {passes.map((pass) => (
         <div key={pass.id} className="flex justify-center" role="listitem">
           <PassCard pass={pass} onRegister={onRegisterClick} />
