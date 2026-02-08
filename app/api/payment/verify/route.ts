@@ -25,16 +25,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Payment not configured' }, { status: 500 });
     }
 
-    const response = await fetch(
-      `${CASHFREE_BASE}/orders/${orderId}/payments`,
-      {
-        headers: {
-          'x-client-id': appId,
-          'x-client-secret': secret,
-          'x-api-version': '2025-01-01',
-        },
-      }
-    );
+    const response = await fetch(`${CASHFREE_BASE}/orders/${orderId}`, {
+      headers: {
+        'x-client-id': appId,
+        'x-client-secret': secret,
+        'x-api-version': '2025-01-01',
+      },
+    });
 
     if (!response.ok) {
       return NextResponse.json(
@@ -43,14 +40,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const payments = await response.json();
+    const order = await response.json();
 
-    // Check if ANY payment for this order was successful
-    const successfulPayment = Array.isArray(payments)
-      ? payments.find((p: any) => p.payment_status === 'SUCCESS')
-      : payments.payment_status === 'SUCCESS' ? payments : null;
-
-    if (!successfulPayment) {
+    if (order.order_status !== 'PAID') {
       return NextResponse.json(
         { error: 'Payment not successful' },
         { status: 400 }

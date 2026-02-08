@@ -9,6 +9,11 @@ interface PassCardProps {
 export default function PassCard({ pass, onRegister }: PassCardProps) {
   const actionLabel = pass.passType === 'group_events' ? 'CREATE TEAM' : 'REGISTER';
 
+  // Centralized price parsing - parse once, use everywhere
+  const [rawPrice, rawUnit] = pass.price.split('/').map((s) => s.trim());
+  const parsedPrice = rawPrice.replace(/[₹\s]/g, ''); // Strip currency symbol and whitespace
+  const parsedUnit = rawUnit || null; // e.g., "person" from "₹250 / person"
+
   return (
     <div className="w-full h-full flex justify-center p-4">
       <SciFiCard
@@ -17,16 +22,16 @@ export default function PassCard({ pass, onRegister }: PassCardProps) {
         onAction={() => onRegister?.(pass)}
         className="max-w-[400px]"
       >
-        <div className="flex flex-col items-center justify-center h-full gap-6 py-8">
+        <div className="relative flex flex-col items-center justify-center h-full gap-6 py-8">
           {/* Price Display */}
           <div className="flex flex-col items-center gap-2">
             <span className="text-[10px] text-neutral-500 tracking-[0.2em] uppercase">Price</span>
             <div className="text-4xl md:text-5xl font-bold text-white font-orbitron tracking-tighter">
-              {pass.price.includes('₹') ? pass.price.split(' ')[0] : pass.price}
+              ₹{parsedPrice}
             </div>
-            {pass.price.includes('/') && (
+            {parsedUnit && (
               <span className="text-xs text-neutral-500 font-mono">
-                / {pass.price.split('/')[1].trim()}
+                / {parsedUnit}
               </span>
             )}
           </div>

@@ -22,7 +22,8 @@ export async function POST(req: NextRequest) {
     let decoded: { uid: string };
     try {
       decoded = await getAdminAuth().verifyIdToken(idToken);
-    } catch {
+    } catch (tokenError) {
+      console.error('Token verification failed:', tokenError);
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
@@ -68,6 +69,7 @@ export async function POST(req: NextRequest) {
     const customerName = teamData?.name || '';
     const customerEmail = teamData?.email || '';
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '');
     const requestBody = {
       order_amount: amount,
       order_currency: 'INR',
@@ -78,6 +80,12 @@ export async function POST(req: NextRequest) {
         ...(customerName && { customer_name: customerName }),
         ...(customerEmail && { customer_email: customerEmail }),
       },
+      ...(baseUrl && {
+        order_meta: {
+          return_url: `${baseUrl}/payment/callback?order_id=${orderId}`,
+          notify_url: `${baseUrl}/api/webhooks/cashfree`,
+        },
+      }),
     };
 
     const response = await fetch(`${CASHFREE_BASE}/orders`, {
