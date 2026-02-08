@@ -1,0 +1,235 @@
+/* Music Portfolio - Exact CSS from 21st.dev registry */
+
+:root {
+  --color-accent: rgb(255, 223, 0);
+  --font-primary: "PP Supply Mono", monospace;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Container - overflow visible so vinyl on the right is not cut off */
+.container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: visible;
+  overflow-y: hidden;
+  background: #000;
+  color: #fff;
+}
+
+.portfolio-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: clamp(3rem, 6vw, 8rem) clamp(2rem, 5vw, 4rem);
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Project List */
+.project-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 55%;
+  max-width: 800px;
+}
+
+.project-item {
+  display: grid;
+  grid-template-columns: 1.5fr 2fr 0.7fr 1.2fr 0.5fr;
+  gap: 1rem 2.5rem;
+  align-items: baseline;
+  padding: 1.2rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: opacity 0.3s ease, color 0.3s ease;
+  opacity: 1;
+}
+
+.project-item:hover,
+.project-item.active {
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+
+.project-item:not(.active):not(:hover) {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 1024px) {
+  .project-list {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .music-artwork-container {
+    right: 50%;
+    transform: translateX(50%) translateY(-50%);
+  }
+  
+  .project-item {
+    grid-template-columns: 1fr 1.2fr 0.5fr;
+    gap: 0.5rem 1rem;
+  }
+  
+  .project-data.label,
+  .project-data.category {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .music-artwork-container {
+    right: 50%;
+    transform: translateX(50%) translateY(-50%) scale(0.8);
+  }
+  
+  .project-item {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem 0.75rem;
+    padding: 1rem 0;
+  }
+  
+  .project-data.year {
+    grid-column: 2;
+    text-align: right;
+  }
+}
+
+/* Project Data */
+.project-data {
+  font-family: var(--font-primary, monospace);
+  font-size: clamp(0.85rem, 1.6vw, 1.05rem);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.2s ease;
+}
+
+.project-data.artist {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: clamp(0.9rem, 1.7vw, 1.1rem);
+}
+
+.project-data.album {
+  font-weight: 500;
+  font-size: clamp(0.85rem, 1.6vw, 1.05rem);
+}
+
+.project-data.category,
+.project-data.label {
+  font-size: 0.75em;
+  opacity: 0.7;
+}
+
+.project-data.year {
+  font-size: 0.85em;
+  opacity: 0.6;
+}
+
+/* Music Artwork Container - enough right offset so vinyl (which extends right of album) is not cut off */
+.music-artwork-container {
+  position: absolute;
+  right: clamp(10rem, 18vw, 14rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  pointer-events: auto;
+  overflow: visible;
+}
+
+.portfolio-container.has-active ~ .music-artwork-container {
+  opacity: 1;
+}
+
+/* Dark overlay when image is shown - lighter gradient for right-side layout */
+.portfolio-container.has-active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Corner Elements */
+.corner-elements {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.corner-item {
+  position: absolute;
+  font-family: var(--font-primary, monospace);
+  font-size: clamp(0.65rem, 1.1vw, 0.8rem);
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.05em;
+}
+
+.corner-item a {
+  color: inherit;
+  text-decoration: none;
+  pointer-events: auto;
+  transition: color 0.2s ease;
+}
+
+.corner-item a:hover {
+  color: var(--color-accent, #fff);
+}
+
+.corner-item.top-left {
+  top: clamp(1.5rem, 3vw, 2.5rem);
+  left: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.corner-item.top-right {
+  top: clamp(1.5rem, 3vw, 2.5rem);
+  right: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.corner-item.bottom-left {
+  bottom: clamp(1.5rem, 3vw, 2.5rem);
+  left: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.corner-item.bottom-right {
+  bottom: clamp(1.5rem, 3vw, 2.5rem);
+  right: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.corner-square {
+  width: 0.6rem;
+  height: 0.6rem;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.time-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
