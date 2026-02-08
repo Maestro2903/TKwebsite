@@ -15,18 +15,13 @@ function PaymentCallbackContent() {
   useEffect(() => {
     const orderId = searchParams.get('order_id');
 
-    if (loading) return;
-
     if (!orderId) {
       router.push('/register');
       return;
     }
 
-    if (!user) {
-      return;
-    }
-
     const verifyPayment = async () => {
+      console.log(`Starting verification for order: ${orderId}`);
       try {
         const response = await fetch('/api/payment/verify', {
           method: 'POST',
@@ -34,21 +29,25 @@ function PaymentCallbackContent() {
           body: JSON.stringify({ orderId }),
         });
 
+        console.log(`Verification response status: ${response.status}`);
         const result = await response.json();
+        console.log('Verification result:', result);
 
         if (response.ok && result.success) {
           setStatus('success');
           setTimeout(() => router.push('/register/my-pass'), 3000);
         } else {
+          console.error('Verification failed:', result.error);
           setStatus('failed');
         }
-      } catch {
+      } catch (err) {
+        console.error('Network error during verification:', err);
         setStatus('failed');
       }
     };
 
     verifyPayment();
-  }, [searchParams, router, user, loading]);
+  }, [searchParams, router]);
 
   if (!user && !loading) {
     return (
@@ -72,59 +71,78 @@ function PaymentCallbackContent() {
   return (
     <>
       <Navigation />
-      <main className="page_main min-h-[60vh] flex items-center justify-center p-4">
-        <div className="reg-gradient-bg rounded-3xl p-8 w-full max-w-md">
-          <div className="reg-glass-card p-12 text-center max-w-md w-full mx-auto">
-            {status === 'verifying' && (
-              <>
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                  <div className="reg-spinner w-10 h-10 border-2 border-white/30 border-t-white" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Verifying Payment</h2>
-                <p className="text-gray-500">Please wait while we confirm your payment...</p>
-              </>
-            )}
+      <main className="page_main min-h-[60vh] flex flex-col items-center justify-center u-container py-16">
+        <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-black/40 p-8 backdrop-blur-xl md:p-12">
+          {status === 'verifying' && (
+            <div className="flex flex-col items-center gap-6">
+              <div className="relative h-16 w-16">
+                <div className="absolute h-full w-full rounded-full border-4 border-white/10" />
+                <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-accent" />
+              </div>
+              <div className="text-center">
+                <h1 className="mb-2 text-2xl font-bold text-white">Verifying Payment</h1>
+                <p className="text-white/60">Please do not refresh the page...</p>
+              </div>
+            </div>
+          )}
 
-            {status === 'success' && (
-              <>
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-500 flex items-center justify-center">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-bold text-green-600 mb-2">Payment Successful!</h2>
-                <p className="text-gray-500 mb-6">Your pass has been generated and sent to your email.</p>
-                <div className="p-4 bg-green-50 rounded-xl border border-green-100 mb-6">
-                  <div className="flex items-center justify-center gap-2 text-green-700">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    <span className="font-medium">Check your email for the QR code</span>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-400">Redirecting to My Pass...</p>
-              </>
-            )}
+          {status === 'success' && (
+            <div className="flex flex-col items-center gap-6">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20 text-green-500">
+                <svg
+                  className="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <div className="text-center">
+                <h1 className="mb-2 text-2xl font-bold text-white">Payment Successful!</h1>
+                <p className="text-green-400">Redirecting to your pass...</p>
+              </div>
+            </div>
+          )}
 
-            {status === 'failed' && (
-              <>
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-500 flex items-center justify-center">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-bold text-red-600 mb-2">Payment Failed</h2>
-                <p className="text-gray-500 mb-6">Something went wrong with your payment.</p>
+          {status === 'failed' && (
+            <div className="flex flex-col items-center gap-6">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20 text-red-500">
+                <svg
+                  className="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </div>
+              <div className="text-center">
+                <h1 className="mb-2 text-2xl font-bold text-white">Payment Verification Failed</h1>
+                <p className="mb-6 text-white/60">
+                  There was an issue verifying your payment. If you have been charged, please
+                  contact support.
+                </p>
                 <button
                   type="button"
                   onClick={() => router.push('/register')}
-                  className="reg-btn-primary w-full"
+                  className="rounded bg-white px-6 py-2 font-semibold text-black hover:opacity-90"
                 >
-                  Try Again
+                  Go Back
                 </button>
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
       <Footer />
@@ -136,13 +154,9 @@ export default function PaymentCallbackPage() {
   return (
     <Suspense
       fallback={
-        <>
-          <Navigation />
-          <main className="page_main min-h-[60vh] flex items-center justify-center u-container py-16">
-            <div className="reg-spinner" />
-          </main>
-          <Footer />
-        </>
+        <div className="flex min-h-screen items-center justify-center bg-black">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-t-accent" />
+        </div>
       }
     >
       <PaymentCallbackContent />
