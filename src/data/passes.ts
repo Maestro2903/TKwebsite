@@ -17,19 +17,6 @@ export type RegistrationPass = {
 
 export const REGISTRATION_PASSES: RegistrationPass[] = [
   {
-    id: 'test-pass',
-    passType: 'test_pass',
-    amount: 1,
-    emoji: '🧪',
-    title: 'TEST PASS',
-    price: '₹1',
-    details: 'Minimal test pass for payment verification.',
-    meta: [
-      'For testing purposes only',
-      'Minimal cost',
-    ],
-  },
-  {
     id: 'day-pass',
     passType: 'day_pass',
     amount: 500,
