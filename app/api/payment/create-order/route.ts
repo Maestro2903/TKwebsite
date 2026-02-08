@@ -74,7 +74,15 @@ export async function POST(req: NextRequest) {
     const customerName = teamData?.name || '';
     const customerEmail = teamData?.email || '';
 
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL)?.replace(/\/$/, '');
+    const host = req.headers.get('host');
+    const protocol = req.headers.get('x-forwarded-proto') || 'http';
+    const dynamicBaseUrl = `${protocol}://${host}`;
+
+    // Priority: NEXT_PUBLIC_APP_URL > APP_URL > detected host
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || dynamicBaseUrl)?.replace(/\/$/, '');
+
+    console.log(`[Order] Using baseUrl: ${baseUrl}`);
+
     const requestBody = {
       order_amount: amount,
       order_currency: 'INR',
@@ -85,13 +93,13 @@ export async function POST(req: NextRequest) {
         ...(customerName && { customer_name: customerName }),
         ...(customerEmail && { customer_email: customerEmail }),
       },
-      ...(baseUrl && {
-        order_meta: {
-          return_url: `${baseUrl}/payment/callback?order_id=${orderId}`,
-          notify_url: `${baseUrl}/api/webhooks/cashfree`,
-        },
-      }),
+      order_meta: {
+        return_url: `${baseUrl}/payment/callback?order_id=${orderId}`,
+        notify_url: `${baseUrl}/api/webhooks/cashfree`,
+      },
     };
+
+    console.log('[Order] Request to Cashfree:', JSON.stringify(requestBody, null, 2));
 
     const response = await fetch(`${CASHFREE_BASE}/orders`, {
       method: 'POST',
