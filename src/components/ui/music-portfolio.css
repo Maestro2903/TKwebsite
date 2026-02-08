@@ -39,8 +39,8 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  width: 55%;
-  max-width: 800px;
+  width: 48%;
+  max-width: 700px;
 }
 
 .project-item {
@@ -139,10 +139,10 @@
   opacity: 0.6;
 }
 
-/* Music Artwork Container - enough right offset so vinyl (which extends right of album) is not cut off */
+/* Music Artwork Container - positioned on right, minimal offset so vinyl is visible */
 .music-artwork-container {
   position: absolute;
-  right: clamp(10rem, 18vw, 14rem);
+  right: clamp(1rem, 2vw, 2rem);
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;

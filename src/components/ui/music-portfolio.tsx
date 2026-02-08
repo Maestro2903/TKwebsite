@@ -247,9 +247,7 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
 
   return (
     <>
-      <div 
-        className="container"
-      >
+      <div className="relative w-full min-h-screen bg-black text-white">
         <main 
           ref={containerRef}
           className={`portfolio-container ${activeIndex !== -1 ? 'has-active' : ''}`}

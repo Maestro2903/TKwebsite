@@ -134,12 +134,12 @@ export default function MusicArtwork({
       <style jsx>{componentStyles}</style>
       
       <div className="relative group flex items-center justify-center min-w-[500px] min-h-[500px]">
-        {/* Vinyl record - behind album, on the right side */}
+        {/* Vinyl record - behind album, on the left side, extends out */}
         <div
-          className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-[35%] transition-all duration-500 ease-out z-0 ${
+          className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[30%] transition-all duration-500 ease-out z-0 ${
             isHovered
               ? 'opacity-100'
-              : 'opacity-0 -translate-x-4'
+              : 'opacity-0 translate-x-4'
           }`}
           style={{
             filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.7)) drop-shadow(0 0 0 1px rgba(255,255,255,0.15))',
