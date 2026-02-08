@@ -174,7 +174,7 @@ export default function GroupRegistrationModal({
             );
 
             // Create payment order and team document via server
-            const token = await auth.currentUser?.getIdToken();
+            const token = await auth.currentUser?.getIdToken(true);
             if (!token) throw new Error('Not signed in');
 
             const res = await fetch('/api/payment/create-order', {

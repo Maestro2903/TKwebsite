@@ -22,9 +22,14 @@ export async function POST(req: NextRequest) {
     let decoded: { uid: string };
     try {
       decoded = await getAdminAuth().verifyIdToken(idToken);
-    } catch (tokenError) {
+    } catch (tokenError: unknown) {
+      const err = tokenError as { code?: string };
       console.error('Token verification failed:', tokenError);
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      const isExpired = err?.code === 'auth/id-token-expired';
+      return NextResponse.json(
+        { error: isExpired ? 'Session expired. Please sign in again.' : 'Invalid token' },
+        { status: 401 }
+      );
     }
 
     const body = await req.json();
