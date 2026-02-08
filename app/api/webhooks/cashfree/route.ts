@@ -10,12 +10,18 @@ import { generatePassPDFBuffer } from '@/features/passes/pdfGenerator.server';
 /**
  * Verify Cashfree webhook signature per docs:
  * https://www.cashfree.com/docs/payments/online/webhooks/signature-verification
- * 1. signedPayload = timestamp + rawBody (no separator)
- * 2. expectedSignature = Base64(HMAC-SHA256(signedPayload, webhookSecret))
- * Use the Webhook Secret from Dashboard → Developers → Webhooks → your endpoint (not the API secret).
+ * signedPayload = timestamp + rawBody (or optionally timestamp + "." + rawBody per some docs)
+ * expectedSignature = Base64(HMAC-SHA256(signedPayload, secret))
+ * Cashfree may sign with Webhook Secret (Dashboard) or PG/API secret (client secret).
  */
-function verifySignature(timestamp: string, rawBody: string, signature: string, secret: string): boolean {
-  const signedPayload = timestamp + rawBody;
+function verifySignature(
+  timestamp: string,
+  rawBody: string,
+  signature: string,
+  secret: string,
+  useDotSeparator = false
+): boolean {
+  const signedPayload = useDotSeparator ? `${timestamp}.${rawBody}` : timestamp + rawBody;
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(signedPayload)
@@ -27,34 +33,58 @@ export async function POST(req: Request) {
   const startTime = Date.now();
   console.log('[Webhook] ========== Webhook received ==========');
 
-  // Must use the Webhook Secret from Cashfree Dashboard (Developers → Webhooks → Secret Key), not the API secret.
-  const secret = process.env.CASHFREE_WEBHOOK_SECRET_KEY;
-  if (!secret) {
+  const webhookSecret = process.env.CASHFREE_WEBHOOK_SECRET_KEY;
+  const apiSecret = process.env.CASHFREE_SECRET_KEY;
+  if (!webhookSecret && !apiSecret) {
     console.error(
-      '[Webhook] ERROR: CASHFREE_WEBHOOK_SECRET_KEY is not set. Set it in Vercel (and .env.local) to the Webhook Secret from Cashfree Dashboard → Developers → Webhooks.'
+      '[Webhook] ERROR: Set at least one of CASHFREE_WEBHOOK_SECRET_KEY or CASHFREE_SECRET_KEY in Vercel and .env.local.'
     );
     return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
   }
 
   const timestamp = req.headers.get('x-webhook-timestamp') ?? '';
   const signature = req.headers.get('x-webhook-signature') ?? '';
-  const rawBody = await req.text();
-  console.log(`[Webhook] Headers received - Timestamp: ${timestamp ? 'present' : 'MISSING'}, Signature: ${signature ? 'present' : 'MISSING'}`);
-  console.log(`[Webhook] Body length: ${rawBody.length} bytes`);
+  // Read raw body via arrayBuffer + TextDecoder to avoid any runtime string normalization (Cashfree requires exact payload).
+  const buffer = await req.arrayBuffer();
+  const rawBody = new TextDecoder('utf-8').decode(buffer);
+
+  console.log(
+    `[Webhook] Headers - Timestamp: ${timestamp ? `present (${timestamp.length} chars)` : 'MISSING'}, Signature: ${signature ? 'present' : 'MISSING'}, Body: ${rawBody.length} bytes`
+  );
 
   if (!timestamp || !signature || !rawBody) {
     console.error('[Webhook] ERROR: Missing required headers or body');
     return NextResponse.json({ error: 'Missing headers or body' }, { status: 400 });
   }
 
-  if (!verifySignature(timestamp, rawBody, signature, secret)) {
+  // Try webhook secret first, then API secret (Cashfree docs say "PG secret key" / "client secret"). Optionally try dot-separator format.
+  let verifiedWith: 'webhook_secret' | 'api_secret' | null = null;
+  let usedDotFormat = false;
+
+  if (webhookSecret && verifySignature(timestamp, rawBody, signature, webhookSecret)) {
+    verifiedWith = 'webhook_secret';
+  }
+  if (!verifiedWith && apiSecret && verifySignature(timestamp, rawBody, signature, apiSecret)) {
+    verifiedWith = 'api_secret';
+  }
+  if (!verifiedWith && webhookSecret && verifySignature(timestamp, rawBody, signature, webhookSecret, true)) {
+    verifiedWith = 'webhook_secret';
+    usedDotFormat = true;
+  }
+  if (!verifiedWith && apiSecret && verifySignature(timestamp, rawBody, signature, apiSecret, true)) {
+    verifiedWith = 'api_secret';
+    usedDotFormat = true;
+  }
+
+  if (!verifiedWith) {
     console.error('[Webhook] ERROR: Signature verification failed');
     console.error(
-      '[Webhook] Ensure CASHFREE_WEBHOOK_SECRET_KEY is set to the Webhook Secret from Cashfree Dashboard → Developers → Webhooks (not the API secret).'
+      '[Webhook] Tried CASHFREE_WEBHOOK_SECRET_KEY and CASHFREE_SECRET_KEY (with and without dot separator). Ensure raw body is not modified before verify.'
     );
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
-  console.log('[Webhook] ✅ Signature verified successfully');
+
+  console.log(`[Webhook] ✅ Signature verified (${verifiedWith}${usedDotFormat ? ', dot format' : ''})`);
 
   let payload: { type?: string; data?: { order?: { order_id?: string } } };
   try {
