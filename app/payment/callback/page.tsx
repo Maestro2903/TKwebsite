@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/features/auth/AuthContext';
 import Navigation from '@/components/layout/Navigation';
@@ -11,6 +11,38 @@ function PaymentCallbackContent() {
   const router = useRouter();
   const { user, loading, signIn } = useAuth();
   const [status, setStatus] = useState<'verifying' | 'success' | 'failed'>('verifying');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const verifyPayment = useCallback(async (orderId: string) => {
+    console.log(`Starting verification for order: ${orderId}`);
+    setStatus('verifying');
+    setErrorMsg(null);
+
+    try {
+      const response = await fetch('/api/payment/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId }),
+      });
+
+      console.log(`Verification response status: ${response.status}`);
+      const result = await response.json();
+      console.log('Verification result:', result);
+
+      if (response.ok && result.success) {
+        setStatus('success');
+        setTimeout(() => router.push('/register/my-pass'), 3000);
+      } else {
+        console.error('Verification failed:', result.error);
+        setErrorMsg(result.error || 'Verification failed');
+        setStatus('failed');
+      }
+    } catch (err) {
+      console.error('Network error during verification:', err);
+      setErrorMsg('Network error. Please check your connection.');
+      setStatus('failed');
+    }
+  }, [router]);
 
   useEffect(() => {
     const orderId = searchParams.get('order_id');
@@ -20,34 +52,15 @@ function PaymentCallbackContent() {
       return;
     }
 
-    const verifyPayment = async () => {
-      console.log(`Starting verification for order: ${orderId}`);
-      try {
-        const response = await fetch('/api/payment/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId }),
-        });
+    verifyPayment(orderId);
+  }, [searchParams, router, verifyPayment]);
 
-        console.log(`Verification response status: ${response.status}`);
-        const result = await response.json();
-        console.log('Verification result:', result);
-
-        if (response.ok && result.success) {
-          setStatus('success');
-          setTimeout(() => router.push('/register/my-pass'), 3000);
-        } else {
-          console.error('Verification failed:', result.error);
-          setStatus('failed');
-        }
-      } catch (err) {
-        console.error('Network error during verification:', err);
-        setStatus('failed');
-      }
-    };
-
-    verifyPayment();
-  }, [searchParams, router]);
+  const handleRetry = () => {
+    const orderId = searchParams.get('order_id');
+    if (orderId) {
+      verifyPayment(orderId);
+    }
+  };
 
   if (!user && !loading) {
     return (
@@ -114,7 +127,7 @@ function PaymentCallbackContent() {
             <div className="flex flex-col items-center gap-6">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20 text-red-500">
                 <svg
-                  className="h-8 w-8"
+                  className="h-8 w-12"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -128,18 +141,26 @@ function PaymentCallbackContent() {
                 </svg>
               </div>
               <div className="text-center">
-                <h1 className="mb-2 text-2xl font-bold text-white">Payment Verification Failed</h1>
+                <h1 className="mb-2 text-2xl font-bold text-white">Verification Pending</h1>
                 <p className="mb-6 text-white/60">
-                  There was an issue verifying your payment. If you have been charged, please
-                  contact support.
+                  {errorMsg || "We couldn't confirm your payment status automatically."}
                 </p>
-                <button
-                  type="button"
-                  onClick={() => router.push('/register')}
-                  className="rounded bg-white px-6 py-2 font-semibold text-black hover:opacity-90"
-                >
-                  Go Back
-                </button>
+                <div className="flex flex-col gap-3 w-full">
+                  <button
+                    type="button"
+                    onClick={handleRetry}
+                    className="rounded bg-accent px-6 py-2 font-semibold text-white hover:opacity-90 transition-all hover:scale-105"
+                  >
+                    Retry Verification
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push('/register')}
+                    className="rounded border border-white/20 bg-transparent px-6 py-2 font-semibold text-white hover:bg-white/10"
+                  >
+                    Go Back
+                  </button>
+                </div>
               </div>
             </div>
           )}
