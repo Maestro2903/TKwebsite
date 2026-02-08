@@ -18,6 +18,7 @@
     "test:payment": "node scripts/testing/simulate-paid-flow.js"
   },
   "dependencies": {
+    "@cashfreepayments/cashfree-js": "^1.0.6",
     "@paper-design/shaders-react": "^0.0.71",
     "@radix-ui/react-scroll-area": "^1.2.10",
     "@radix-ui/react-separator": "^1.1.8",

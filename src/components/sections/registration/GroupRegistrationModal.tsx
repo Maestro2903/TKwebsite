@@ -215,7 +215,14 @@ export default function GroupRegistrationModal({
             if (!sessionId) throw new Error('No payment session');
 
             onClose();
-            await openCashfreeCheckout(sessionId, orderId);
+            const result = await openCashfreeCheckout(sessionId, orderId);
+
+            if (result.success) {
+                // Navigate to callback page to verify payment
+                window.location.href = `/payment/callback?order_id=${orderId}`;
+            } else {
+                throw new Error(result.message || 'Payment failed');
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Something went wrong');
         } finally {
