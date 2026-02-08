@@ -58,10 +58,10 @@ export const REGISTRATION_PASSES: RegistrationPass[] = [
   {
     id: 'proshow-pass',
     passType: 'proshow',
-    amount: 1000,
+    amount: 1500,
     emoji: '🎤',
     title: 'PROSHOW PASS (DAY 1 + DAY 3)',
-    price: '₹1000',
+    price: '₹1500',
     details: 'Access to Day 1 and Day 3 Proshows.',
     meta: [
       'Covers both proshow nights',
@@ -71,10 +71,10 @@ export const REGISTRATION_PASSES: RegistrationPass[] = [
   {
     id: 'all-access-pass',
     passType: 'sana_concert',
-    amount: 1500,
+    amount: 2000,
     emoji: '🎶',
     title: 'ALL-ACCESS PASS (BEST VALUE)',
-    price: '₹1500',
+    price: '₹2000',
     details: 'Complete festival access including all 3 days and the Sana Concert.',
     meta: [
       'Best value pass',

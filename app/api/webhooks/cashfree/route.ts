@@ -119,6 +119,7 @@ export async function POST(req: Request) {
           };
           await firestore.collection('teams').doc(paymentData.teamId).update({
             passId: passRef.id,
+            paymentStatus: 'success',
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
         }

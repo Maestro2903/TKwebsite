@@ -11,7 +11,8 @@ import { Separator } from '@/components/ui/separator';
 import { X } from 'lucide-react';
 
 
-const PRICE_PER_PERSON = 250;
+// Price will be fetched from backend
+const DEFAULT_PRICE_PER_PERSON = 250;
 
 interface TeamMember {
     id: string;
@@ -40,8 +41,12 @@ export default function GroupRegistrationModal({
     // Team members (excluding leader)
     const [members, setMembers] = useState<TeamMember[]>([]);
 
+    // Price state from backend
+    const [pricePerPerson, setPricePerPerson] = useState(DEFAULT_PRICE_PER_PERSON);
+
     // UI state
     const [submitting, setSubmitting] = useState(false);
+    const [loadingPrice, setLoadingPrice] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [step, setStep] = useState<'leader' | 'members' | 'review'>('leader');
 
@@ -54,6 +59,23 @@ export default function GroupRegistrationModal({
         setLeaderCollege('');
         setMembers([]);
         setStep('leader');
+
+        // Fetch current price from backend
+        const fetchPrice = async () => {
+            try {
+                setLoadingPrice(true);
+                const response = await fetch('/api/passes/types');
+                const data = await response.json();
+                if (data.success && data.passTypes?.GROUP_EVENTS) {
+                    setPricePerPerson(data.passTypes.GROUP_EVENTS.pricePerPerson || DEFAULT_PRICE_PER_PERSON);
+                }
+            } catch (err) {
+                console.error('Failed to fetch group pass price:', err);
+            } finally {
+                setLoadingPrice(false);
+            }
+        };
+        fetchPrice();
     }, [isOpen]);
 
     // Handle escape key and body scroll
@@ -72,7 +94,7 @@ export default function GroupRegistrationModal({
 
     // Calculate total
     const totalMembers = 1 + members.length; // Leader + team members
-    const totalAmount = totalMembers * PRICE_PER_PERSON;
+    const totalAmount = totalMembers * pricePerPerson;
 
     // Add a new empty member
     const addMember = useCallback(() => {
@@ -483,7 +505,7 @@ export default function GroupRegistrationModal({
                                     <div>
                                         <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
                                         <div className="text-xs text-neutral-400 font-mono">
-                                            {totalMembers} PAX × ₹{PRICE_PER_PERSON}
+                                            {totalMembers} PAX × ₹{pricePerPerson}
                                         </div>
                                     </div>
                                     <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
