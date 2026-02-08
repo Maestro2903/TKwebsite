@@ -44,12 +44,15 @@ export async function POST(req: Request) {
 
   const timestamp = req.headers.get('x-webhook-timestamp') ?? '';
   const signature = req.headers.get('x-webhook-signature') ?? '';
-  // Read raw body via arrayBuffer + TextDecoder to avoid any runtime string normalization (Cashfree requires exact payload).
-  const buffer = await req.arrayBuffer();
-  const rawBody = new TextDecoder('utf-8').decode(buffer);
+  // Read raw body (use req.text() to match common runtimes; compare with Cashfree Logs payload for debugging).
+  const rawBody = await req.text();
 
+  // Safe diagnostics: timestamp value and body fingerprint for comparing with Cashfree Dashboard → Logs (no body/signature logged).
+  const bodyFingerprint = rawBody
+    ? crypto.createHash('sha256').update(rawBody, 'utf8').digest('hex').substring(0, 16)
+    : 'empty';
   console.log(
-    `[Webhook] Headers - Timestamp: ${timestamp ? `present (${timestamp.length} chars)` : 'MISSING'}, Signature: ${signature ? 'present' : 'MISSING'}, Body: ${rawBody.length} bytes`
+    `[Webhook] Headers - Timestamp: ${timestamp ? `${timestamp}` : 'MISSING'}, Signature: ${signature ? 'present' : 'MISSING'}, Body: ${rawBody.length} bytes, bodySha256Prefix: ${bodyFingerprint}`
   );
 
   if (!timestamp || !signature || !rawBody) {
@@ -79,7 +82,7 @@ export async function POST(req: Request) {
   if (!verifiedWith) {
     console.error('[Webhook] ERROR: Signature verification failed');
     console.error(
-      '[Webhook] Tried CASHFREE_WEBHOOK_SECRET_KEY and CASHFREE_SECRET_KEY (with and without dot separator). Ensure raw body is not modified before verify.'
+      '[Webhook] Tried all 4 combinations (all failed): webhook_secret no-dot, api_secret no-dot, webhook_secret dot, api_secret dot. Compare timestamp and bodySha256Prefix above with Cashfree Dashboard → Logs for this request.'
     );
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
