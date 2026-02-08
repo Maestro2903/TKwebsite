@@ -5,6 +5,19 @@ const nextConfig: NextConfig = {
     serverComponentsHmrCache: false,
   },
   turbopack: {},
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin-allow-popups',
+          },
+        ],
+      },
+    ];
+  },
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
