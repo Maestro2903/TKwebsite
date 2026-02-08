@@ -7,26 +7,33 @@ import { createQRPayload } from '@/features/passes/qrService';
 import { sendEmail, emailTemplates } from '@/features/email/emailService';
 import { generatePassPDFBuffer } from '@/features/passes/pdfGenerator.server';
 
+/**
+ * Verify Cashfree webhook signature per docs:
+ * https://www.cashfree.com/docs/payments/online/webhooks/signature-verification
+ * 1. signedPayload = timestamp + rawBody (no separator)
+ * 2. expectedSignature = Base64(HMAC-SHA256(signedPayload, webhookSecret))
+ * Use the Webhook Secret from Dashboard → Developers → Webhooks → your endpoint (not the API secret).
+ */
 function verifySignature(timestamp: string, rawBody: string, signature: string, secret: string): boolean {
-  const signStr = timestamp + rawBody;
-  const expectedBase64 = crypto.createHmac('sha256', secret).update(signStr).digest('base64');
-  const expectedHex = crypto.createHmac('sha256', secret).update(signStr).digest('hex');
-
-  const matches = expectedBase64 === signature || expectedHex === signature;
-  if (!matches) {
-    console.log(`[Webhook] Signature mismatch. Received: ${signature.substring(0, 10)}...`);
-  }
-  return matches;
+  const signedPayload = timestamp + rawBody;
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(signedPayload)
+    .digest('base64');
+  return expectedSignature === signature;
 }
 
 export async function POST(req: Request) {
   const startTime = Date.now();
   console.log('[Webhook] ========== Webhook received ==========');
 
-  const secret = process.env.CASHFREE_WEBHOOK_SECRET_KEY || process.env.CASHFREE_SECRET_KEY;
+  // Must use the Webhook Secret from Cashfree Dashboard (Developers → Webhooks → Secret Key), not the API secret.
+  const secret = process.env.CASHFREE_WEBHOOK_SECRET_KEY;
   if (!secret) {
-    console.error('[Webhook] ERROR: Missing webhook secret key');
-    return NextResponse.json({ error: 'Not configured' }, { status: 500 });
+    console.error(
+      '[Webhook] ERROR: CASHFREE_WEBHOOK_SECRET_KEY is not set. Set it in Vercel (and .env.local) to the Webhook Secret from Cashfree Dashboard → Developers → Webhooks.'
+    );
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
   }
 
   const timestamp = req.headers.get('x-webhook-timestamp') ?? '';
@@ -42,7 +49,9 @@ export async function POST(req: Request) {
 
   if (!verifySignature(timestamp, rawBody, signature, secret)) {
     console.error('[Webhook] ERROR: Signature verification failed');
-    console.error('[Webhook] This usually means the webhook secret is incorrect or the payload was tampered with');
+    console.error(
+      '[Webhook] Ensure CASHFREE_WEBHOOK_SECRET_KEY is set to the Webhook Secret from Cashfree Dashboard → Developers → Webhooks (not the API secret).'
+    );
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
   console.log('[Webhook] ✅ Signature verified successfully');
