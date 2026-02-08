@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     const customerName = teamData?.name || '';
     const customerEmail = teamData?.email || '';
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL)?.replace(/\/$/, '');
     const requestBody = {
       order_amount: amount,
       order_currency: 'INR',

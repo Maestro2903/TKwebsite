@@ -14,7 +14,7 @@ function verifySignature(timestamp: string, rawBody: string, signature: string, 
 }
 
 export async function POST(req: Request) {
-  const secret = process.env.CASHFREE_SECRET_KEY;
+  const secret = process.env.CASHFREE_WEBHOOK_SECRET_KEY || process.env.CASHFREE_SECRET_KEY;
   if (!secret) {
     return NextResponse.json({ error: 'Not configured' }, { status: 500 });
   }
