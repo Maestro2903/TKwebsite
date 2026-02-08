@@ -11,22 +11,30 @@ const CASHFREE_BASE =
     : 'https://sandbox.cashfree.com/pg';
 
 export async function POST(req: NextRequest) {
+  const startTime = Date.now();
   try {
     const { orderId } = await req.json();
-    console.log(`[Verify] Starting verification for orderId: ${orderId}`);
+    console.log(`[Verify] ========== Starting verification for orderId: ${orderId} ==========`);
+    console.log(`[Verify] Environment: ${process.env.NEXT_PUBLIC_CASHFREE_ENV || 'not set'}`);
     if (!orderId || typeof orderId !== 'string') {
-      console.error('[Verify] Missing or invalid orderId');
+      console.error('[Verify] ERROR: Missing or invalid orderId');
       return NextResponse.json({ error: 'Missing orderId' }, { status: 400 });
     }
 
     const db = getAdminFirestore();
+    console.log('[Verify] Step 1: Firestore connection established');
+
     const appId =
       process.env.NEXT_PUBLIC_CASHFREE_APP_ID || process.env.CASHFREE_APP_ID;
     const secret = process.env.CASHFREE_SECRET_KEY;
     if (!appId || !secret) {
+      console.error('[Verify] ERROR: Missing Cashfree credentials', { hasAppId: !!appId, hasSecret: !!secret });
       return NextResponse.json({ error: 'Payment not configured' }, { status: 500 });
     }
+    console.log(`[Verify] Step 2: Cashfree credentials found (appId: ${appId?.substring(0, 8)}...)`);
 
+
+    console.log(`[Verify] Step 3: Fetching order from Cashfree: ${CASHFREE_BASE}/orders/${orderId}`);
     const response = await fetch(`${CASHFREE_BASE}/orders/${orderId}`, {
       headers: {
         'x-client-id': appId,
@@ -36,46 +44,78 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error(`[Verify] Cashfree API error: ${response.status}`, await response.text());
+      const errorText = await response.text();
+      console.error(`[Verify] ERROR: Cashfree API returned ${response.status}`, errorText);
       return NextResponse.json(
-        { error: 'Payment verification failed' },
+        { error: `Cashfree API error: ${response.status}`, details: errorText },
         { status: 500 }
       );
     }
 
     const order = await response.json();
-    console.log(`[Verify] Cashfree order status: ${order.order_status}`);
+    console.log(`[Verify] Step 4: Cashfree order retrieved. Status: ${order.order_status}, Amount: ${order.order_amount}`);
 
     if (order.order_status !== 'PAID') {
-      console.warn(`[Verify] Order not paid. Current status: ${order.order_status}`);
+      console.warn(`[Verify] WARNING: Order not paid. Current status: ${order.order_status}`);
       return NextResponse.json(
-        { error: 'Payment not successful' },
+        {
+          success: false,
+          error: `Payment status is ${order.order_status}. Please complete payment in the Cashfree window.`,
+          status: order.order_status
+        },
         { status: 400 }
       );
     }
+    console.log('[Verify] ✅ Payment confirmed as PAID in Cashfree');
 
-    const paymentsSnapshot = await db
-      .collection('payments')
-      .where('cashfreeOrderId', '==', orderId)
-      .limit(1)
-      .get();
+    let paymentsSnapshot;
+    let paymentDoc;
+    let paymentData;
 
-    if (paymentsSnapshot.empty) {
-      console.error(`[Verify] Payment record not found in Firestore for orderId: ${orderId}`);
-      return NextResponse.json({ error: 'Payment not found' }, { status: 404 });
+    // Retry loop for Firestore propagation
+    console.log('[Verify] Step 5: Looking up payment record in Firestore...');
+    for (let i = 0; i < 3; i++) {
+      paymentsSnapshot = await db
+        .collection('payments')
+        .where('cashfreeOrderId', '==', orderId)
+        .limit(1)
+        .get();
+
+      if (!paymentsSnapshot.empty) {
+        console.log(`[Verify] ✅ Payment record found on attempt ${i + 1}`);
+        break;
+      }
+      console.warn(`[Verify] Attempt ${i + 1}/3 - Record not found. ${i < 2 ? 'Retrying in 1s...' : 'Final attempt failed'}`);
+      if (i < 2) await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
-    const paymentDoc = paymentsSnapshot.docs[0];
-    const paymentData = paymentDoc.data();
-    console.log(`[Verify] Found payment record for user: ${paymentData.userId}`);
+    if (!paymentsSnapshot || paymentsSnapshot.empty) {
+      console.error(`[Verify] ERROR: Payment record not found in Firestore after 3 attempts for orderId: ${orderId}`);
+      return NextResponse.json({
+        error: 'Payment record not found in database. Please contact support if payment was deducted.',
+        details: 'Firestore lookup failed after 3 retries',
+        orderId
+      }, { status: 404 });
+    }
 
+    paymentDoc = paymentsSnapshot.docs[0];
+    paymentData = paymentDoc.data();
+    console.log(`[Verify] Step 6: Payment record details:`, {
+      userId: paymentData.userId,
+      currentStatus: paymentData.status,
+      amount: paymentData.amount,
+      passType: paymentData.passType
+    });
+
+    console.log('[Verify] Step 7: Updating payment status to success...');
     await paymentDoc.ref.update({
       status: 'success',
       updatedAt: new Date()
     });
-    console.log('[Verify] Updated payment status to success');
+    console.log('[Verify] ✅ Payment status updated to success in Firestore');
 
     // Idempotency check: return existing pass if already created
+    console.log('[Verify] Step 8: Checking for existing pass...');
     const existingPassSnapshot = await db
       .collection('passes')
       .where('paymentId', '==', orderId)
@@ -85,7 +125,9 @@ export async function POST(req: NextRequest) {
     if (!existingPassSnapshot.empty) {
       const existingPass = existingPassSnapshot.docs[0];
       const existingData = existingPass.data();
-      console.log(`[Verify] Pass already exists: ${existingPass.id}`);
+      console.log(`[Verify] ℹ️ Pass already exists: ${existingPass.id} (idempotency check)`);
+      const duration = Date.now() - startTime;
+      console.log(`[Verify] ========== Verification complete (${duration}ms) - Existing pass returned ==========`);
       return NextResponse.json({
         success: true,
         passId: existingPass.id,
@@ -93,6 +135,7 @@ export async function POST(req: NextRequest) {
         message: 'Pass already exists',
       });
     }
+    console.log('[Verify] No existing pass found, creating new pass...');
 
 
     const passRef = db.collection('passes').doc();
@@ -152,7 +195,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    console.log('[Verify] Step 10: Creating pass document in Firestore...');
     await passRef.set(passData);
+    console.log(`[Verify] ✅ Pass created successfully: ${passRef.id}`);
 
 
     const userDoc = await db
@@ -206,15 +251,26 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const duration = Date.now() - startTime;
+    console.log(`[Verify] ========== Verification complete successfully (${duration}ms) ==========`);
+
     return NextResponse.json({
       success: true,
       passId: passRef.id,
       qrCode: qrCodeUrl,
     });
   } catch (error: unknown) {
-    console.error('Verify payment error:', error);
+    const duration = Date.now() - startTime;
+    console.error(`[Verify] ========== FATAL ERROR after ${duration}ms ==========`);
+    console.error('[Verify] Error details:', error);
+    if (error instanceof Error) {
+      console.error('[Verify] Stack trace:', error.stack);
+    }
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Server error' },
+      {
+        error: error instanceof Error ? error.message : 'Server error',
+        details: error instanceof Error ? error.stack : String(error)
+      },
       { status: 500 }
     );
   }
