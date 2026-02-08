@@ -13,7 +13,9 @@ const CASHFREE_BASE =
 export async function POST(req: NextRequest) {
   try {
     const { orderId } = await req.json();
+    console.log(`[Verify] Starting verification for orderId: ${orderId}`);
     if (!orderId || typeof orderId !== 'string') {
+      console.error('[Verify] Missing or invalid orderId');
       return NextResponse.json({ error: 'Missing orderId' }, { status: 400 });
     }
 
@@ -34,6 +36,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response.ok) {
+      console.error(`[Verify] Cashfree API error: ${response.status}`, await response.text());
       return NextResponse.json(
         { error: 'Payment verification failed' },
         { status: 500 }
@@ -41,8 +44,10 @@ export async function POST(req: NextRequest) {
     }
 
     const order = await response.json();
+    console.log(`[Verify] Cashfree order status: ${order.order_status}`);
 
     if (order.order_status !== 'PAID') {
+      console.warn(`[Verify] Order not paid. Current status: ${order.order_status}`);
       return NextResponse.json(
         { error: 'Payment not successful' },
         { status: 400 }
@@ -56,13 +61,19 @@ export async function POST(req: NextRequest) {
       .get();
 
     if (paymentsSnapshot.empty) {
+      console.error(`[Verify] Payment record not found in Firestore for orderId: ${orderId}`);
       return NextResponse.json({ error: 'Payment not found' }, { status: 404 });
     }
 
     const paymentDoc = paymentsSnapshot.docs[0];
     const paymentData = paymentDoc.data();
+    console.log(`[Verify] Found payment record for user: ${paymentData.userId}`);
 
-    await paymentDoc.ref.update({ status: 'success' });
+    await paymentDoc.ref.update({
+      status: 'success',
+      updatedAt: new Date()
+    });
+    console.log('[Verify] Updated payment status to success');
 
     // Idempotency check: return existing pass if already created
     const existingPassSnapshot = await db
@@ -74,6 +85,7 @@ export async function POST(req: NextRequest) {
     if (!existingPassSnapshot.empty) {
       const existingPass = existingPassSnapshot.docs[0];
       const existingData = existingPass.data();
+      console.log(`[Verify] Pass already exists: ${existingPass.id}`);
       return NextResponse.json({
         success: true,
         passId: existingPass.id,
@@ -126,11 +138,13 @@ export async function POST(req: NextRequest) {
             })),
           };
 
-          // Update team document with passId reference
+          // Update team document with passId reference and success status
           await db.collection('teams').doc(paymentData.teamId).update({
             passId: passRef.id,
+            paymentStatus: 'success',
             updatedAt: new Date(),
           });
+          console.log(`[Verify] Updated team ${paymentData.teamId} status to success`);
         }
       } catch (teamError) {
         console.error('Error fetching team data:', teamError);

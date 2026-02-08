@@ -22,14 +22,17 @@ export async function POST(req: Request) {
   const timestamp = req.headers.get('x-webhook-timestamp') ?? '';
   const signature = req.headers.get('x-webhook-signature') ?? '';
   const rawBody = await req.text();
+  console.log(`[Webhook] Received webhook. Timestamp: ${timestamp}, Signature: ${signature}`);
 
   if (!timestamp || !signature || !rawBody) {
     return NextResponse.json({ error: 'Missing headers or body' }, { status: 400 });
   }
 
   if (!verifySignature(timestamp, rawBody, signature, secret)) {
+    console.error('[Webhook] Invalid signature verification failed');
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
+  console.log('[Webhook] Signature verified successfully');
 
   let payload: { type?: string; data?: { order?: { order_id?: string } } };
   try {
@@ -39,6 +42,7 @@ export async function POST(req: Request) {
   }
 
   if (payload.type !== 'PAYMENT_SUCCESS_WEBHOOK') {
+    console.log(`[Webhook] Ignoring webhook type: ${payload.type}`);
     return NextResponse.json({ ok: true });
   }
 
@@ -56,12 +60,13 @@ export async function POST(req: Request) {
       .get();
 
     if (snap.empty) {
-      console.log(`Payment not found for orderId: ${orderId}`);
+      console.warn(`[Webhook] Payment not found in Firestore for orderId: ${orderId}`);
       return NextResponse.json({ ok: true });
     }
 
     const paymentDoc = snap.docs[0];
     const paymentData = paymentDoc.data();
+    console.log(`[Webhook] Processing success for user: ${paymentData.userId}`);
 
     // Update payment status
     await paymentDoc.ref.update({
@@ -129,6 +134,7 @@ export async function POST(req: Request) {
     }
 
     await passRef.set(passData);
+    console.log(`[Webhook] Created pass: ${passRef.id}`);
 
     // Send Email with PDF attachment
     const userDoc = await firestore.collection('users').doc(paymentData.userId).get();
