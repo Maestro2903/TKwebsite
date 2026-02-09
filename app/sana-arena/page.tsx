@@ -110,13 +110,13 @@ export default function SanaArenaPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="relative z-10 w-full h-full u-container flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 px-4 pt-8 pb-12 md:pt-20 md:pb-20">
+                    <div className="relative z-10 w-full h-full u-container flex flex-col md:flex-row items-center justify-end md:justify-between gap-8 px-4 pt-8 pb-24 md:pt-20 md:pb-20">
                         {/* Left side - empty for now or can add content */}
                         <div className="flex-1 hidden md:block"></div>
                         
-                        {/* Right side - Pass Card (hidden on mobile, shown on desktop) */}
+                        {/* Right side - Pass Card */}
                         {sanaPass && (
-                            <div className="hidden md:flex flex-shrink-0 w-full max-w-[360px]">
+                            <div className="flex-shrink-0 w-full max-w-[360px] md:max-w-[360px]">
                                 <PassCard pass={sanaPass} onRegister={handlePassRegister} />
                             </div>
                         )}
