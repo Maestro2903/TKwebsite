@@ -62,10 +62,10 @@ export const REGISTRATION_PASSES: RegistrationPass[] = [
     emoji: '🎶',
     title: 'ALL-ACCESS PASS (BEST VALUE)',
     price: '₹2000',
-    details: 'Complete festival access including all 3 days and the Sana Concert.',
+    details: 'This premium pass gives you access to all three days of TAKSHASHILA with CIDA, SANA Arena and Day 3 concert.',
     meta: [
-      'Best value pass',
-      'Includes all events & concerts',
+      'All 3 days of TAKSHASHILA',
+      'CIDA • SANA Arena • Day 3 concert',
     ],
   },
 ];

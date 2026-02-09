@@ -1,11 +1,14 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import StickyRegisterCTA from '@/components/layout/StickyRegisterCTA';
 import { useLenis } from '@/hooks/useLenis';
 import MusicPortfolio from '@/components/ui/music-portfolio';
+import PassCard from '@/components/ui/PassCard';
+import { REGISTRATION_PASSES } from '@/data/passes';
 
 const SANTHOSH_ALBUMS = [
   { id: 1, artist: 'SANTHOSH NARAYANAN', album: 'Irudhi Suttru', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2016', image: '/assets/images/albumcover/1.png' },
@@ -24,8 +27,16 @@ const SANTHOSH_ALBUMS = [
 
 export default function SanaArenaPage() {
     useLenis();
+    const router = useRouter();
     const heroAudioRef = useRef<HTMLAudioElement | null>(null);
     const [isHeroPlaying, setIsHeroPlaying] = useState(false);
+
+    // Get the SANA pass (2000 rs all-access pass)
+    const sanaPass = REGISTRATION_PASSES.find(pass => pass.passType === 'sana_concert');
+
+    const handlePassRegister = () => {
+        router.push('/register/pass');
+    };
 
     // Hero background audio
     useEffect(() => {
@@ -99,10 +110,16 @@ export default function SanaArenaPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="relative z-10 text-center u-container flex flex-col items-center justify-center text-white px-4 pt-8 pb-24 md:pt-20 md:pb-20">
-                        <div className="mt-4 md:mt-12">
-                            {/* Additional content or CTA can go here */}
-                        </div>
+                    <div className="relative z-10 w-full h-full u-container flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 px-4 pt-8 pb-12 md:pt-20 md:pb-20">
+                        {/* Left side - empty for now or can add content */}
+                        <div className="flex-1 hidden md:block"></div>
+                        
+                        {/* Right side - Pass Card (hidden on mobile, shown on desktop) */}
+                        {sanaPass && (
+                            <div className="hidden md:flex flex-shrink-0 w-full max-w-[360px]">
+                                <PassCard pass={sanaPass} onRegister={handlePassRegister} />
+                            </div>
+                        )}
                     </div>
 
                     {/* Music Play/Pause Button - floating bottom-right, above sticky CTA on mobile */}
