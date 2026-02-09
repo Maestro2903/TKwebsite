@@ -8,6 +8,7 @@ import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import RegistrationPassesGrid from '@/components/sections/registration/RegistrationPassesGrid';
 import GroupRegistrationModal from '@/components/sections/registration/GroupRegistrationModal';
+import DayPassModal from '@/components/sections/registration/DayPassModal';
 import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import type { RegistrationPass } from '@/data/passes';
 import Font1Text from '@/components/ui/Font1Text';
@@ -17,6 +18,7 @@ export default function PassSelectionPage() {
     const router = useRouter();
     const { user, userData, loading: authLoading } = useAuth();
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+    const [isDayPassModalOpen, setIsDayPassModalOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
     // Redirect based on auth state - use useEffect to avoid setState during render
@@ -37,6 +39,11 @@ export default function PassSelectionPage() {
     const handleRegisterClick = async (pass: RegistrationPass) => {
         if (pass.passType === 'group_events') {
             setIsGroupModalOpen(true);
+            return;
+        }
+
+        if (pass.passType === 'day_pass') {
+            setIsDayPassModalOpen(true);
             return;
         }
 
@@ -85,6 +92,10 @@ export default function PassSelectionPage() {
 
     const handleGroupModalClose = () => {
         setIsGroupModalOpen(false);
+    };
+
+    const handleDayPassModalClose = () => {
+        setIsDayPassModalOpen(false);
     };
 
     // Show loading while checking auth or waiting for redirect
@@ -154,6 +165,12 @@ export default function PassSelectionPage() {
             <GroupRegistrationModal
                 isOpen={isGroupModalOpen}
                 onClose={handleGroupModalClose}
+            />
+
+            {/* Day Pass Modal */}
+            <DayPassModal
+                isOpen={isDayPassModalOpen}
+                onClose={handleDayPassModalClose}
             />
 
             <Footer />

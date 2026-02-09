@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { userId, amount, passType, teamData, teamId } = body;
+    const { userId, amount, passType, teamData, teamId, selectedDays } = body;
 
     if (decoded.uid !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -44,10 +44,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid pass type' }, { status: 400 });
     }
 
-    const expectedAmount =
-      passType === 'group_events'
-        ? (body.teamMemberCount ?? 1) * ((validPass as { pricePerPerson?: number }).pricePerPerson ?? 250)
-        : (validPass as { price?: number }).price ?? 0;
+    // Calculate expected amount based on pass type
+    let expectedAmount: number;
+    if (passType === 'group_events') {
+      expectedAmount = (body.teamMemberCount ?? 1) * ((validPass as { pricePerPerson?: number }).pricePerPerson ?? 250);
+    } else if (passType === 'day_pass' && selectedDays && Array.isArray(selectedDays)) {
+      // For day pass with selected days, amount = number of days * price per day
+      const daysCount = selectedDays.length;
+      expectedAmount = daysCount * ((validPass as { price?: number }).price ?? 500);
+    } else {
+      expectedAmount = (validPass as { price?: number }).price ?? 0;
+    }
+
     if (typeof amount !== 'number' || amount !== expectedAmount) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
@@ -138,6 +146,7 @@ export async function POST(req: NextRequest) {
       },
       teamId: teamId || null,
       teamMemberCount: body.teamMemberCount || null,
+      selectedDays: selectedDays || null,
     });
 
     // For group registration, create the team document here to ensure ACID consistency

@@ -160,6 +160,11 @@ export async function POST(req: NextRequest) {
       createdAt: new Date(),
     };
 
+    // For day pass, include selected days
+    if (paymentData.passType === 'day_pass' && paymentData.selectedDays) {
+      passData.selectedDays = paymentData.selectedDays;
+    }
+
     // For group events, fetch and snapshot team data
     if (paymentData.passType === 'group_events' && paymentData.teamId) {
       try {
