@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { AwardBadge } from '@/components/decorative/AwardBadge';
 
 interface HeroSectionProps {
     onShowReelClick?: () => void;
@@ -152,16 +153,23 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                         ))}
                     </video>
 
-                    {/* Hero center logo overlay - Takshashila 2026 */}
-                    <div className="hero_center_logo" aria-hidden>
-                        <Image
-                            src="/images/takshashila-2026-logo.png"
-                            alt="Takshashila 2026"
-                            width={1200}
-                            height={600}
-                            priority
-                            className="hero_center_logo__img hero_center_logo__img--text"
-                        />
+                    {/* Hero center logo overlay - Takshashila 2026 with Register CTA */}
+                    <div className="hero_center_logo" aria-hidden={false}>
+                        <div className="hero_center_logo__inner">
+                            <Image
+                                src="/images/tk-26-logo.png"
+                                alt="Takshashila 2026 logo"
+                                width={1200}
+                                height={600}
+                                priority
+                                className="hero_center_logo__img hero_center_logo__img--text"
+                            />
+                            <div className="hero_center_logo__cta">
+                                <AwardBadge href="/register" className="hero_center_logo__cta-badge">
+                                    REGISTER NOW
+                                </AwardBadge>
+                            </div>
+                        </div>
                     </div>
 
                     <div data-player-control="playpause" className="bunny-bg__playpause">

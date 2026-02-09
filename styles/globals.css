@@ -115,6 +115,24 @@ html {
   z-index: 1;
 }
 
+.hero_center_logo__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  pointer-events: auto;
+}
+
+.hero_center_logo__cta {
+  width: min(70vw, 260px);
+  max-width: 260px;
+}
+
+.hero_center_logo__cta-badge {
+  width: 100%;
+}
+
 .hero_center_logo__img {
   width: min(45vw, 320px);
   height: auto;
@@ -129,11 +147,11 @@ html {
   object-fit: contain;
 }
 
-/* Mobile: Takshashila text - full width with comfortable padding */
+/* Mobile: Takshashila text - make logo larger */
 @media screen and (max-width: 767px) {
   .hero_center_logo__img--text {
-    width: min(90vw, 450px);
-    max-height: 30vh;
+    width: min(100vw, 600px);
+    max-height: 40vh;
   }
 }
 
