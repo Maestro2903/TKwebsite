@@ -9,6 +9,8 @@ import { cn } from '@/lib/utils';
 interface SciFiCardProps {
     name: string;
     description?: string;
+    /** When set, shown on the card instead of description (e.g. full paragraph); card uses scrollable area */
+    fullDescription?: string;
     image?: string;
     onClick?: () => void;
     /** When set, footer shows AwardBadge "Register" button linking here */
@@ -17,6 +19,10 @@ interface SciFiCardProps {
     onAction?: () => void;
     /** Label for the action button (default: "Register") */
     actionLabel?: string;
+    /** Secondary action handler (e.g. "Know More" - shown alongside registerHref when both set) */
+    onSecondaryAction?: () => void;
+    /** Label for the secondary action button (default: "Know More") */
+    secondaryActionLabel?: string;
     className?: string;
     children?: React.ReactNode;
 }
@@ -24,11 +30,14 @@ interface SciFiCardProps {
 const SciFiCard: React.FC<SciFiCardProps> = ({
     name,
     description,
+    fullDescription,
     image,
     onClick,
     registerHref,
     onAction,
     actionLabel = "Register",
+    onSecondaryAction,
+    secondaryActionLabel = "Know More",
     className = '',
     children
 }) => {
@@ -141,7 +150,7 @@ const SciFiCard: React.FC<SciFiCardProps> = ({
                             ))}
                         </div>
 
-                        {/* Row 3: Footer — Event name + Register button */}
+                        {/* Row 3: Footer — Event name + description + Register button */}
                         <div className="min-h-[96px] bg-[#151515] border border-neutral-800 mt-2 p-3 flex flex-col gap-3 relative overflow-hidden group-hover:border-neutral-600 transition-colors shrink-0">
                             <h2
                                 className={cn(
@@ -158,12 +167,26 @@ const SciFiCard: React.FC<SciFiCardProps> = ({
                             >
                                 {name}
                             </h2>
-                            {(registerHref || onAction) && (
-                                <div className="mt-auto z-10" onClick={(e) => e.stopPropagation()}>
-                                    {registerHref ? (
+                            {(fullDescription ?? description) && (
+                                <div
+                                    className="max-h-[120px] overflow-y-auto z-10 min-w-0 pr-1"
+                                    title={fullDescription ?? description}
+                                >
+                                    <p className="text-neutral-400 text-xs leading-snug">
+                                        {fullDescription ?? description}
+                                    </p>
+                                </div>
+                            )}
+                            {(registerHref || onAction || onSecondaryAction) && (
+                                <div className="mt-auto z-10 flex flex-col sm:flex-row gap-2" onClick={(e) => e.stopPropagation()}>
+                                    {registerHref && (
                                         <AwardBadge href={registerHref}>{actionLabel}</AwardBadge>
-                                    ) : (
+                                    )}
+                                    {!registerHref && onAction && (
                                         <AwardBadge onClick={onAction}>{actionLabel}</AwardBadge>
+                                    )}
+                                    {onSecondaryAction && (
+                                        <AwardBadge onClick={onSecondaryAction}>{secondaryActionLabel}</AwardBadge>
                                     )}
                                 </div>
                             )}

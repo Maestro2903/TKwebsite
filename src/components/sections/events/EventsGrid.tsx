@@ -58,13 +58,7 @@ function EventsGrid({ events, category }: EventsGridProps) {
         </p>
       ) : (
         events.map((event) => (
-          <EventCard
-            key={event.id}
-            id={event.id}
-            name={event.name}
-            description={event.description}
-            image={event.image}
-          />
+          <EventCard key={event.id} event={event} />
         ))
       )}
     </div>

@@ -7,6 +7,8 @@ export type EventItem = {
   id: string;
   name: string;
   description: string;
+  /** Optional full paragraph shown on the event card; falls back to description when not set */
+  fullDescription?: string;
   image: string;
 };
 
@@ -29,6 +31,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'CHOREO SHOWCASE',
     description:
       'A high-energy group dance battle where rhythm, coordination, and stage presence come together to tell a powerful story.',
+    fullDescription:
+      'Own the stage, lock into the beat, and pull the crowd into your story. Every move should spark a reaction—sharp counts, smooth transitions, and powerful formations that keep the audience hooked. Feel the rhythm, play with the energy, and dance with the crowd, not just for them.',
     image: '/images/event/nontech/CHOREO%20SHOWCASE.webp',
   },
   {
@@ -36,6 +40,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'BATTLE OF BANDS',
     description:
       'Inter-college bands face off in a live musical showdown to prove their originality, chemistry, and crowd-commanding sound.',
+    fullDescription:
+      'Battle of Bands is where sound turns into spectacle, and the stage comes alive with pure musical energy. As inter-college bands clash in a high-voltage live showdown, every beat, riff, and rhythm matters. With originality, coordination, and stage presence on the line, will your band rise above the roar and own the spotlight?',
     image: '/images/event/nontech/BATTLE%20OF%20BANDS.webp',
   },
   {
@@ -43,6 +49,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'CYPHER',
     description:
       'A one-on-one freestyle dance battle where raw moves, attitude, and instinct decide who owns the circle.',
+    fullDescription:
+      'Hear the beat calling? Step forward. Got a move that hits harder than words? Prove it. This is a one-on-one freestyle battle where every step is a statement, and every pause is a challenge. When the circle closes in, will you rise—or get outdanced?',
     image: '/images/event/nontech/CYPHER.webp',
   },
   {
@@ -50,6 +58,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'RAP-A-THON',
     description:
       'A mic, a beat, and pure fire—showcase your rap skills, flow, and crowd control in this high-voltage performance battle.',
+    fullDescription:
+      'Step up to the mic—ready to own it? Drop your bars, feel the beat, and take charge of the stage with unstoppable energy. Can you match the rhythm, hype the crowd, and keep the fire alive till the last drop? No holding back, no second chances—this is your moment. Grab it. Feel it. Rule it.',
     image: '/images/event/nontech/RAP-A-THON.webp',
   },
   {
@@ -85,6 +95,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'CASE FILES',
     description:
       'Crack clues, connect evidence, and race against time in this thrilling mystery-solving challenge inspired by classic detective logic.',
+    fullDescription:
+      'Think you can outthink the clock and the case? Break down the clues, connect the facts, and make smart decisions under pressure, guided by the calm precision of Hercule Poirot. Will your logic lead you to the truth in time?',
     image: '/images/event/nontech/CASE%20FILES.webp',
   },
   {
@@ -92,6 +104,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'TREASURE HUNT',
     description:
       'Follow the clues, beat the challenges, and outsmart the unknown in an adventure packed with twists and excitement.',
+    fullDescription:
+      'A trail of clues, a rush of excitement, and surprises waiting at every turn. What starts as a simple hunt soon pushes teams to rely on sharp eyes and smart moves. With each challenge unlocked, the mystery deepens—because the real thrill lies in not knowing what comes next.',
     image: '/images/event/nontech/TREASURE%20HUNT.webp',
   },
   {
@@ -99,6 +113,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'FILM FINATICS',
     description:
       'Turn a simple idea into a powerful short film using creativity, emotion, and cinematic storytelling.',
+    fullDescription:
+      'Every frame is your playground, and every cut is a flex. Twist a simple idea into a short film bursting with creativity, emotions, and cinematic style. Play with visuals, set the vibe, and make every second on screen count. Ready to roll the camera and steal the spotlight?',
     image: '/images/event/nontech/FILMFINATICS.webp',
   },
   {
@@ -106,6 +122,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'DESIGNERS ONBOARD',
     description:
       'Design lives under pressure as you transform surprise themes into striking digital visuals before time runs out.',
+    fullDescription:
+      'A surprise theme, a ticking clock, and creativity under pressure. Design live, think fast, and turn bold ideas into eye-catching digital visuals using your skills and tools. Can you adapt, create, and stand out before time runs out?',
     image: '/images/event/nontech/DESIGNERS%20ONBOARD.webp',
   },
 ];
