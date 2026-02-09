@@ -47,7 +47,7 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
   return (
     <div
       className={cn(
-        'fixed inset-0 z-[100] flex items-center justify-center p-4',
+        'fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4',
         'bg-black/90 backdrop-blur-sm',
         'transition-opacity duration-200',
         isVisible ? 'opacity-100' : 'opacity-0'
@@ -58,14 +58,14 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
     >
       <div
         className={cn(
-          'w-full max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain',
+          'w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto overscroll-contain',
           'bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative',
           'transition-all duration-300 ease-out',
           isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         )}
       >
         {/* --- Top Tech Border Strip --- */}
-        <div className="h-6 w-full flex items-center justify-between px-2 border-b border-neutral-800 bg-[#151515] sticky top-0 z-20">
+        <div className="h-11 sm:h-6 w-full flex items-center justify-between px-3 sm:px-2 border-b border-neutral-800 bg-[#151515] sticky top-0 z-20 min-h-[44px] sm:min-h-0">
           <div className="flex gap-2 text-[8px] tracking-[0.2em] text-neutral-500 uppercase font-bold font-orbitron min-w-0 overflow-hidden">
             <span>Event.Data</span>
             <span>///</span>
@@ -73,11 +73,11 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
           </div>
           <button
             type="button"
-            className="text-neutral-500 hover:text-white transition-colors duration-300 shrink-0 p-1 -m-1"
+            className="text-neutral-500 hover:text-white active:text-white transition-colors duration-300 shrink-0 p-2 -m-2 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:p-1 sm:-m-1 flex items-center justify-center touch-manipulation"
             aria-label="Close"
             onClick={handleClose}
           >
-            <X size={14} strokeWidth={2} />
+            <X size={18} strokeWidth={2} className="sm:w-3.5 sm:h-3.5" />
           </button>
         </div>
 
@@ -110,20 +110,20 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
           </div>
 
           {/* Content Section */}
-          <div className="p-6 relative">
+          <div className="p-4 sm:p-6 relative">
             {/* Corner Accents */}
-            <div className="absolute top-6 right-6 w-3 h-3 border-t border-r border-neutral-600 pointer-events-none" />
-            <div className="absolute bottom-6 left-6 w-3 h-3 border-b border-l border-neutral-600 pointer-events-none" />
+            <div className="absolute top-4 right-4 sm:top-6 sm:right-6 w-3 h-3 border-t border-r border-neutral-600 pointer-events-none" />
+            <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 w-3 h-3 border-b border-l border-neutral-600 pointer-events-none" />
 
             <h2
               id="event-details-title"
-              className="font-orbitron font-bold text-2xl text-neutral-300 uppercase tracking-tight mb-4"
+              className="font-orbitron font-bold text-xl sm:text-2xl text-neutral-300 uppercase tracking-tight mb-3 sm:mb-4 leading-tight"
             >
               {event.name}
             </h2>
 
             {/* Decorative Divider */}
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
               <div className="h-[1px] flex-1 bg-neutral-800" />
               <div className="flex gap-1">
                 {Array.from({ length: 4 }).map((_, i) => (
@@ -134,13 +134,13 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
             </div>
 
             {description && (
-              <div className="max-h-[200px] overflow-y-auto pr-2">
+              <div className="max-h-[35vh] sm:max-h-[200px] overflow-y-auto pr-2 -webkit-overflow-scrolling-touch">
                 <p className="text-neutral-400 text-sm leading-relaxed">{description}</p>
               </div>
             )}
 
             {/* Decorative Tech Elements */}
-            <div className="mt-6 pt-4 border-t border-neutral-800 flex justify-between items-end">
+            <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-neutral-800 flex flex-wrap justify-between items-end gap-2">
               <div className="grid grid-cols-4 gap-1">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div
@@ -152,20 +152,20 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
                   />
                 ))}
               </div>
-              <div className="h-1 bg-neutral-800 flex-1 mx-4 rounded-sm relative max-w-[120px]">
+              <div className="h-1 bg-neutral-800 flex-1 mx-2 sm:mx-4 rounded-sm relative min-w-[60px] max-w-[120px]">
                 <div className="absolute left-0 top-0 h-full w-2/3 bg-neutral-600" />
               </div>
-              <div className="text-[8px] font-bold text-neutral-600 font-orbitron uppercase tracking-widest">
+              <div className="text-[8px] font-bold text-neutral-600 font-orbitron uppercase tracking-widest shrink-0">
                 Status: Active
               </div>
             </div>
           </div>
 
           {/* --- Bottom Tech Border Strip --- */}
-          <div className="h-6 w-full flex items-center justify-between px-2 border-t border-neutral-700 bg-[#151515]">
+          <div className="h-6 w-full flex items-center justify-between px-3 sm:px-2 border-t border-neutral-700 bg-[#151515]">
             <X size={10} className="text-neutral-500" />
-            <div className="flex gap-4 text-[8px] tracking-[0.2em] text-neutral-600 uppercase font-bold font-orbitron">
-              <span>Data Link Secured</span>
+            <div className="flex gap-2 sm:gap-4 text-[8px] tracking-[0.2em] text-neutral-600 uppercase font-bold font-orbitron min-w-0 overflow-hidden">
+              <span className="truncate">Data Link Secured</span>
             </div>
             <X size={10} className="text-neutral-500" />
           </div>
