@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useId } from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
 
 interface AwardBadgeProps {
@@ -20,7 +20,7 @@ const badgeContent = (children: React.ReactNode, variant: AwardBadgeProps['varia
 );
 
 export const AwardBadge = ({ children, className = "", onClick, type = 'button', disabled = false, variant = 'default', href }: AwardBadgeProps) => {
-    const id = useId();
+    const id = useMemo(() => Math.random().toString(36).substr(2, 9), []);
     const buttonGradientId = `buttonGradient-${id}`;
     const glowId = `glow-${id}`;
     const rainbowGradientId = `rainbowGradient-${id}`;
