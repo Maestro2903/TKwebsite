@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface AwardBadgeProps {
@@ -20,11 +20,21 @@ const badgeContent = (children: React.ReactNode, variant: AwardBadgeProps['varia
 );
 
 export const AwardBadge = ({ children, className = "", onClick, type = 'button', disabled = false, variant = 'default', href }: AwardBadgeProps) => {
-    const id = useMemo(() => Math.random().toString(36).substr(2, 9), []);
+    const [id] = useState(() => Math.random().toString(36).substr(2, 9));
+    const [mounted, setMounted] = useState(false);
+    
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+    
     const buttonGradientId = `buttonGradient-${id}`;
     const glowId = `glow-${id}`;
     const rainbowGradientId = `rainbowGradient-${id}`;
     const coloredBlurId = `coloredBlur-${id}`;
+    
+    if (!mounted) {
+        return null;
+    }
 
     if (variant === 'gold-solid') {
         return (

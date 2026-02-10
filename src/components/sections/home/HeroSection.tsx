@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { AwardBadge } from '@/components/decorative/AwardBadge';
+import { GlassButton } from '@/components/ui/glass-button';
 
 interface HeroSectionProps {
     onShowReelClick?: () => void;
@@ -162,9 +162,13 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                                 className="hero_center_logo__img hero_center_logo__img--text"
                             />
                             <div className="hero_center_logo__cta">
-                                <AwardBadge href="/register" className="hero_center_logo__cta-badge">
+                                <GlassButton
+                                    href="/register"
+                                    size="lg"
+                                    className="hero_center_logo__cta-badge"
+                                >
                                     REGISTER NOW
-                                </AwardBadge>
+                                </GlassButton>
                             </div>
                         </div>
                     </div>
