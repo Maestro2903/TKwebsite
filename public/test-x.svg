@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#785A14" />
+      <stop offset="50%" stop-color="#F5D76E" />
+      <stop offset="100%" stop-color="#B98C23" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- X shape with golden gradient -->
+  <g filter="url(#glow)">
+    <!-- Left stroke of X -->
+    <path d="M 40 40 L 160 160" 
+          stroke="url(#goldGradient)" 
+          stroke-width="20" 
+          stroke-linecap="round"
+          fill="none"/>
+    
+    <!-- Right stroke of X -->
+    <path d="M 160 40 L 40 160" 
+          stroke="url(#goldGradient)" 
+          stroke-width="20" 
+          stroke-linecap="round"
+          fill="none"/>
+  </g>
+</svg>

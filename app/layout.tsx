@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "@/styles/globals.css";
 import { AuthProvider } from "@/features/auth/AuthContext";
+import { ClientLayout } from "@/components/layout/ClientLayout";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -27,7 +28,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <ClientLayout>
+          <AuthProvider>{children}</AuthProvider>
+        </ClientLayout>
       </body>
     </html>
   );
