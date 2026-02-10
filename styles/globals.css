@@ -29,7 +29,9 @@
   --nav-height: 45px; /* 30% smaller than original 64px */
   /* Common padding for all navbar items (links + buttons) - consistent across devices */
   --nav-item-padding-y: 0.5rem;
-  --nav-item-padding-x: 0.875rem;
+  --nav-item-padding-x: 1.25rem;
+  /* Equal spacing between all navbar items */
+  --nav-item-gap: 1.5rem;
 }
 
 /* Custom font-face for Interdisplay - uses locally installed Inter or fallback */
@@ -220,7 +222,7 @@ html {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Sana Arena page: solid black navbar fill only */
+/* SaNa The One page: solid black navbar fill only */
 .nav_wrap.nav_wrap--sana-arena {
   background-color: #000 !important;
   background: #000 !important;
@@ -308,18 +310,16 @@ html {
 }
 
 .nav_desktop_right {
-  grid-column-gap: 1rem;
-  grid-row-gap: 1rem;
+  gap: var(--nav-item-gap);
   justify-content: space-between;
   align-items: center;
   width: 100%;
   display: flex;
 }
 
-/* Desktop Links */
+/* Desktop Links - equal gap between each link */
 .nav_desktop_links_wrap {
-  grid-column-gap: 4rem;
-  grid-row-gap: 4rem;
+  gap: var(--nav-item-gap);
   display: flex;
   list-style: none;
   margin: 0;
@@ -356,23 +356,23 @@ html {
   font-weight: var(--_typography---font--primary-semibold, 600);
 }
 
-/* Menu Toggle Button Container */
+/* Menu Toggle Button Container - same gap as nav links */
 .nav_desktop_right_btns {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--nav-item-gap);
 }
 
 .nav-auth-status-desktop {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--nav-item-gap);
 }
 
 .nav-auth-status {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--nav-item-gap);
 }
 
 .nav-auth-status-text {
@@ -435,7 +435,7 @@ html {
 }
 
 .nav_menu_btn_spacer {
-  width: 1rem;
+  width: 0;
 }
 
 .nav_menu_toggle_wrap {
@@ -446,7 +446,7 @@ html {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: var(--nav-item-padding-y) var(--nav-item-padding-x);
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -2727,27 +2727,7 @@ html {
     padding-bottom: 2rem;
   }
 
-  /* Navigation links sizing for tablet */
-  .nav_menu_link {
-    font-size: clamp(2rem, 8vw, 4rem);
-    padding: 0.75rem 0;
-  }
-
-  /* Adjust text transform animation */
-  .nav_menu_text {
-    transform: translateX(-2.5rem);
-  }
-
-  .nav_menu_link:hover .nav_menu_text,
-  .nav_menu_link.w--current .nav_menu_text {
-    transform: translateX(0.25rem);
-  }
-
-  /* Smaller arrow icon for tablet */
-  .nav_menu_icon {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
+  /* Navigation links sizing for tablet - overridden by mobile-specific rules above */
 
   /* Social links at bottom */
   .footer_cta {
@@ -2782,27 +2762,7 @@ html {
     padding: 0 0.75rem;
   }
 
-  /* Larger text for mobile readability */
-  .nav_menu_link {
-    font-size: clamp(1.75rem, 10vw, 3rem);
-    padding: 0.5rem 0;
-  }
-
-  /* Adjust text transform for smaller screens */
-  .nav_menu_text {
-    transform: translateX(-2rem);
-  }
-
-  .nav_menu_link:hover .nav_menu_text,
-  .nav_menu_link.w--current .nav_menu_text {
-    transform: translateX(0.25rem);
-  }
-
-  /* Smaller icon for mobile */
-  .nav_menu_icon {
-    width: 2rem;
-    height: 2rem;
-  }
+  /* Mobile menu styling - overridden by mobile-specific centered rules above */
 
   /* Stack social links nicely */
   .footer_cta {
@@ -2840,26 +2800,7 @@ html {
     padding-bottom: 1rem;
   }
 
-  /* Smaller text for very small screens */
-  .nav_menu_link {
-    font-size: clamp(1.5rem, 11vw, 2.5rem);
-    padding: 0.4rem 0;
-  }
-
-  /* Minimal icon for small screens */
-  .nav_menu_icon {
-    width: 1.75rem;
-    height: 1.75rem;
-  }
-
-  .nav_menu_text {
-    transform: translateX(-1.75rem);
-  }
-
-  .nav_menu_link:hover .nav_menu_text,
-  .nav_menu_link.w--current .nav_menu_text {
-    transform: translateX(0.25rem);
-  }
+  /* Small screen styling - overridden by mobile-specific centered rules below */
 
   /* Compact social links */
   .social_link_wrap.is-nav {
@@ -2877,10 +2818,140 @@ html {
   }
 }
 
+/* Mobile-only: Centered minimal hamburger menu without icons */
+@media screen and (max-width: 991px) {
+  
+  /* Hide arrow icons on mobile - create minimal centered layout */
+  .nav_menu_icon {
+    display: none !important;
+  }
+
+  /* Reset text transform - no offset needed without icons */
+  .nav_menu_text {
+    transform: translateX(0) !important;
+    transition: none;
+    text-align: center;
+    width: 100%;
+  }
+
+  .nav_menu_link:hover .nav_menu_text,
+  .nav_menu_link.w--current .nav_menu_text {
+    transform: translateX(0) !important;
+  }
+
+  /* Center-align menu container vertically and horizontally */
+  .nav_menu_column.u-column-5 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .nav_menu_column.u-column-5 > ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 0;
+  }
+
+  .nav_menu_link_wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* All menu links - centered with equal padding */
+  .nav_menu_link {
+    width: auto;
+    max-width: 100%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    
+    /* Consistent typography */
+    opacity: 0.6;
+    line-height: 1.2;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: clamp(2.5rem, 7.5cqw, 5rem);
+    transition: opacity 0.35s ease;
+    display: flex;
+    text-decoration: none;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .nav_menu_link:hover,
+  .nav_menu_link.w--current {
+    opacity: 1;
+  }
+
+  /* Ensure button elements match link styling exactly */
+  .nav_menu_link[type="button"],
+  button.nav_menu_link {
+    /* Reset button defaults */
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    
+    /* Match exact styling */
+    width: auto;
+    max-width: 100%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    
+    opacity: 0.6;
+    line-height: 1.2;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: clamp(2.5rem, 7.5cqw, 5rem);
+    transition: opacity 0.35s ease;
+    display: flex;
+    text-decoration: none;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  button.nav_menu_link:hover,
+  button.nav_menu_link.w--current {
+    opacity: 1;
+  }
+}
+
+/* Tablet breakpoint - adjust font size and padding */
+@media screen and (max-width: 767px) and (min-width: 480px) {
+  .nav_menu_link,
+  button.nav_menu_link {
+    font-size: clamp(2rem, 8vw, 4rem);
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* Small mobile breakpoint - adjust font size and padding */
+@media screen and (max-width: 479px) {
+  .nav_menu_link,
+  button.nav_menu_link {
+    font-size: clamp(1.5rem, 11vw, 2.5rem);
+    padding: 0.6rem 1.25rem;
+  }
+}
+
 /* Touch device optimizations - increase tap targets */
 @media (hover: none) and (pointer: coarse) {
-  .nav_menu_link {
+  .nav_menu_link,
+  button.nav_menu_link {
     padding: 0.75rem 0;
+    min-height: 44px; /* Minimum touch target */
   }
 
   .nav_menu_toggle {

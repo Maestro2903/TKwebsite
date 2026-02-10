@@ -3,53 +3,20 @@
 import { useEffect, useRef } from 'react';
 import { useGSAP } from '@/hooks/useGSAP';
 import { Y2K_IMAGES } from '@/data/y2k-images';
+import EventCard from '@/components/sections/events/EventCard';
+import { NON_TECHNICAL_EVENTS, TECHNICAL_EVENTS, type EventItem } from '@/data/events';
 
 const QUOTE =
     'We curate an exhilarating journey of technical challenges, creative arts, and musical extravaganzas fished straight out of the ocean.';
 
-// Flagship events - Highlights grid
-const PROJECTS = [
-    {
-        slug: 'sana-arena',
-        year: '2026',
-        category: 'Pro-Show',
-        title: 'SANA ARENA',
-        client: 'Live Concert featuring Yuvan Shankar Raja. The Maestro returns to the stage.',
-        image: '/images/event/nontech/BATTLE%20OF%20BANDS.webp',
-    },
-    {
-        slug: 'mr-machinist',
-        year: '2026',
-        category: 'Technical',
-        title: 'MR. MACHINIST',
-        client: 'The ultimate test of mechanical engineering skills and innovation.',
-        image: '/images/event/tech/REVERSEENGINEERING.jpg',
-    },
-    {
-        slug: 'choreo-night',
-        year: '2026',
-        category: 'Cultural',
-        title: 'CHOREO NIGHT',
-        client: 'A spectacular dance battle showcasing group synchronisation and style.',
-        image: '/images/event/nontech/CHOREO%20SHOWCASE.webp',
-    },
-    {
-        slug: 'hackathon-2026',
-        year: '2026',
-        category: 'Technical',
-        title: 'HACKATHON 2026',
-        client: 'A 24-hour coding marathon to solve real-world industrial problems.',
-        image: '/images/event/tech/tech%20quest.jpg',
-    },
-    {
-        slug: 'shipwreck',
-        year: '2026',
-        category: 'Non-Technical',
-        title: 'SHIPWRECK',
-        client: 'A test of wit and spontaneity where you talk your way out of a sinking ship.',
-        image: '/images/event/nontech/TREASURE%20HUNT.webp',
-    },
-];
+// Highlights grid (reuse the same card design as the Events page)
+const HIGHLIGHT_EVENTS: EventItem[] = [
+    NON_TECHNICAL_EVENTS.find((e) => e.id === 'battle-of-bands'),
+    NON_TECHNICAL_EVENTS.find((e) => e.id === 'choreo-showcase'),
+    NON_TECHNICAL_EVENTS.find((e) => e.id === 'treasure-hunt'),
+    TECHNICAL_EVENTS.find((e) => e.id === 'deadlock'),
+    TECHNICAL_EVENTS.find((e) => e.id === 'prompt-pixel'),
+].filter((e): e is EventItem => Boolean(e));
 
 // CIT sticky cards - Excellence, Industry Ready, Vision
 const SERVICES = [
@@ -250,53 +217,13 @@ export default function ServicesAndWorksSection() {
                 </div>
                 <div data-swiper-wrap="" className="home_work_component w-dyn-list">
                     <div ref={worksGridRef} role="list" className="home_work_grid u-grid-custom w-dyn-items">
-                        {PROJECTS.map((project) => (
+                        {HIGHLIGHT_EVENTS.map((event) => (
                             <div
-                                key={project.slug}
+                                key={event.id}
                                 role="listitem"
                                 className="home_work_item u-column-3 w-dyn-item"
                             >
-                                <a href="/events" className="work_item w-inline-block">
-                                    <div className="work_image_wrap">
-                                        <img
-                                            loading="lazy"
-                                            src={project.image}
-                                            alt={project.title}
-                                            sizes="(max-width: 479px) 88vw, (max-width: 767px) 82vw, (max-width: 991px) 45vw, 25vw"
-                                            className="u-cover-absolute"
-                                        />
-                                    </div>
-                                    <div className="work_item_info">
-                                        <div>
-                                            <div className="work_info_wrap">
-                                                <div>{project.year}</div>
-                                                <div>{project.category}</div>
-                                            </div>
-                                            <div>
-                                                <div className="cs_client u-text-style-large u-text-trim-off">
-                                                    {project.title}
-                                                </div>
-                                                <div className="cs_title u-text-trim-off">{project.client}</div>
-                                            </div>
-                                        </div>
-                                        <div className="cs_btn_wrap">
-                                            <div className="cs_btn_text">View Event</div>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="100%"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                className="u-icon-medium u-zindex-1"
-                                            >
-                                                <path
-                                                    fill="currentColor"
-                                                    d="m13.895 16.5-1.056-1.06 2.677-2.69H5.625v-1.5h9.892l-2.678-2.69 1.056-1.06 4.48 4.5-4.48 4.5Z"
-                                                />
-                                            </svg>
-                                            <div className="cs_btn_bg" />
-                                        </div>
-                                    </div>
-                                </a>
+                                <EventCard event={event} />
                             </div>
                         ))}
                     </div>

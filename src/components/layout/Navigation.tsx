@@ -54,7 +54,7 @@ export default function Navigation() {
         { href: '/', label: 'Home' },
         { href: '/events', label: 'Events' },
         { href: '/proshows', label: 'Proshows' },
-        { href: '/sana-arena', label: 'SaNa Arena' },
+        { href: '/sana-arena', label: 'SaNa The One' },
     ];
 
     const socialLinks = [
@@ -292,7 +292,6 @@ export default function Navigation() {
                                                 closeMenu();
                                                 signOut();
                                             }}
-                                            style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', font: 'inherit', color: 'inherit', padding: 0 }}
                                         >
                                             <div className="nav_menu_icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">

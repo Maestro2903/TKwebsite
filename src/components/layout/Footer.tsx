@@ -74,7 +74,7 @@ export default function Footer() {
                                 </li>
                                 <li className="footer_group_item">
                                     <a href="/sana-arena" className="footer_link_wrap w-inline-block">
-                                        <div className="footer_link_text u-text-style-small">SA NA ARENA</div>
+                                        <div className="footer_link_text u-text-style-small">SaNa The One</div>
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="100%"

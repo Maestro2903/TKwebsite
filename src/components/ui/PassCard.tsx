@@ -79,7 +79,7 @@ export default function PassCard({ pass, onRegister }: PassCardProps) {
                         </p>
                         <ul className="flex flex-col gap-0.5 text-[10px] font-bold text-neutral-200">
                           <li>• CIDA</li>
-                          <li>• SANA Arena</li>
+                          <li>• SaNa The One</li>
                           <li>• Day 3 concert</li>
                         </ul>
                       </div>

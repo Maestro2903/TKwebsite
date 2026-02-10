@@ -9,7 +9,7 @@ const PROJECTS = [
         slug: 'sana-arena',
         year: '2026',
         category: 'Pro-Show',
-        title: 'SANA ARENA',
+        title: 'SaNa The One',
         client: 'Live Concert featuring Yuvan Shankar Raja. The Maestro returns to the stage.',
         image: '/images/event/nontech/BATTLE%20OF%20BANDS.webp',
     },
