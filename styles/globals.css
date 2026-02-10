@@ -1827,20 +1827,21 @@ html {
   display: inline-block;
 }
 
-/* Button Layout */
+/* Button Layout - centered */
 .scailing_button_wrap.u-grid-custom {
   margin-top: 2rem;
   overflow: clip;
   display: flex;
-  /* Override grid for simple centering if needed, or keep grid */
   justify-content: center;
+  align-items: center;
   width: 100%;
 }
 
-.scailing_button.u-column-6 {
-  /* On desktop it's col 7 span 6, essentially right half or centered depending on design */
-  grid-column: span 6;
+.scailing_button_wrap.u-grid-custom .scailing_button.u-column-6 {
+  grid-column: unset;
+  grid-column-start: unset;
   width: auto;
+  margin: 0 auto;
 }
 
 /* Responsive Styles */
@@ -1856,6 +1857,10 @@ html {
 
   .scailing_button_wrap.u-grid-custom {
     margin-top: 1rem;
+  }
+
+  .scailing_button_wrap.u-grid-custom .scailing_button.u-column-6 {
+    grid-column: unset;
   }
 }
 
