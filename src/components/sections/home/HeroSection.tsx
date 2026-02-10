@@ -8,7 +8,7 @@ interface HeroSectionProps {
     onShowReelClick?: () => void;
 }
 
-// Desktop/Tablet video sources (landscape)
+// Desktop/tablet video sources (landscape)
 const desktopVideoSources = [
     { src: '/videos/hero-bg-optimized.webm', type: 'video/webm' },
     { src: '/videos/hero-bg.mp4', type: 'video/mp4' },
@@ -17,6 +17,7 @@ const desktopVideoSources = [
 // Mobile video sources (portrait)
 const mobileVideoSources = [
     { src: '/videos/hero-bg-mobile-optimized.webm', type: 'video/webm' },
+    { src: '/videos/hero-bg-mobile.mp4', type: 'video/mp4' },
 ];
 
 export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
@@ -27,7 +28,7 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
     const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
-    // Detect mobile on mount and window resize
+    // Detect mobile on mount and window resize (for layout/attributes)
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
@@ -37,18 +38,14 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
             setIsMobile(e.matches);
         };
 
-        // Set initial value
         handleChange(mediaQuery);
-
-        // Listen for changes
         mediaQuery.addEventListener('change', handleChange);
 
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
-    // Select video sources based on device
     const videoSources = isMobile ? mobileVideoSources : desktopVideoSources;
-    const videoSrc = videoSources[0].src; /* for data attributes / fallback */
+    const videoSrc = videoSources[0].src;
 
     // IntersectionObserver: only start loading video when section is near viewport
     useEffect(() => {
