@@ -23,7 +23,7 @@ function ShowCard({ show, day, alternate = false, imageUrl }: ShowCardProps) {
 
   return (
     <article
-      className={`show-card-proshows ${alternate ? 'show-card-proshows--alternate' : ''}`}
+      className={`show-card-proshows gs_reveal ${alternate ? 'show-card-proshows--alternate gs_reveal_fromRight' : 'gs_reveal_fromLeft'}`}
       aria-labelledby={`show-${show.id}-title`}
     >
       <div className={`show-card-proshows__image ${show.id === 'day1-jeeva' ? 'show-card-proshows__image--align-top' : ''}`}>

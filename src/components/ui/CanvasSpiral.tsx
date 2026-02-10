@@ -33,6 +33,7 @@ export default function CanvasSpiral({ className = '' }: CanvasSpiralProps) {
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const particlesRef = useRef<Particle[]>([]);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const isMountedRef = useRef(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -41,7 +42,24 @@ export default function CanvasSpiral({ className = '' }: CanvasSpiralProps) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    isMountedRef.current = true;
     ctxRef.current = ctx;
+
+    // #region agent log
+    fetch('http://127.0.0.1:7244/ingest/92517cc6-1bca-44ee-bc7d-aef960e370cf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: `log_${Date.now()}_mount`,
+        runId: 'pre-fix',
+        hypothesisId: 'H1',
+        location: 'CanvasSpiral.tsx:useEffect',
+        message: 'CanvasSpiral mounted',
+        data: { width: canvas.width, height: canvas.height },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
 
     // Set canvas size
     let cw = (canvas.width = window.innerWidth);
@@ -68,7 +86,7 @@ export default function CanvasSpiral({ className = '' }: CanvasSpiralProps) {
 
     // Draw function
     const draw = () => {
-      if (!ctxRef.current || !canvasRef.current) return;
+      if (!isMountedRef.current || !ctxRef.current || !canvasRef.current) return;
 
       const ctx = ctxRef.current;
       const canvas = canvasRef.current;
@@ -125,29 +143,106 @@ export default function CanvasSpiral({ className = '' }: CanvasSpiralProps) {
 
     // Resize handler
     const handleResize = () => {
-      if (!canvasRef.current) return;
+      if (!isMountedRef.current || !canvasRef.current) return;
       cw = canvasRef.current.width = window.innerWidth;
       ch = canvasRef.current.height = window.innerHeight;
       radius = Math.max(cw, ch);
-      tl.invalidate();
+      if (tl && !tl.isActive()) {
+        tl.invalidate();
+      }
     };
 
     // Click handler for pause/play
     const handleClick = () => {
-      if (!timelineRef.current) return;
+      if (!isMountedRef.current || !timelineRef.current) return;
+
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/92517cc6-1bca-44ee-bc7d-aef960e370cf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: `log_${Date.now()}_click`,
+          runId: 'pre-fix',
+          hypothesisId: 'H2',
+          location: 'CanvasSpiral.tsx:handleClick',
+          message: 'CanvasSpiral click toggle',
+          data: {
+            timeScale: timelineRef.current.timeScale(),
+            isActive: timelineRef.current.isActive(),
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+
       gsap.to(timelineRef.current, {
         timeScale: timelineRef.current.isActive() ? 0 : 1,
       });
     };
 
+    // Pointer enter/leave to debug cursor region
+    const handlePointerEnter = (event: PointerEvent) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/92517cc6-1bca-44ee-bc7d-aef960e370cf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: `log_${Date.now()}_enter`,
+          runId: 'pre-fix',
+          hypothesisId: 'H3',
+          location: 'CanvasSpiral.tsx:handlePointerEnter',
+          message: 'Pointer entered canvas',
+          data: { x: event.clientX, y: event.clientY },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+    };
+
+    const handlePointerLeave = (event: PointerEvent) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/92517cc6-1bca-44ee-bc7d-aef960e370cf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: `log_${Date.now()}_leave`,
+          runId: 'pre-fix',
+          hypothesisId: 'H3',
+          location: 'CanvasSpiral.tsx:handlePointerLeave',
+          message: 'Pointer left canvas',
+          data: { x: event.clientX, y: event.clientY },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+    };
+
     window.addEventListener('resize', handleResize);
     canvas.addEventListener('pointerup', handleClick);
+    canvas.addEventListener('pointerenter', handlePointerEnter);
+    canvas.addEventListener('pointerleave', handlePointerLeave);
 
     // Cleanup
     return () => {
+      isMountedRef.current = false;
+      
+      // Remove event listeners
       window.removeEventListener('resize', handleResize);
-      canvas.removeEventListener('pointerup', handleClick);
-      tl.kill();
+      if (canvas) {
+        canvas.removeEventListener('pointerup', handleClick);
+        canvas.removeEventListener('pointerenter', handlePointerEnter);
+        canvas.removeEventListener('pointerleave', handlePointerLeave);
+      }
+      
+      // Kill GSAP timeline
+      if (tl) {
+        tl.kill();
+      }
+      
+      // Clear refs
+      timelineRef.current = null;
+      ctxRef.current = null;
+      particlesRef.current = [];
     };
   }, []);
 
