@@ -3594,7 +3594,7 @@ html {
 
 /* Day section: Saarang layout — big number + label, then horizontal card row */
 .show-day-section {
-  padding: 1.5rem 0;
+  padding: 1.25rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   background-color: var(--swatch--dark-900, #000);
 }
@@ -3652,7 +3652,8 @@ html {
   flex-wrap: wrap;
   align-items: center;
   gap: 2rem;
-  height: 100vh;
+  min-height: 420px;
+  padding: 2rem 0;
   border-top: dashed 2px rgba(255, 255, 255, 0.3);
 }
 
@@ -3790,12 +3791,12 @@ html {
   color: var(--swatch--light-100, #fff);
 }
 
-/* Responsive: stack image above info card on mobile */
+/* Responsive: stack image above info card on tablet/mobile */
 @media screen and (max-width: 991px) {
   .show-card-proshows {
     flex-direction: column;
     height: auto;
-    min-height: 80vh;
+    min-height: auto;
     gap: var(--_spacing---space--4);
     text-align: left;
   }
@@ -3814,13 +3815,42 @@ html {
   }
 }
 
+/* Proshows page section spacers - compact throughout */
+.page_main--proshows .u-section-spacer.w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 {
+  height: 2.5rem;
+}
+
+@media screen and (min-width: 992px) {
+  .page_main--proshows .u-section-spacer.w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 {
+    height: 3rem;
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .page_main--proshows .u-section-spacer.w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 {
+    height: 4rem;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .page_main--proshows .u-section-spacer.w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 {
+    height: 2.5rem;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .page_main--proshows .u-section-spacer.w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 {
+    height: 1.5rem;
+  }
+}
+
 /* Mobile optimizations for proshows page */
 @media screen and (max-width: 767px) {
 
-  /* Hero section - better mobile padding and background */
+  /* Hero section - better mobile padding, safe-area, and background */
   .shows-hero {
-    min-height: 100svh;
-    padding: var(--site--gutter, 1.5rem) 1rem;
+    min-height: min(100svh, 100dvh);
+    padding: calc(var(--site--gutter, 1.5rem) + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-right)) calc(var(--site--gutter, 1.5rem) + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left));
     background-attachment: scroll;
     background-size: cover;
     background-position: center center;
@@ -3871,15 +3901,18 @@ html {
     padding-right: 1rem;
   }
 
-  /* Show card optimizations */
+  /* Show card optimizations - compact layout, lighter borders */
   .show-card-proshows {
     gap: 1rem;
+    border-top-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.2);
   }
 
   .show-card-proshows__image {
     aspect-ratio: 16 / 9;
     border-radius: 0.5rem;
     overflow: hidden;
+    min-height: 180px;
   }
 
   .show-card-proshows__info {
@@ -3911,7 +3944,7 @@ html {
     font-size: 0.8rem;
   }
 
-  /* Button - touch-friendly size */
+  /* Button - touch-friendly 44px min target */
   .show-card-proshows__btn {
     padding: 1rem 1.5rem;
     min-height: 44px;
@@ -3934,8 +3967,8 @@ html {
 /* Small mobile devices (< 480px) */
 @media screen and (max-width: 479px) {
   .shows-hero {
-    padding: 1rem;
-    min-height: 100svh;
+    padding: calc(1rem + env(safe-area-inset-top)) calc(0.75rem + env(safe-area-inset-right)) calc(1rem + env(safe-area-inset-bottom)) calc(0.75rem + env(safe-area-inset-left));
+    min-height: min(100svh, 100dvh);
   }
 
   .shows-hero::before {
@@ -3948,8 +3981,8 @@ html {
 
   .show-day-section__header {
     margin-bottom: 1rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
+    padding-left: calc(0.75rem + env(safe-area-inset-left));
+    padding-right: calc(0.75rem + env(safe-area-inset-right));
   }
 
   .show-day-section__num {
@@ -3961,8 +3994,12 @@ html {
   }
 
   .show-day-section__cards .u-container {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
+    padding-left: calc(0.75rem + env(safe-area-inset-left));
+    padding-right: calc(0.75rem + env(safe-area-inset-right));
+  }
+
+  .show-card-proshows__image {
+    min-height: 160px;
   }
 
   .show-card-proshows__info {
@@ -3975,6 +4012,7 @@ html {
 
   .show-card-proshows__btn {
     padding: 0.875rem 1.25rem;
+    min-height: 44px;
     font-size: 0.8rem;
   }
 }

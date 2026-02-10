@@ -162,10 +162,10 @@ export default function Footer() {
                     <div className="footer_contact">
                         <div className="u-opacity-60 u-margin-bottom-2">Contact</div>
                         <a href="tel:+919940199440" className="footer_contact_link w-inline-block">
-                            <div>+91 99401 99440</div>
+                            <div>+91 99401 99440 - Navin Athreya - President</div>
                         </a>
                         <a href="tel:+919840998125" className="footer_contact_link w-inline-block">
-                            <div>+91 98409 98125</div>
+                            <div>+91 98409 98125 - Vishnu - Vice President</div>
                         </a>
                     </div>
                 </nav>
