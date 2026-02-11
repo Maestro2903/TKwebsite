@@ -5,11 +5,13 @@
 
 import crypto from 'crypto';
 
-const QR_SECRET = process.env.QR_SECRET_KEY;
+const rawQrSecret = process.env.QR_SECRET_KEY;
 
-if (!QR_SECRET) {
+if (!rawQrSecret) {
     throw new Error('FATAL: QR_SECRET_KEY environment variable is not set. QR generation is disabled.');
 }
+
+const QR_SECRET: string = rawQrSecret;
 
 /**
  * Creates a signed QR payload.
