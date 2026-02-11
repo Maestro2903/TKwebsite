@@ -129,7 +129,7 @@ export default function ScalingVideoSection() {
                                     data-scailing-text=""
                                     className="scailing_text"
                                 >
-                                    Ready to
+                                    Not Just
                                 </div>
                             </div>
                             <div className="u-overflow-clip">
@@ -138,7 +138,7 @@ export default function ScalingVideoSection() {
                                     data-scailing-text=""
                                     className="scailing_text"
                                 >
-                                    Dive
+                                    an
                                 </div>
                             </div>
                         </div>
@@ -151,7 +151,7 @@ export default function ScalingVideoSection() {
                                     data-scailing-text=""
                                     className="scailing_text"
                                 >
-                                    Into The
+                                    Event.
                                 </div>
                             </div>
                             <div className="u-overflow-clip">
@@ -160,7 +160,7 @@ export default function ScalingVideoSection() {
                                     data-scailing-text=""
                                     className="scailing_text"
                                 >
-                                    Rhythm
+                                    An
                                 </div>
                             </div>
                         </div>
@@ -173,7 +173,7 @@ export default function ScalingVideoSection() {
                                     data-scailing-text=""
                                     className="scailing_text"
                                 >
-                                    Of Life?
+                                    Experience.
                                 </div>
                             </div>
                         </div>
