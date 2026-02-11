@@ -75,7 +75,7 @@ const SciFiCard: React.FC<SciFiCardProps> = ({
                     <div className="relative w-full flex-1 flex flex-col min-h-0">
 
                         {/* The Screen (Void / Image) — aspect-ratio so poster proportions stay same on all devices */}
-                        <div className="aspect-[16/10] w-full flex-shrink-0 bg-[#050505] border border-neutral-700 relative overflow-hidden group-hover:border-neutral-500 transition-colors duration-300"
+                        <div className="aspect-[2/3] w-full flex-shrink-0 bg-[#050505] border border-neutral-700 relative overflow-hidden group-hover:border-neutral-500 transition-colors duration-300"
                             style={{ clipPath: 'polygon(0 0, 100% 0, 100% 88%, 92% 100%, 8% 100%, 0 88%)' }}>
 
                             {/* Content Container (Image or Children) */}
@@ -92,7 +92,7 @@ const SciFiCard: React.FC<SciFiCardProps> = ({
                                         src={image}
                                         alt={name}
                                         fill
-                                        className="object-cover opacity-80 transition-opacity duration-500"
+                                        className="object-contain opacity-80 transition-opacity duration-500"
                                     />
                                 ) : null}
                             </div>
@@ -125,11 +125,6 @@ const SciFiCard: React.FC<SciFiCardProps> = ({
                                 {Array.from({ length: 8 }).map((_, i) => (
                                     <div key={i} className={`w-1 h-1 rounded-full ${i < 3 ? 'bg-neutral-400' : 'bg-neutral-800'}`}></div>
                                 ))}
-                            </div>
-
-                            {/* Tech Line */}
-                            <div className="h-1 bg-neutral-800 flex-1 mx-4 rounded-sm relative">
-                                <div className="absolute left-0 top-0 h-full w-1/3 bg-neutral-600 group-hover:w-2/3 transition-all duration-500"></div>
                             </div>
 
                             {/* Cross Icons */}

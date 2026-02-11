@@ -74,14 +74,14 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'SOLO SINGING',
     description:
       'Capture hearts with your voice as emotion, control, and melody blend into a soul-stirring solo performance.',
-    image: '/images/event/nontech/SOLO%20SINGING.webp',
+    image: '/images/event/nontech/loadthelyrics01.jpg',
   },
   {
     id: 'paint-the-town',
     name: 'PAINT THE TOWN',
     description:
       'Transform a blank wall into a vibrant masterpiece using colors, creativity, and speed against the clock.',
-    image: '/images/event/nontech/PAINT%20THE%20TOWN.webp',
+    image: '/images/event/nontech/canvaspainting03.jpg',
   },
   {
     id: 'gaming-event',
@@ -125,6 +125,33 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     fullDescription:
       'A surprise theme, a ticking clock, and creativity under pressure. Design live, think fast, and turn bold ideas into eye-catching digital visuals using your skills and tools. Can you adapt, create, and stand out before time runs out?',
     image: '/images/event/nontech/DESIGNERS%20ONBOARD.webp',
+  },
+  {
+    id: 'connections',
+    name: 'CONNECTIONS',
+    description:
+      'Step into the battleground where strategy, skill, and nerve decide who survives to the very end.',
+    fullDescription:
+      'Lock in, drop hot, and fight for survival in the BGMI battleground. Every decision counts as you outplay opponents, clutch under pressure, and push your way toward the final zone. Stay alert, trust your squad, and see if you have what it takes to outlast everyone else.',
+    image: '/images/event/nontech/REELTOREAL.jpg',
+  },
+  {
+    id: 'channel-surfing',
+    name: 'CHANNEL SURFING',
+    description:
+      'Blink and you\'ll miss it—catch the clue and answer before the channel changes.',
+    fullDescription:
+      'Flip through a whirlwind of channels, spot the clues in seconds, and call it out before the screen changes again. From iconic scenes to surprise flashes, your reflexes and pop culture radar will be pushed to the limit. Stay sharp. Hesitate, and the answer disappears.',
+    image: '/images/event/nontech/REELTOREAL.jpg',
+  },
+  {
+    id: 'frame-spot',
+    name: 'FRAME SPOT',
+    description:
+      'Direct your model and capture a frame where style and attitude come alive.',
+    fullDescription:
+      'Look closer, chase the details, and connect moments that seem miles apart but belong to the same story. The answers aren\'t handed to you—they\'re hidden in plain sight, waiting for sharp eyes and sharper minds. Can you piece it together before the picture slips away?',
+    image: '/images/event/nontech/REELTOREAL.jpg',
   },
 ];
 
