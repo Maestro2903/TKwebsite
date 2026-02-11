@@ -197,20 +197,18 @@ export default function Navigation() {
 
                             <div className="nav_desktop_right_btns">
                                 {/* Desktop: Auth: My Pass + Sign out when logged in */}
-                                <div className="nav-auth-status-desktop">
-                                    {!loading && user && (
-                                        <div className="nav-auth-status">
-                                            <div className="flex items-center gap-2">
-                                                <Link href="/register/my-pass" className="nav-auth-link nav-auth-link--pass">
-                                                    My Pass
-                                                </Link>
-                                                <button type="button" onClick={signOut} className="nav-auth-btn subtle">
-                                                    Sign Out
-                                                </button>
-                                            </div>
+                                {!loading && user && (
+                                    <div className="nav-auth-status">
+                                        <div className="flex items-center gap-2">
+                                            <Link href="/register/my-pass" className="nav-auth-link nav-auth-link--pass">
+                                                My Pass
+                                            </Link>
+                                            <button type="button" onClick={signOut} className="nav-auth-btn subtle">
+                                                Sign Out
+                                            </button>
                                         </div>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
 
                                 {/* Register Button - visible on all screen sizes, redirects to /login */}
                                 <div className="btn-group">

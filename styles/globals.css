@@ -184,6 +184,7 @@ html {
     rgba(255, 255, 255, 0.05) 100%
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -307,9 +308,6 @@ html {
 }
 
 /* Navigation scroll animations - Desktop links always visible */
-.nav_desktop_links_wrap {
-  /* Desktop links remain visible at all times - no scroll-based hiding */
-}
 
 /* =================================================================
    NAVIGATION BAR - Complete Styles from Zeit Media
@@ -432,30 +430,30 @@ html {
 
 /* Desktop Navigation Right Section */
 .nav_desktop_right_wrap {
-  justify-content: flex-start;
-  align-items: center;
   display: flex;
+  align-items: center;
 }
 
 .nav_desktop_right_wrap.u-column-8 {
-  /* Pull desktop nav further left to use space better:
-     logo (2 cols) + 1 spacer + nav/auth/register (8 cols) */
+  /* Logo (2 cols) + center nav/auth/register (8 cols) */
   grid-column-start: 4;
   grid-column-end: span 8;
 }
 
+/* Desktop main nav layout: [center links] [right actions] */
 .nav_desktop_right {
-  gap: var(--nav-item-gap);
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
+  column-gap: var(--nav-item-gap);
   width: 100%;
-  display: flex;
 }
 
 /* Desktop Links - equal gap between each link */
 .nav_desktop_links_wrap {
-  gap: var(--nav-item-gap);
   display: flex;
+  justify-content: center;
+  gap: var(--nav-item-gap);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -505,6 +503,7 @@ html {
 .nav_desktop_right_btns {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--nav-item-gap);
 }
 
@@ -524,12 +523,6 @@ html {
   .nav_desktop_right_btns .btn-bubble-arrow__content-text {
     font-size: 0.6rem;
   }
-}
-
-.nav-auth-status-desktop {
-  display: flex;
-  align-items: center;
-  gap: var(--nav-item-gap);
 }
 
 .nav-auth-status {
@@ -1662,6 +1655,7 @@ html {
     font-size: 0.75rem;
     line-height: 1.4;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -5701,6 +5695,7 @@ html {
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   white-space: normal;
 }
@@ -5988,6 +5983,7 @@ html {
   padding: 1px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0;
