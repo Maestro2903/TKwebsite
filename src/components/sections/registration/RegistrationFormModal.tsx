@@ -10,13 +10,13 @@ import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 interface RegistrationFormModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onCloseAction: () => void;
   pass: RegistrationPass | null;
 }
 
 export default function RegistrationFormModal({
   isOpen,
-  onClose,
+  onCloseAction,
   pass,
 }: RegistrationFormModalProps) {
   const { user } = useAuth();
@@ -36,13 +36,13 @@ export default function RegistrationFormModal({
   useEffect(() => {
     if (!isOpen) return;
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseAction();
     };
     document.addEventListener('keydown', handleEscape);
     return () => {
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onCloseAction]);
 
   // Lock global body scroll (and Lenis) when modal is open
   useLockBodyScroll(isOpen);
@@ -106,7 +106,7 @@ export default function RegistrationFormModal({
 
         if (!sessionId || !orderId) throw new Error('No payment session');
 
-        onClose();
+        onCloseAction();
         const result = await openCashfreeCheckout(sessionId, orderId);
 
         if (result.success) {
@@ -121,7 +121,7 @@ export default function RegistrationFormModal({
         setSubmitting(false);
       }
     },
-    [user, pass, phone, college, onClose]
+    [user, pass, phone, college, onCloseAction]
   );
 
   if (!isOpen) return null;
@@ -133,7 +133,7 @@ export default function RegistrationFormModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="registration-form-title"
-      onClick={(e) => e.target === overlayRef.current && onClose()}
+      onClick={(e) => e.target === overlayRef.current && onCloseAction()}
       onWheel={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
     >
@@ -152,7 +152,7 @@ export default function RegistrationFormModal({
             type="button"
             className="text-white/70 hover:text-white"
             aria-label="Close"
-            onClick={onClose}
+            onClick={onCloseAction}
           >
             ×
           </button>
@@ -201,7 +201,7 @@ export default function RegistrationFormModal({
           <div className="flex gap-3 pt-2">
             <button
               type="button"
-              onClick={onClose}
+              onClick={onCloseAction}
               className="flex-1 rounded border border-white/2 py-2 text-sm font-medium text-white/80 hover:bg-white/5"
             >
               Cancel

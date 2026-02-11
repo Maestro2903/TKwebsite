@@ -415,7 +415,7 @@ export default function ProshowModal({
                             {step === 'events' && (
                                 <button
                                     type="button"
-                                    onClick={onClose}
+                                    onClick={onCloseAction}
                                     className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition tracking-widest"
                                 >
                                     Abort

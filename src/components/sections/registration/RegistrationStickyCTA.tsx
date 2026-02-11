@@ -19,7 +19,7 @@ export default function RegistrationStickyCTA() {
           <span className="button_bg" aria-hidden />
         </button>
       </div>
-      <PassSelectorModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      <PassSelectorModal isOpen={modalOpen} onCloseAction={() => setModalOpen(false)} />
     </>
   );
 }

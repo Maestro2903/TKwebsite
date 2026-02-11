@@ -6,10 +6,10 @@ import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 interface PassSelectorModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onCloseAction: () => void;
 }
 
-export default function PassSelectorModal({ isOpen, onClose }: PassSelectorModalProps) {
+export default function PassSelectorModal({ isOpen, onCloseAction }: PassSelectorModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
@@ -21,14 +21,14 @@ export default function PassSelectorModal({ isOpen, onClose }: PassSelectorModal
   useEffect(() => {
     if (!isOpen) return;
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseAction();
     };
     document.addEventListener('keydown', handleEscape);
     return () => {
       document.removeEventListener('keydown', handleEscape);
       previousActiveElement.current?.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onCloseAction]);
 
   // Lock global body scroll (and Lenis) when modal is open
   useLockBodyScroll(isOpen);
@@ -38,7 +38,7 @@ export default function PassSelectorModal({ isOpen, onClose }: PassSelectorModal
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    onClose();
+    onCloseAction();
   }
 
   if (!isOpen) return null;
@@ -50,7 +50,7 @@ export default function PassSelectorModal({ isOpen, onClose }: PassSelectorModal
       role="dialog"
       aria-modal="true"
       aria-labelledby="pass-selector-title"
-      onClick={(e) => e.target === overlayRef.current && onClose()}
+      onClick={(e) => e.target === overlayRef.current && onCloseAction()}
       onWheel={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
     >
@@ -68,7 +68,7 @@ export default function PassSelectorModal({ isOpen, onClose }: PassSelectorModal
             type="button"
             className="pass-selector-modal__close"
             aria-label="Close"
-            onClick={onClose}
+            onClick={onCloseAction}
           >
             ×
           </button>
