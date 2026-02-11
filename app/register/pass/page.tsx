@@ -10,7 +10,6 @@ import GroupRegistrationModal from '@/components/sections/registration/GroupRegi
 import DayPassModal from '@/components/sections/registration/DayPassModal';
 import ProshowModal from '@/components/sections/registration/ProshowModal';
 import AllAccessModal from '@/components/sections/registration/AllAccessModal';
-import TestPassModal from '@/components/sections/registration/TestPassModal';
 import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import type { RegistrationPass } from '@/data/passes';
 import Font1Text from '@/components/ui/Font1Text';
@@ -22,7 +21,6 @@ export default function PassSelectionPage() {
     const [isDayPassModalOpen, setIsDayPassModalOpen] = useState(false);
     const [isProshowModalOpen, setIsProshowModalOpen] = useState(false);
     const [isAllAccessModalOpen, setIsAllAccessModalOpen] = useState(false);
-    const [isTestPassModalOpen, setIsTestPassModalOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
     // Redirect based on auth state - use useEffect to avoid setState during render
@@ -44,10 +42,6 @@ export default function PassSelectionPage() {
         // Extra safety: ensure profile is complete before opening any modal
         if (!userData) {
             router.push('/register/profile');
-            return;
-        }
-        if (pass.passType === 'test_pass') {
-            setIsTestPassModalOpen(true);
             return;
         }
 
@@ -90,10 +84,6 @@ export default function PassSelectionPage() {
 
     const handleAllAccessModalClose = () => {
         setIsAllAccessModalOpen(false);
-    };
-
-    const handleTestPassModalClose = () => {
-        setIsTestPassModalOpen(false);
     };
 
     // Show loading while checking auth or waiting for redirect
@@ -183,12 +173,6 @@ export default function PassSelectionPage() {
             <AllAccessModal
                 isOpen={isAllAccessModalOpen}
                 onCloseAction={handleAllAccessModalClose}
-            />
-
-            {/* Test Pass Modal */}
-            <TestPassModal
-                isOpen={isTestPassModalOpen}
-                onCloseAction={handleTestPassModalClose}
             />
 
             <Footer />
