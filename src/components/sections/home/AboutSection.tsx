@@ -144,10 +144,10 @@ export default function AboutSection() {
                         className="c-paragraph w-richtext u-rich-text u-max-width-60ch u-opacity-80 u-margin-bottom-7"
                     >
                         <p>
-                        GenZ Kondattam where vibes, voices, and vision collide
+                        GenZ Vibes where vibes, voices, and vision collide
                         </p>
-                        <p>Takshashila, the flagship techno cultural fest of Chennai Institute of Technology, is back to set the stage alive as Tamil Nadu’s most awaited cultural celebration. It’s where creativity, innovation, and passion collide, giving students the freedom to express, experiment, and excel. This year, Takshashila embraces its theme GenZ Kondattam, celebrating the bold energy, fearless expression, and ever-evolving culture of today’s generation.</p>
-                        <p>From trend-driven performances and culture-forward showcases to cutting-edge technical challenges and innovation-led events, the fest thrives on movement, momentum, and modern expression. Takshashila is more than a fest — it’s an experience that builds confidence, fuels collaboration, and amplifies voices that refuse to blend in. With a dynamic lineup of workshops, competitions, and technical presentations led by industry experts, Takshashila promises a celebration where ideas move fast, creativity runs loud, and Gen Z takes center stage.</p>
+                        <p>Takshashila, the flagship techno cultural fest of Chennai Institute of Technology, is back to set the stage alive as Tamil Nadu’s most awaited cultural celebration. It’s where creativity, innovation, and passion collide, giving students the freedom to express, experiment, and excel. This year, Takshashila embraces its theme GenZ Kondattam, celebrating the bold energy, fearless expression, and ever evolving culture of today’s generation.</p>
+                        <p>From trend driven performances and culture forward showcases to cutting edge technical challenges and innovation led events, the fest thrives on movement, momentum, and modern expression. Takshashila is more than a fest it’s an experience that builds confidence, fuels collaboration, and amplifies voices that refuse to blend in. With a dynamic lineup of workshops, competitions, and technical presentations led by industry experts, Takshashila promises a celebration where ideas move fast, creativity runs loud, and Gen Z takes center stage.</p>
                     </div>
                     <div className="btn-group">
                         <a href="/events" className="btn-bubble-arrow w-inline-block">
