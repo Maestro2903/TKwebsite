@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import QRCode from 'qrcode';
-import { getAdminFirestore } from '@/lib/firebase/adminApp';
+import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/adminApp';
 import { createQRPayload } from '@/features/passes/qrService';
 import { sendEmail, emailTemplates } from '@/features/email/emailService';
 import { generatePassPDFBuffer } from '@/features/passes/pdfGenerator.server';
+import { checkRateLimit } from '@/lib/security/rateLimiter';
 
 const CASHFREE_BASE =
     process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production'
@@ -13,6 +14,7 @@ const CASHFREE_BASE =
 /**
  * Admin endpoint to manually fix stuck payments
  * Usage: POST /api/admin/fix-stuck-payment with { orderId: "order_xxxx" }
+ * Requires authentication: Bearer token with organizer permissions
  * 
  * This endpoint:
  * 1. Checks payment status in Cashfree
@@ -21,15 +23,50 @@ const CASHFREE_BASE =
  * 4. Sends confirmation email
  */
 export async function POST(req: NextRequest) {
+    // Rate limiting
+    const rateLimitResponse = await checkRateLimit(req, { limit: 3, windowMs: 60000 });
+    if (rateLimitResponse) return rateLimitResponse;
+
     try {
+        // Authentication check
+        const authHeader = req.headers.get('Authorization');
+        const idToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+        
+        if (!idToken) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        let decoded: { uid: string };
+        try {
+            decoded = await getAdminAuth().verifyIdToken(idToken);
+        } catch (tokenError: unknown) {
+            const err = tokenError as { code?: string };
+            console.error('Token verification failed:', tokenError);
+            const isExpired = err?.code === 'auth/id-token-expired';
+            return NextResponse.json(
+                { error: isExpired ? 'Session expired. Please sign in again.' : 'Invalid token' },
+                { status: 401 }
+            );
+        }
+
+        const db = getAdminFirestore();
+
+        // Authorization check: must be organizer
+        const userDoc = await db.collection('users').doc(decoded.uid).get();
+        if (!userDoc.exists || !userDoc.data()?.isOrganizer) {
+            return NextResponse.json(
+                { error: 'Forbidden: Organizer access required' },
+                { status: 403 }
+            );
+        }
+
         const { orderId } = await req.json();
-        console.log(`[FixPayment] ========== Manual fix requested for: ${orderId} ==========`);
+        console.log(`[FixPayment] ========== Manual fix requested for: ${orderId} by organizer: ${decoded.uid} ==========`);
 
         if (!orderId || typeof orderId !== 'string') {
             return NextResponse.json({ error: 'Missing orderId' }, { status: 400 });
         }
 
-        const db = getAdminFirestore();
         const appId = process.env.NEXT_PUBLIC_CASHFREE_APP_ID || process.env.CASHFREE_APP_ID;
         const secret = process.env.CASHFREE_SECRET_KEY;
 
@@ -179,8 +216,8 @@ export async function POST(req: NextRequest) {
 
         // Step 6: Send email
         console.log('[FixPayment] Step 6: Sending confirmation email...');
-        const userDoc = await db.collection('users').doc(paymentData.userId as string).get();
-        const userData = userDoc.data();
+        const recipientUserDoc = await db.collection('users').doc(paymentData.userId as string).get();
+        const userData = recipientUserDoc.data();
 
         if (userData?.email) {
             const emailTemplate = emailTemplates.passConfirmation({

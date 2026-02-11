@@ -9,13 +9,29 @@ export async function signInWithGoogle() {
   if (!realAuth) {
     throw new Error(FIREBASE_NOT_CONFIGURED);
   }
+
   const provider = new GoogleAuthProvider();
   provider.addScope('email');
   provider.addScope('profile');
 
-  // Using signInWithPopup for all devices to ensure a consistent experience
-  // and resolve issues where redirects might be disruptive or popup is expected.
-  return await signInWithPopup(realAuth, provider);
+  try {
+    // Using signInWithPopup for all devices to ensure a consistent experience
+    // and resolve issues where redirects might be disruptive or popup is expected.
+    return await signInWithPopup(realAuth, provider);
+  } catch (error: any) {
+    switch (error?.code) {
+      case 'auth/popup-blocked':
+        throw new Error('Popup was blocked. Please enable popups for this site and try again.');
+      case 'auth/popup-closed-by-user':
+        throw new Error('Sign-in cancelled before completion.');
+      case 'auth/network-request-failed':
+        throw new Error('Network error during sign-in. Please check your connection and try again.');
+      case 'auth/unauthorized-domain':
+        throw new Error('This domain is not authorized for Google sign-in. Please contact support.');
+      default:
+        throw error;
+    }
+  }
 }
 
 export async function signOut() {

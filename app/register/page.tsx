@@ -4,10 +4,8 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Navigation from '@/components/layout/Navigation';
-import { useLenis } from '@/hooks/useLenis';
 
 export default function RegisterPage() {
-  useLenis();
   const { user, userData, loading: authLoading } = useAuth();
   const router = useRouter();
 

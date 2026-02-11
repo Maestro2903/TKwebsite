@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { userId, amount, passType, teamData, teamId, selectedDays } = body;
+    const { userId, amount, passType, teamData, teamId, selectedDays, selectedEvents } = body;
 
     if (decoded.uid !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -58,6 +58,71 @@ export async function POST(req: NextRequest) {
 
     if (typeof amount !== 'number' || amount !== expectedAmount) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
+    }
+
+    // Validate selectedEvents - MANDATORY for all pass types
+    if (!selectedEvents || !Array.isArray(selectedEvents) || selectedEvents.length === 0) {
+      return NextResponse.json({ error: 'Event selection is required' }, { status: 400 });
+    }
+
+    // Fetch selected events from Firestore to validate them
+    const db = getAdminFirestore();
+    const eventDocs = await Promise.all(
+      selectedEvents.map((eventId: string) => db.collection('events').doc(eventId).get())
+    );
+
+    const events = eventDocs
+      .filter(doc => doc.exists)
+      .map(doc => ({ id: doc.id, ...doc.data() }));
+
+    if (events.length !== selectedEvents.length) {
+      return NextResponse.json({ error: 'Some selected events do not exist' }, { status: 400 });
+    }
+
+    // Check if events are active
+    const inactiveEvents = events.filter((e: any) => !e.isActive);
+    if (inactiveEvents.length > 0) {
+      return NextResponse.json({ 
+        error: `These events are not currently active: ${inactiveEvents.map((e: any) => e.name).join(', ')}` 
+      }, { status: 400 });
+    }
+
+    // Validate events based on pass type
+    if (passType === 'day_pass' && selectedDays && selectedDays.length > 0) {
+      const invalidEvents = events.filter((e: any) => !selectedDays.includes(e.date));
+      if (invalidEvents.length > 0) {
+        return NextResponse.json({ 
+          error: `Events must match selected days. Invalid events: ${invalidEvents.map((e: any) => e.name).join(', ')}` 
+        }, { status: 400 });
+      }
+    }
+
+    if (passType === 'group_events') {
+      if (selectedEvents.length !== 1) {
+        return NextResponse.json({ error: 'Group pass must select exactly one event' }, { status: 400 });
+      }
+      const event = events[0] as any;
+      if (event.type !== 'group') {
+        return NextResponse.json({ error: 'Selected event must be a group event' }, { status: 400 });
+      }
+    }
+
+    if (passType === 'proshow') {
+      const proshowDays = ['2026-02-26', '2026-02-28']; // Day 1 and Day 3
+      const invalidEvents = events.filter((e: any) => !proshowDays.includes(e.date));
+      if (invalidEvents.length > 0) {
+        return NextResponse.json({ 
+          error: `Proshow pass can only select Day 1 and Day 3 events. Invalid: ${invalidEvents.map((e: any) => e.name).join(', ')}` 
+        }, { status: 400 });
+      }
+    }
+
+    // Validate allowedPassTypes for each event
+    const deniedEvents = events.filter((e: any) => !e.allowedPassTypes || !e.allowedPassTypes.includes(passType));
+    if (deniedEvents.length > 0) {
+      return NextResponse.json({ 
+        error: `These events are not available for ${passType}: ${deniedEvents.map((e: any) => e.name).join(', ')}` 
+      }, { status: 400 });
     }
 
     const appId =
@@ -109,29 +174,48 @@ export async function POST(req: NextRequest) {
 
     console.log('[Order] Request to Cashfree:', JSON.stringify(requestBody, null, 2));
 
-    const response = await fetch(`${CASHFREE_BASE}/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-client-id': appId,
-        'x-client-secret': secret,
-        'x-api-version': '2025-01-01',
-      },
-      body: JSON.stringify(requestBody),
-    });
+    // Track created team for cleanup if Cashfree fails
+    let createdTeamId: string | null = null;
 
-    const data = await response.json();
+    let response;
+    let data;
 
-    if (!response.ok) {
-      console.error('Cashfree error:', data);
+    try {
+      response = await fetch(`${CASHFREE_BASE}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-client-id': appId,
+          'x-client-secret': secret,
+          'x-api-version': '2025-01-01',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || JSON.stringify(data));
+      }
+    } catch (cashfreeError) {
+      // If team was created, delete it
+      if (passType === 'group_events' && createdTeamId) {
+        try {
+          await db.collection('teams').doc(createdTeamId).delete();
+          console.log(`[Order] Cleaned up orphan team: ${createdTeamId}`);
+        } catch (cleanupError) {
+          console.error('[Order] Failed to cleanup team:', cleanupError);
+        }
+      }
+
+      console.error('Cashfree error:', cashfreeError);
       return NextResponse.json(
-        { error: data.message || JSON.stringify(data) },
+        { error: cashfreeError instanceof Error ? cashfreeError.message : 'Payment gateway error' },
         { status: 500 }
       );
     }
 
     // Persist pending payment to Firestore
-    const db = getAdminFirestore();
     await db.collection('payments').doc(orderId).set({
       userId,
       amount,
@@ -147,12 +231,16 @@ export async function POST(req: NextRequest) {
       teamId: teamId || null,
       teamMemberCount: body.teamMemberCount || null,
       selectedDays: selectedDays || null,
+      selectedEvents: selectedEvents || [],
     });
 
     // For group registration, create the team document here to ensure ACID consistency
     if (passType === 'group_events') {
       const teamId = body.teamId;
       if (!teamId) throw new Error('Missing teamId for group registration');
+
+      // Track team for cleanup if needed
+      createdTeamId = teamId;
 
       // Check if team already exists to avoid duplicates
       const teamRef = db.collection('teams').doc(teamId);

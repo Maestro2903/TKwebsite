@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/features/auth/AuthContext';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 export default function Navigation() {
     const { user, signOut, loading } = useAuth();
@@ -13,42 +14,88 @@ export default function Navigation() {
     const lastScrollYRef = useRef(0);
     const [isAtTop, setIsAtTop] = useState(true);
     const [menuOpen, setMenuOpen] = useState(false);
+    const navRef = useRef<HTMLDivElement | null>(null);
+    const firstMenuItemRef = useRef<HTMLAnchorElement | null>(null);
     const pathname = usePathname();
 
-    useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
+    // Coordinate scroll locking with Lenis when the menu is open
+    useLockBodyScroll(menuOpen);
 
-            setIsAtTop(currentScrollY < 50);
-            setIsScrolled(currentScrollY > 50);
-            setScrollingDirection(currentScrollY > lastScrollYRef.current ? 'down' : 'up');
-            lastScrollYRef.current = currentScrollY;
-            setLastScrollY(currentScrollY);
+    useEffect(() => {
+        let rafId: number | null = null;
+
+        const handleScroll = () => {
+            if (rafId !== null) {
+                cancelAnimationFrame(rafId);
+            }
+
+            rafId = window.requestAnimationFrame(() => {
+                const currentScrollY = window.scrollY;
+
+                const atTop = currentScrollY < 50;
+                const scrolled = currentScrollY > 50;
+                const direction: 'up' | 'down' =
+                    currentScrollY > lastScrollYRef.current ? 'down' : 'up';
+
+                setIsAtTop(atTop);
+                setIsScrolled(scrolled);
+                setScrollingDirection(direction);
+                lastScrollYRef.current = currentScrollY;
+                setLastScrollY(currentScrollY);
+
+                if (navRef.current) {
+                    navRef.current.setAttribute(
+                        'data-scrolling-started',
+                        scrolled ? 'true' : 'false'
+                    );
+                    navRef.current.setAttribute(
+                        'data-scrolling-top',
+                        atTop ? 'true' : 'false'
+                    );
+                    navRef.current.setAttribute(
+                        'data-scrolling-direction',
+                        direction
+                    );
+                }
+            });
         };
 
         window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            if (rafId !== null) {
+                cancelAnimationFrame(rafId);
+            }
+        };
     }, []);
 
-    // Lock body scroll when menu is open
-    useEffect(() => {
-        if (menuOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, [menuOpen]);
-
     const toggleMenu = useCallback(() => {
-        setMenuOpen(prev => !prev);
+        setMenuOpen((prev) => !prev);
     }, []);
 
     const closeMenu = useCallback(() => {
         setMenuOpen(false);
     }, []);
+
+    const handleMenuKeyDown = useCallback(
+        (event: React.KeyboardEvent<HTMLButtonElement>) => {
+            if (event.key === ' ' || event.key === 'Enter') {
+                event.preventDefault();
+                setMenuOpen((prev) => !prev);
+            } else if (event.key === 'Escape') {
+                event.preventDefault();
+                setMenuOpen(false);
+            }
+        },
+        []
+    );
+
+    // Focus management for the mobile menu
+    useEffect(() => {
+        if (menuOpen && firstMenuItemRef.current) {
+            firstMenuItemRef.current.focus();
+        }
+    }, [menuOpen]);
 
     const navLinks = [
         { href: '/', label: 'Home' },
@@ -96,13 +143,14 @@ export default function Navigation() {
         },
     ];
 
-    const scrollingStarted = !isAtTop;
-    const scrollingTop = isAtTop;
-
     return (
         <>
+            <a href="#main-content" className="skip-link">
+                Skip to content
+            </a>
             {/* Main Navigation Bar */}
             <div
+                ref={navRef}
                 className={`nav_wrap${pathname?.startsWith('/sana-arena')
                     ? ' nav_wrap--sana-arena'
                     : pathname?.startsWith('/events')
@@ -111,8 +159,8 @@ export default function Navigation() {
                             ? ' nav_wrap--solid'
                             : ''
                     }`}
-                data-scrolling-started={scrollingStarted ? 'true' : 'false'}
-                data-scrolling-top={scrollingTop ? 'true' : 'false'}
+                data-scrolling-started={(!isAtTop).toString()}
+                data-scrolling-top={isAtTop.toString()}
                 data-scrolling-direction={scrollingDirection}
                 data-menu-open={menuOpen ? 'true' : 'false'}
             >
@@ -125,7 +173,7 @@ export default function Navigation() {
                                     src="/assets/images/tk-logo.webp"
                                     alt="TK Logo"
                                     className="u-svg"
-                                    style={{ width: 'auto', height: '58px', display: 'block' }}
+                                    style={{ width: 'auto', height: '75px', display: 'block' }}
                                 />
                             </div>
                         </Link>
@@ -184,10 +232,10 @@ export default function Navigation() {
                                             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
                                         >
                                             <div className="nav_menu_line_wrap">
-                                                <div data-menu-line-1="" className="nav_menu_line" />
-                                                <div data-menu-line-2="" className="nav_menu_line is-2" />
+                                                <div data-menu-line-1="" className="nav_menu_line" aria-hidden="true" />
+                                                <div data-menu-line-2="" className="nav_menu_line is-2" aria-hidden="true" />
                                             </div>
-                                            <div className="nav_screen-reader-text">Menu Button</div>
+                                            <div className="nav_screen-reader-text">Menu</div>
                                         </button>
                                     </div>
                                 </div>
@@ -202,15 +250,20 @@ export default function Navigation() {
                 data-menu-wrap=""
                 className={`nav_menu_wrap ${menuOpen ? 'is-open' : ''}`}
                 aria-hidden={!menuOpen}
+                aria-label="Main navigation"
             >
                 <div className="nav_menu_contain u-container">
                     <div className="nav_menu_grid u-grid-custom">
                         {/* Left Column - Language & Featured */}
                         <div className="nav_menu_column u-column-4">
                             {/* Language Switcher */}
-                            <div className="locales_list">
-                                <a href="#" className="language_link w--current">EN</a>
-                                <a href="#" className="language_link">VI</a>
+                            <div className="locales_list" aria-label="Language selection">
+                                <button type="button" className="language_link w--current">
+                                    EN
+                                </button>
+                                <button type="button" className="language_link">
+                                    VI
+                                </button>
                             </div>
 
                             {/* Featured Project */}
@@ -233,17 +286,28 @@ export default function Navigation() {
                         {/* Right Column - Navigation Links */}
                         <div data-lenis-prevent="" className="nav_menu_column u-column-5">
                             <ul>
-                                {navLinks.map((link) => (
+                                {navLinks.map((link, index) => (
                                     <li key={link.href} className="nav_menu_link_wrap">
                                         <Link
                                             data-menu-item=""
                                             href={link.href}
                                             className={`nav_menu_link ${pathname === link.href ? 'w--current' : ''}`}
                                             onClick={closeMenu}
+                                            ref={index === 0 ? firstMenuItemRef : undefined}
                                         >
                                             <div className="nav_menu_icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
-                                                    <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="100%"
+                                                    viewBox="0 0 58 58"
+                                                    fill="none"
+                                                    className="nav_menu_icon-svg"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        fill="#fff"
+                                                        d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z"
+                                                    />
                                                 </svg>
                                             </div>
                                             <div className="nav_menu_text">{link.label}</div>
@@ -259,8 +323,18 @@ export default function Navigation() {
                                         onClick={closeMenu}
                                     >
                                         <div className="nav_menu_icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
-                                                <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="100%"
+                                                viewBox="0 0 58 58"
+                                                fill="none"
+                                                className="nav_menu_icon-svg"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    fill="#fff"
+                                                    d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z"
+                                                />
                                             </svg>
                                         </div>
                                         <div className="nav_menu_text">My Pass</div>
@@ -274,8 +348,18 @@ export default function Navigation() {
                                         onClick={closeMenu}
                                     >
                                         <div className="nav_menu_icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
-                                                <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="100%"
+                                                viewBox="0 0 58 58"
+                                                fill="none"
+                                                className="nav_menu_icon-svg"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    fill="#fff"
+                                                    d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z"
+                                                />
                                             </svg>
                                         </div>
                                         <div className="nav_menu_text">Register</div>
@@ -294,8 +378,18 @@ export default function Navigation() {
                                             }}
                                         >
                                             <div className="nav_menu_icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 58 58" fill="none" className="nav_menu_icon-svg">
-                                                    <path fill="#fff" d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z" />
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="100%"
+                                                    viewBox="0 0 58 58"
+                                                    fill="none"
+                                                    className="nav_menu_icon-svg"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        fill="#fff"
+                                                        d="m36.756 49-4.694-4.714 11.899-11.95H0v-6.667h43.962l-11.9-11.955L36.755 9l19.912 20.001L36.756 49Z"
+                                                    />
                                                 </svg>
                                             </div>
                                             <div className="nav_menu_text">Sign Out</div>

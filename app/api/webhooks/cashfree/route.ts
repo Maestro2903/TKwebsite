@@ -139,129 +139,152 @@ export async function POST(req: Request) {
     });
     console.log('[Webhook] ✅ Payment status updated');
 
-    // Check if pass already exists (idempotency)
-    console.log('[Webhook] Step 5: Checking for existing pass...');
-    const existingPassSnap = await firestore
-      .collection('passes')
-      .where('paymentId', '==', orderId)
-      .limit(1)
-      .get();
-
-    if (!existingPassSnap.empty) {
-      console.log(`[Webhook] ℹ️ Pass already exists (idempotency): ${existingPassSnap.docs[0].id}`);
-      const duration = Date.now() - startTime;
-      console.log(`[Webhook] ========== Webhook processed (${duration}ms) - Pass exists ==========`);
-      return NextResponse.json({ ok: true });
-    }
-
-    // Create Pass
-    const passRef = firestore.collection('passes').doc();
-    const qrData = createQRPayload(
-      passRef.id,
-      paymentData.userId,
-      paymentData.passType
-    );
-    const qrCodeUrl = await QRCode.toDataURL(qrData);
-
-    const passData: any = {
-      userId: paymentData.userId,
-      passType: paymentData.passType,
-      amount: paymentData.amount,
-      paymentId: orderId,
-      status: 'paid',
-      qrCode: qrCodeUrl,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    };
-
-    // Group event logic
-    if (paymentData.passType === 'group_events' && paymentData.teamId) {
-      try {
-        const teamDoc = await firestore.collection('teams').doc(paymentData.teamId).get();
-        if (teamDoc.exists) {
-          const teamData = teamDoc.data();
-          passData.teamId = paymentData.teamId;
-          passData.teamSnapshot = {
-            teamName: teamData?.teamName || '',
-            totalMembers: teamData?.members?.length || 0,
-            members: (teamData?.members || []).map((member: any) => ({
-              memberId: member.memberId,
-              name: member.name,
-              phone: member.phone,
-              isLeader: member.isLeader,
-              checkedIn: false,
-            })),
-          };
-          await firestore.collection('teams').doc(paymentData.teamId).update({
-            passId: passRef.id,
-            paymentStatus: 'success',
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          });
-        }
-      } catch (err) {
-        console.error('Webhook team fetch error', err);
+    // Use Firestore transaction to prevent race condition with verify endpoint
+    console.log('[Webhook] Step 5: Starting transaction to create pass...');
+    const result = await firestore.runTransaction(async (transaction) => {
+      // 1. Query for existing pass inside transaction
+      const existingPassQuery = firestore.collection('passes')
+        .where('paymentId', '==', orderId)
+        .limit(1);
+      const existingPassSnapshot = await transaction.get(existingPassQuery);
+      
+      if (!existingPassSnapshot.empty) {
+        // Pass already exists - return it
+        console.log(`[Webhook] ℹ️ Pass already exists: ${existingPassSnapshot.docs[0].id} (transaction check)`);
+        return {
+          created: false,
+          passId: existingPassSnapshot.docs[0].id
+        };
       }
-    }
+      
+      console.log('[Webhook] No existing pass found, creating new pass in transaction...');
+      
+      // 2. Create pass inside transaction
+      const passRef = firestore.collection('passes').doc();
+      const qrData = createQRPayload(
+        passRef.id,
+        paymentData.userId,
+        paymentData.passType
+      );
+      const qrCodeUrl = await QRCode.toDataURL(qrData);
 
-    await passRef.set(passData);
-    console.log(`[Webhook] ✅ Pass created: ${passRef.id}`);
-
-    // Send Email with PDF attachment
-    console.log('[Webhook] Step 7: Sending confirmation email...');
-    const userDoc = await firestore.collection('users').doc(paymentData.userId).get();
-    const userData = userDoc.data();
-    if (userData?.email) {
-      const emailTemplate = emailTemplates.passConfirmation({
-        name: userData.name ?? 'there',
-        amount: paymentData.amount,
+      const passData: any = {
+        userId: paymentData.userId,
         passType: paymentData.passType,
-        college: userData.college ?? '-',
-        phone: userData.phone ?? '-',
-        qrCodeUrl: qrCodeUrl,
-      });
+        amount: paymentData.amount,
+        paymentId: orderId,
+        status: 'paid',
+        qrCode: qrCodeUrl,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
 
-      // Generate PDF pass
-      try {
-        const pdfBuffer = await generatePassPDFBuffer({
-          passType: paymentData.passType,
+      // Group event logic
+      if (paymentData.passType === 'group_events' && paymentData.teamId) {
+        try {
+          const teamDocRef = firestore.collection('teams').doc(paymentData.teamId);
+          const teamDoc = await transaction.get(teamDocRef);
+          if (teamDoc.exists) {
+            const teamData = teamDoc.data();
+            passData.teamId = paymentData.teamId;
+            passData.teamSnapshot = {
+              teamName: teamData?.teamName || '',
+              totalMembers: teamData?.members?.length || 0,
+              members: (teamData?.members || []).map((member: any) => ({
+                memberId: member.memberId,
+                name: member.name,
+                phone: member.phone,
+                isLeader: member.isLeader,
+                checkedIn: false,
+              })),
+            };
+            
+            // Update team inside transaction
+            transaction.update(teamDocRef, {
+              passId: passRef.id,
+              paymentStatus: 'success',
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            console.log(`[Webhook] Scheduled team ${paymentData.teamId} update in transaction`);
+          }
+        } catch (err) {
+          console.error('[Webhook] Webhook team fetch error', err);
+        }
+      }
+
+      // Create pass inside transaction
+      transaction.set(passRef, passData);
+      console.log(`[Webhook] Scheduled pass creation in transaction: ${passRef.id}`);
+      
+      return { created: true, passId: passRef.id, qrCode: qrCodeUrl };
+    });
+
+    console.log(`[Webhook] ✅ Transaction completed. Pass created: ${result.created}`);
+
+    // Send email ONLY if pass was newly created
+    if (result.created) {
+      console.log('[Webhook] Step 6: Sending confirmation email (new pass)...');
+      const userDoc = await firestore.collection('users').doc(paymentData.userId).get();
+      const userData = userDoc.data();
+      if (userData?.email) {
+        const emailTemplate = emailTemplates.passConfirmation({
+          name: userData.name ?? 'there',
           amount: paymentData.amount,
-          userName: userData.name ?? 'User',
-          email: userData.email,
-          phone: userData.phone ?? '-',
+          passType: paymentData.passType,
           college: userData.college ?? '-',
-          qrCode: qrCodeUrl,
-          teamName: passData.teamSnapshot?.teamName,
-          members: passData.teamSnapshot?.members,
+          phone: userData.phone ?? '-',
+          qrCodeUrl: result.qrCode || '',
         });
 
-        // Send email with PDF attachment
-        sendEmail({
-          to: userData.email,
-          subject: emailTemplate.subject,
-          html: emailTemplate.html,
-          attachments: [
-            {
-              filename: `takshashila-pass-${paymentData.passType}.pdf`,
-              content: pdfBuffer,
-            },
-          ],
-        }).catch(err => {
-          console.error('[Webhook] Email send error:', err);
-        });
-        console.log('[Webhook] ✅ Email sent with PDF attachment');
-      } catch (pdfErr) {
-        console.error('[Webhook] PDF generation error, sending email without attachment:', pdfErr);
-        // Fallback: send email without PDF
-        sendEmail({
-          to: userData.email,
-          subject: emailTemplate.subject,
-          html: emailTemplate.html,
-        }).catch(err => {
-          console.error('[Webhook] Email send error (fallback):', err);
-        });
-        console.log('[Webhook] ✅ Email sent without PDF');
+        // Generate PDF pass
+        try {
+          // Fetch pass data for PDF (since we need teamSnapshot if it exists)
+          const passDoc = await firestore.collection('passes').doc(result.passId).get();
+          const finalPassData = passDoc.data();
+
+          const pdfBuffer = await generatePassPDFBuffer({
+            passType: paymentData.passType,
+            amount: paymentData.amount,
+            userName: userData.name ?? 'User',
+            email: userData.email,
+            phone: userData.phone ?? '-',
+            college: userData.college ?? '-',
+            qrCode: result.qrCode || '',
+            teamName: finalPassData?.teamSnapshot?.teamName,
+            members: finalPassData?.teamSnapshot?.members,
+          });
+
+          // Send email with PDF attachment
+          sendEmail({
+            to: userData.email,
+            subject: emailTemplate.subject,
+            html: emailTemplate.html,
+            attachments: [
+              {
+                filename: `takshashila-pass-${paymentData.passType}.pdf`,
+                content: pdfBuffer,
+              },
+            ],
+          }).catch(err => {
+            console.error('[Webhook] Email send error:', err);
+          });
+          console.log('[Webhook] ✅ Email sent with PDF attachment');
+        } catch (pdfErr) {
+          console.error('[Webhook] PDF generation error, sending email without attachment:', pdfErr);
+          // Fallback: send email without PDF
+          sendEmail({
+            to: userData.email,
+            subject: emailTemplate.subject,
+            html: emailTemplate.html,
+          }).catch(err => {
+            console.error('[Webhook] Email send error (fallback):', err);
+          });
+          console.log('[Webhook] ✅ Email sent without PDF');
+        }
+      } else {
+        console.warn('[Webhook] WARNING: User email not found, skipping email');
       }
     } else {
-      console.warn('[Webhook] WARNING: User email not found, skipping email');
+      console.log('[Webhook] Skipping email (pass already existed)');
     }
     const duration = Date.now() - startTime;
     console.log(`[Webhook] ========== Webhook processed successfully (${duration}ms) ==========`);

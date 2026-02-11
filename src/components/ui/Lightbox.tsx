@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 interface LightboxProps {
     isOpen: boolean;
@@ -77,14 +78,15 @@ export default function Lightbox({ isOpen, onClose, videoSrc }: LightboxProps) {
 
         if (isOpen) {
             document.addEventListener('keydown', handleEscape);
-            document.body.style.overflow = 'hidden';
         }
 
         return () => {
             document.removeEventListener('keydown', handleEscape);
-            document.body.style.overflow = '';
         };
     }, [isOpen, onClose]);
+
+    // Lock global body scroll (and Lenis) when lightbox is open
+    useLockBodyScroll(isOpen);
 
     const togglePlayPause = () => {
         const video = videoRef.current;
@@ -103,8 +105,10 @@ export default function Lightbox({ isOpen, onClose, videoSrc }: LightboxProps) {
 
     return (
         <div
-            className={`lightbox_overlay ${isOpen ? 'active' : ''}`}
+            className={`lightbox_overlay modal-overlay ${isOpen ? 'active' : ''}`}
             onClick={onClose}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
         >
             <button
                 className="lightbox_close"
@@ -118,8 +122,10 @@ export default function Lightbox({ isOpen, onClose, videoSrc }: LightboxProps) {
             </button>
 
             <div
-                className="lightbox_video_wrap"
+                className="lightbox_video_wrap modal-content-scroll"
                 onClick={(e) => e.stopPropagation()}
+                onWheel={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
             >
                 <video
                     ref={videoRef}

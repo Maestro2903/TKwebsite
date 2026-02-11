@@ -114,6 +114,27 @@ export default function Footer() {
                                         <div className="footer_link_bg" />
                                     </a>
                                 </li>
+                                <li className="footer_group_item">
+                                    <a href="/events-rules" className="footer_link_wrap w-inline-block">
+                                        <div className="footer_link_text u-text-style-small">EVENTS RULES</div>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="100%"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            className="u-icon-medium"
+                                        >
+                                            <path
+                                                stroke="#fff"
+                                                strokeLinejoin="round"
+                                                strokeWidth="1.5"
+                                                d="m8 16 8-8m0 0h-6m6 0v6"
+                                                opacity=".6"
+                                            />
+                                        </svg>
+                                        <div className="footer_link_bg" />
+                                    </a>
+                                </li>
                             </ul>
 
                             {/* Instagram only */}

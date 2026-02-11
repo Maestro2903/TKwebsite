@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { X } from 'lucide-react';
 import type { EventItem } from '@/data/events';
 import { cn } from '@/lib/utils';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 interface EventDetailsModalProps {
   event: EventItem;
@@ -19,16 +20,16 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
       setIsAnimating(true);
       const t = requestAnimationFrame(() => {
         requestAnimationFrame(() => setIsVisible(true));
       });
       return () => cancelAnimationFrame(t);
-    } else {
-      document.body.style.overflow = '';
     }
   }, [isOpen]);
+
+  // Lock global body scroll (and Lenis) when modal is open
+  useLockBodyScroll(isOpen);
 
   const handleClose = () => {
     setIsVisible(false);
@@ -47,7 +48,7 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
   return (
     <div
       className={cn(
-        'fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4',
+        'modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4',
         'bg-black/90 backdrop-blur-sm',
         'transition-opacity duration-200',
         isVisible ? 'opacity-100' : 'opacity-0'
@@ -55,14 +56,18 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
       role="dialog"
       aria-modal="true"
       aria-labelledby="event-details-title"
+      onWheel={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
     >
       <div
         className={cn(
-          'w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto overscroll-contain',
+          'modal-content-scroll w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto',
           'bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative',
           'transition-all duration-300 ease-out',
           isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         )}
+        onWheel={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
       >
         {/* --- Top Tech Border Strip --- */}
         <div className="h-11 sm:h-6 w-full flex items-center justify-between px-3 sm:px-2 border-b border-neutral-800 bg-[#151515] sticky top-0 z-20 min-h-[44px] sm:min-h-0">

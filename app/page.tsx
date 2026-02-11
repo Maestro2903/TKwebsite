@@ -10,7 +10,6 @@ import FeaturedClientsSection from '@/components/sections/home/FeaturedClientsSe
 import MarqueeSection from '@/components/sections/home/MarqueeSection';
 import ScalingVideoSection from '@/components/sections/home/ScalingVideoSection';
 import Lightbox from '@/components/ui/Lightbox';
-import { useLenis } from '@/hooks/useLenis';
 
 const ServicesAndWorksSection = dynamic(() => import('@/components/sections/home/ServicesAndWorksSection'), {
   loading: () => <div style={{ minHeight: '800px' }} />,
@@ -27,9 +26,6 @@ const CTASection = dynamic(() => import('@/components/sections/home/CTASection')
 export default function Home() {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const showReelSrc = 'https://vz-bf52cb50-0a5.b-cdn.net/ce1749fb-077d-416a-8df8-bc32ac669c3c/playlist.m3u8';
-
-  // Initialize smooth scrolling
-  useLenis();
 
   return (
     <>

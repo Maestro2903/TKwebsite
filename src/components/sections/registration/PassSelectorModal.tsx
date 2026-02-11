@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { REGISTRATION_PASSES } from '@/data/passes';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 interface PassSelectorModalProps {
   isOpen: boolean;
@@ -23,13 +24,14 @@ export default function PassSelectorModal({ isOpen, onClose }: PassSelectorModal
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', handleEscape);
-    document.body.style.overflow = 'hidden';
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
       previousActiveElement.current?.focus();
     };
   }, [isOpen, onClose]);
+
+  // Lock global body scroll (and Lenis) when modal is open
+  useLockBodyScroll(isOpen);
 
   function handleSelect(passId: string) {
     const el = document.getElementById(passId);
@@ -44,13 +46,20 @@ export default function PassSelectorModal({ isOpen, onClose }: PassSelectorModal
   return (
     <div
       ref={overlayRef}
-      className="pass-selector-modal"
+      className="pass-selector-modal modal-overlay"
       role="dialog"
       aria-modal="true"
       aria-labelledby="pass-selector-title"
       onClick={(e) => e.target === overlayRef.current && onClose()}
+      onWheel={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
     >
-      <div className="pass-selector-modal__panel" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="pass-selector-modal__panel modal-content-scroll"
+        onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+      >
         <div className="pass-selector-modal__header">
           <h2 id="pass-selector-title" className="pass-selector-modal__title">
             Choose your pass

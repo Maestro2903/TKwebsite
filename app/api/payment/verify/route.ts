@@ -4,6 +4,7 @@ import { sendEmail, emailTemplates } from '@/features/email/emailService';
 import { getAdminFirestore } from '@/lib/firebase/adminApp';
 import { createQRPayload } from '@/features/passes/qrService';
 import { generatePassPDFBuffer } from '@/features/passes/pdfGenerator.server';
+import { checkRateLimit } from '@/lib/security/rateLimiter';
 
 const CASHFREE_BASE =
   process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production'
@@ -11,6 +12,10 @@ const CASHFREE_BASE =
     : 'https://sandbox.cashfree.com/pg';
 
 export async function POST(req: NextRequest) {
+  // Rate limiting
+  const rateLimitResponse = await checkRateLimit(req, { limit: 10, windowMs: 60000 });
+  if (rateLimitResponse) return rateLimitResponse;
+
   const startTime = Date.now();
   try {
     const { orderId } = await req.json();
@@ -114,146 +119,192 @@ export async function POST(req: NextRequest) {
     });
     console.log('[Verify] ✅ Payment status updated to success in Firestore');
 
-    // Idempotency check: return existing pass if already created
-    console.log('[Verify] Step 8: Checking for existing pass...');
-    const existingPassSnapshot = await db
-      .collection('passes')
-      .where('paymentId', '==', orderId)
-      .limit(1)
-      .get();
+    // Fetch event details for eventAccess computation (before transaction)
+    console.log('[Verify] Step 8: Fetching selected events details...');
+    const selectedEvents = paymentData.selectedEvents || [];
+    let hasTechEvents = false;
+    let hasNonTechEvents = false;
 
-    if (!existingPassSnapshot.empty) {
-      const existingPass = existingPassSnapshot.docs[0];
-      const existingData = existingPass.data();
-      console.log(`[Verify] ℹ️ Pass already exists: ${existingPass.id} (idempotency check)`);
-      const duration = Date.now() - startTime;
-      console.log(`[Verify] ========== Verification complete (${duration}ms) - Existing pass returned ==========`);
-      return NextResponse.json({
-        success: true,
-        passId: existingPass.id,
-        qrCode: existingData.qrCode,
-        message: 'Pass already exists',
-      });
-    }
-    console.log('[Verify] No existing pass found, creating new pass...');
-
-
-    const passRef = db.collection('passes').doc();
-
-    // Create signed QR payload
-    const qrData = createQRPayload(
-      passRef.id,
-      paymentData.userId as string,
-      paymentData.passType as string
-    );
-
-    const qrCodeUrl: string = await QRCode.toDataURL(qrData);
-
-    // Prepare base pass data
-    const passData: any = {
-      userId: paymentData.userId,
-      passType: paymentData.passType,
-      amount: paymentData.amount,
-      paymentId: orderId,
-      status: 'paid',
-      qrCode: qrCodeUrl,
-      createdAt: new Date(),
-    };
-
-    // For day pass, include selected days
-    if (paymentData.passType === 'day_pass' && paymentData.selectedDays) {
-      passData.selectedDays = paymentData.selectedDays;
-    }
-
-    // For group events, fetch and snapshot team data
-    if (paymentData.passType === 'group_events' && paymentData.teamId) {
+    if (selectedEvents.length > 0) {
       try {
-        const teamDoc = await db.collection('teams').doc(paymentData.teamId).get();
-        if (teamDoc.exists) {
-          const teamData = teamDoc.data();
-
-          // Create immutable snapshot of team at payment time
-          passData.teamId = paymentData.teamId;
-          passData.teamSnapshot = {
-            teamName: teamData?.teamName || '',
-            totalMembers: teamData?.members?.length || 0,
-            members: (teamData?.members || []).map((member: any) => ({
-              memberId: member.memberId,
-              name: member.name,
-              phone: member.phone,
-              isLeader: member.isLeader,
-              checkedIn: false, // Initially unchecked
-            })),
-          };
-
-          // Update team document with passId reference and success status
-          await db.collection('teams').doc(paymentData.teamId).update({
-            passId: passRef.id,
-            paymentStatus: 'success',
-            updatedAt: new Date(),
-          });
-          console.log(`[Verify] Updated team ${paymentData.teamId} status to success`);
-        }
-      } catch (teamError) {
-        console.error('Error fetching team data:', teamError);
-        // Continue without team snapshot if fetch fails
+        const eventDocs = await Promise.all(
+          selectedEvents.map((eventId: string) => db.collection('events').doc(eventId).get())
+        );
+        
+        const events = eventDocs
+          .filter(doc => doc.exists)
+          .map(doc => doc.data());
+        
+        hasTechEvents = events.some(e => e?.category === 'technical');
+        hasNonTechEvents = events.some(e => e?.category === 'non_technical');
+        
+        console.log(`[Verify] Event access computed: tech=${hasTechEvents}, nonTech=${hasNonTechEvents}`);
+      } catch (eventError) {
+        console.error('[Verify] Error fetching events:', eventError);
+        // Continue without event access data if fetch fails
       }
     }
 
-    console.log('[Verify] Step 10: Creating pass document in Firestore...');
-    await passRef.set(passData);
-    console.log(`[Verify] ✅ Pass created successfully: ${passRef.id}`);
-
-
-    const userDoc = await db
-      .collection('users')
-      .doc(paymentData.userId as string)
-      .get();
-    const userData = userDoc.data();
-
-    if (userData?.email) {
-      const emailTemplate = emailTemplates.passConfirmation({
-        name: userData.name ?? 'there',
-        amount: paymentData.amount,
+    // Use Firestore transaction to prevent race condition with webhook
+    console.log('[Verify] Step 9: Starting transaction to create pass...');
+    const result = await db.runTransaction(async (transaction) => {
+      // 1. Query for existing pass inside transaction
+      const existingPassQuery = db.collection('passes')
+        .where('paymentId', '==', orderId)
+        .limit(1);
+      const existingPassSnapshot = await transaction.get(existingPassQuery);
+      
+      if (!existingPassSnapshot.empty) {
+        // Pass already exists - return it
+        const existingPass = existingPassSnapshot.docs[0];
+        console.log(`[Verify] ℹ️ Pass already exists: ${existingPass.id} (transaction check)`);
+        return {
+          created: false,
+          passId: existingPass.id,
+          qrCode: existingPass.data().qrCode
+        };
+      }
+      
+      console.log('[Verify] No existing pass found, creating new pass in transaction...');
+      
+      // 2. Create pass document inside transaction
+      const passRef = db.collection('passes').doc();
+      
+      // Create signed QR payload
+      const qrData = createQRPayload(
+        passRef.id,
+        paymentData.userId as string,
+        paymentData.passType as string
+      );
+      
+      const qrCodeUrl: string = await QRCode.toDataURL(qrData);
+      
+      // Prepare base pass data
+      const passData: any = {
+        userId: paymentData.userId,
         passType: paymentData.passType,
-        college: userData.college ?? '-',
-        phone: userData.phone ?? '-',
-        qrCodeUrl: qrCodeUrl,
-      });
+        amount: paymentData.amount,
+        paymentId: orderId,
+        status: 'paid',
+        qrCode: qrCodeUrl,
+        createdAt: new Date(),
+        // Event selection fields
+        selectedEvents: selectedEvents,
+        selectedDays: paymentData.selectedDays || [],
+        eventAccess: {
+          tech: hasTechEvents,
+          nonTech: hasNonTechEvents,
+          proshowDays: paymentData.passType === 'proshow' ? ['2026-02-26', '2026-02-28'] : [],
+          fullAccess: paymentData.passType === 'sana_concert',
+        },
+      };
 
-      // Generate PDF pass and send with attachment
-      try {
-        const pdfBuffer = await generatePassPDFBuffer({
-          passType: paymentData.passType,
-          amount: paymentData.amount,
-          userName: userData.name ?? 'User',
-          email: userData.email,
-          phone: userData.phone ?? '-',
-          college: userData.college ?? '-',
-          qrCode: qrCodeUrl,
-          teamName: passData.teamSnapshot?.teamName,
-          members: passData.teamSnapshot?.members,
-        });
+      // For group events, fetch and snapshot team data
+      if (paymentData.passType === 'group_events' && paymentData.teamId) {
+        try {
+          const teamDocRef = db.collection('teams').doc(paymentData.teamId);
+          const teamDoc = await transaction.get(teamDocRef);
+          if (teamDoc.exists) {
+            const teamData = teamDoc.data();
 
-        await sendEmail({
-          to: userData.email as string,
-          subject: emailTemplate.subject,
-          html: emailTemplate.html,
-          attachments: [
-            {
-              filename: `takshashila-pass-${paymentData.passType}.pdf`,
-              content: pdfBuffer,
-            },
-          ],
-        });
-      } catch (pdfErr) {
-        console.error('PDF generation error in verify, sending email without attachment', pdfErr);
-        await sendEmail({
-          to: userData.email as string,
-          subject: emailTemplate.subject,
-          html: emailTemplate.html,
-        });
+            // Create immutable snapshot of team at payment time
+            passData.teamId = paymentData.teamId;
+            passData.teamSnapshot = {
+              teamName: teamData?.teamName || '',
+              totalMembers: teamData?.members?.length || 0,
+              members: (teamData?.members || []).map((member: any) => ({
+                memberId: member.memberId,
+                name: member.name,
+                phone: member.phone,
+                isLeader: member.isLeader,
+                checkedIn: false, // Initially unchecked
+              })),
+            };
+
+            // Update team document with passId reference and success status inside transaction
+            transaction.update(teamDocRef, {
+              passId: passRef.id,
+              paymentStatus: 'success',
+              updatedAt: new Date(),
+            });
+            console.log(`[Verify] Scheduled team ${paymentData.teamId} update in transaction`);
+          }
+        } catch (teamError) {
+          console.error('[Verify] Error fetching team data:', teamError);
+          // Continue without team snapshot if fetch fails
+        }
       }
+
+      // Create pass inside transaction
+      transaction.set(passRef, passData);
+      console.log(`[Verify] Scheduled pass creation in transaction: ${passRef.id}`);
+      
+      return { created: true, passId: passRef.id, qrCode: qrCodeUrl };
+    });
+
+    console.log(`[Verify] ✅ Transaction completed. Pass created: ${result.created}`);
+
+
+    // Send email ONLY if pass was newly created
+    if (result.created) {
+      console.log('[Verify] Step 10: Sending confirmation email (new pass)...');
+      const userDoc = await db
+        .collection('users')
+        .doc(paymentData.userId as string)
+        .get();
+      const userData = userDoc.data();
+
+      if (userData?.email) {
+        const emailTemplate = emailTemplates.passConfirmation({
+          name: userData.name ?? 'there',
+          amount: paymentData.amount,
+          passType: paymentData.passType,
+          college: userData.college ?? '-',
+          phone: userData.phone ?? '-',
+          qrCodeUrl: result.qrCode,
+        });
+
+        // Generate PDF pass and send with attachment
+        try {
+          // Fetch pass data for PDF (since we need teamSnapshot if it exists)
+          const passDoc = await db.collection('passes').doc(result.passId).get();
+          const finalPassData = passDoc.data();
+
+          const pdfBuffer = await generatePassPDFBuffer({
+            passType: paymentData.passType,
+            amount: paymentData.amount,
+            userName: userData.name ?? 'User',
+            email: userData.email,
+            phone: userData.phone ?? '-',
+            college: userData.college ?? '-',
+            qrCode: result.qrCode,
+            teamName: finalPassData?.teamSnapshot?.teamName,
+            members: finalPassData?.teamSnapshot?.members,
+          });
+
+          await sendEmail({
+            to: userData.email as string,
+            subject: emailTemplate.subject,
+            html: emailTemplate.html,
+            attachments: [
+              {
+                filename: `takshashila-pass-${paymentData.passType}.pdf`,
+                content: pdfBuffer,
+              },
+            ],
+          });
+          console.log('[Verify] ✅ Email sent successfully');
+        } catch (pdfErr) {
+          console.error('PDF generation error in verify, sending email without attachment', pdfErr);
+          await sendEmail({
+            to: userData.email as string,
+            subject: emailTemplate.subject,
+            html: emailTemplate.html,
+          });
+        }
+      }
+    } else {
+      console.log('[Verify] Skipping email (pass already existed)');
     }
 
     const duration = Date.now() - startTime;
@@ -261,8 +312,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      passId: passRef.id,
-      qrCode: qrCodeUrl,
+      passId: result.passId,
+      qrCode: result.qrCode,
+      message: result.created ? undefined : 'Pass already exists',
     });
   } catch (error: unknown) {
     const duration = Date.now() - startTime;

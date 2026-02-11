@@ -6,6 +6,7 @@ import { auth, db } from '@/lib/firebase/clientApp';
 import { useAuth } from '@/features/auth/AuthContext';
 import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import type { RegistrationPass } from '@/data/passes';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 interface RegistrationFormModalProps {
   isOpen: boolean;
@@ -38,12 +39,13 @@ export default function RegistrationFormModal({
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', handleEscape);
-    document.body.style.overflow = 'hidden';
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
     };
   }, [isOpen, onClose]);
+
+  // Lock global body scroll (and Lenis) when modal is open
+  useLockBodyScroll(isOpen);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -127,15 +129,19 @@ export default function RegistrationFormModal({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
+      className="modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="registration-form-title"
       onClick={(e) => e.target === overlayRef.current && onClose()}
+      onWheel={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
     >
       <div
-        className="w-full max-w-md rounded-lg border border-white/15 bg-black p-6 shadow-xl"
+        className="modal-content-scroll w-full max-w-md max-h-[90vh] overflow-y-auto rounded-lg border border-white/15 bg-black p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
       >
         <div className="mb-6 flex items-center justify-between">
           <h2 id="registration-form-title" className="text-xl font-semibold text-white">

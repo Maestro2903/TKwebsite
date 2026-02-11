@@ -7,7 +7,6 @@ import EventCategorySwitch from '@/components/sections/events/EventCategorySwitc
 import EventsGrid from '@/components/sections/events/EventsGrid';
 import FabricGridBackground from '@/components/decorative/FabricGridBackground';
 import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
-import { useLenis } from '@/hooks/useLenis';
 import type { EventItem } from '@/data/events';
 import { Y2K_IMAGES } from '@/data/y2k-images';
 import { FONT1_IMAGES } from '@/data/font1-images';
@@ -21,8 +20,6 @@ function getScrollThreshold() {
 }
 
 export default function EventsPage() {
-  useLenis();
-
   const [category, setCategory] = useState<'non-technical' | 'technical'>('non-technical');
   const [events, setEvents] = useState<EventItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);

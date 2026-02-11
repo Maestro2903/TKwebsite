@@ -6,10 +6,8 @@ import { useState, useEffect } from 'react';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import { AwardBadge } from '@/components/decorative/AwardBadge';
-import { useLenis } from '@/hooks/useLenis';
 
 export default function ProfilePage() {
-    useLenis();
     const { user, userData, loading: authLoading, updateUserProfile } = useAuth();
     const router = useRouter();
     const [formData, setFormData] = useState({ name: '', college: '', phone: '' });

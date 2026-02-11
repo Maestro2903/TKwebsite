@@ -63,7 +63,25 @@ See `.env.example` for required variables:
 
 ## Documentation
 
-- [Project Architecture](docs/PROJECT-LAYOUT-AND-ARCHITECTURE.md)
+Core docs are in the `docs/` directory:
+
+- [System Overview](docs/SYSTEM_OVERVIEW.md)
+- [Frontend Architecture](docs/FRONTEND_ARCHITECTURE.md)
+- [Backend API Reference](docs/BACKEND_API_REFERENCE.md)
+- [Database Schema](docs/DATABASE_SCHEMA.md)
+- [Authentication & Authorization](docs/AUTHENTICATION_AUTHORIZATION.md)
+- [Payment Workflow](docs/PAYMENT_WORKFLOW.md)
+- [Pass & QR System](docs/PASS_QR_SYSTEM.md)
+- [Email System](docs/EMAIL_SYSTEM.md)
+- [Deployment & Hosting](docs/DEPLOYMENT_HOSTING.md)
+- [Maintenance & Operations](docs/MAINTENANCE_OPERATIONS.md)
+- [Scalability & Performance](docs/SCALABILITY_PERFORMANCE.md)
+- [Developer Guide](docs/DEVELOPER_GUIDE.md)
+- [Glossary](docs/GLOSSARY.md)
+- [FAQ](docs/FAQ.md)
+
+Existing supporting docs:
+
 - [Design Language](docs/DESIGN-LANGUAGE.md)
 - [Firebase Setup](docs/FIREBASE-SETUP.md)
 

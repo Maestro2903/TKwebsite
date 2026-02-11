@@ -6,7 +6,6 @@ import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import ShowsHero from '@/components/sections/proshows/ShowsHero';
 import StickyRegisterCTA from '@/components/layout/StickyRegisterCTA';
-import { useLenis } from '@/hooks/useLenis';
 
 // Code-split ShowsSchedule - it imports showsData
 const ShowsSchedule = dynamic(() => import('@/components/sections/proshows/ShowsSchedule'), {
@@ -14,8 +13,6 @@ const ShowsSchedule = dynamic(() => import('@/components/sections/proshows/Shows
 });
 
 export default function ProshowsPage() {
-  useLenis();
-
   return (
     <>
       <Navigation />

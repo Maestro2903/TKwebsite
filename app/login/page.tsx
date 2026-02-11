@@ -5,10 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Navigation from '@/components/layout/Navigation';
 import { AwardBadge } from '@/components/decorative/AwardBadge';
-import { useLenis } from '@/hooks/useLenis';
 
 export default function LoginPage() {
-  useLenis();
   const { signIn, user, loading } = useAuth();
   const router = useRouter();
   const [signingIn, setSigningIn] = useState(false);

@@ -3,22 +3,26 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/features/auth/AuthContext';
-import { useLenis } from '@/hooks/useLenis';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import RegistrationPassesGrid from '@/components/sections/registration/RegistrationPassesGrid';
 import GroupRegistrationModal from '@/components/sections/registration/GroupRegistrationModal';
 import DayPassModal from '@/components/sections/registration/DayPassModal';
+import ProshowModal from '@/components/sections/registration/ProshowModal';
+import AllAccessModal from '@/components/sections/registration/AllAccessModal';
+import TestPassModal from '@/components/sections/registration/TestPassModal';
 import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import type { RegistrationPass } from '@/data/passes';
 import Font1Text from '@/components/ui/Font1Text';
 
 export default function PassSelectionPage() {
-    useLenis();
     const router = useRouter();
     const { user, userData, loading: authLoading } = useAuth();
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
     const [isDayPassModalOpen, setIsDayPassModalOpen] = useState(false);
+    const [isProshowModalOpen, setIsProshowModalOpen] = useState(false);
+    const [isAllAccessModalOpen, setIsAllAccessModalOpen] = useState(false);
+    const [isTestPassModalOpen, setIsTestPassModalOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
     // Redirect based on auth state - use useEffect to avoid setState during render
@@ -37,6 +41,16 @@ export default function PassSelectionPage() {
     }, [authLoading, user, userData, router]);
 
     const handleRegisterClick = async (pass: RegistrationPass) => {
+        // Extra safety: ensure profile is complete before opening any modal
+        if (!userData) {
+            router.push('/register/profile');
+            return;
+        }
+        if (pass.passType === 'test_pass') {
+            setIsTestPassModalOpen(true);
+            return;
+        }
+
         if (pass.passType === 'group_events') {
             setIsGroupModalOpen(true);
             return;
@@ -47,47 +61,19 @@ export default function PassSelectionPage() {
             return;
         }
 
-        if (!user || !userData) return;
-
-        setSubmitting(true);
-        try {
-            const token = await user.getIdToken();
-            const res = await fetch('/api/payment/create-order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    userId: user.uid,
-                    passType: pass.passType,
-                    amount: pass.amount,
-                    teamData: {
-                        uid: user.uid,
-                        name: userData.name,
-                        email: userData.email,
-                        phone: userData.phone,
-                        college: userData.college || '',
-                    }
-                }),
-            });
-
-            if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                throw new Error(data.error || 'Failed to create order');
-            }
-
-            const { sessionId, orderId } = await res.json();
-            if (!sessionId || !orderId) throw new Error('Invalid server response');
-
-            // Redirect to Cashfree - this will eventually return to /payment/callback
-            await openCashfreeCheckout(sessionId, orderId);
-        } catch (err) {
-            console.error('Payment error:', err);
-            alert(err instanceof Error ? err.message : 'Payment initialization failed. Please try again.');
-        } finally {
-            setSubmitting(false);
+        if (pass.passType === 'proshow') {
+            setIsProshowModalOpen(true);
+            return;
         }
+
+        if (pass.passType === 'sana_concert') {
+            setIsAllAccessModalOpen(true);
+            return;
+        }
+
+        // Fallback for any other pass types (should not happen with current setup)
+        console.error('Unknown pass type:', pass.passType);
+        alert('This pass type is not yet available. Please contact support.');
     };
 
     const handleGroupModalClose = () => {
@@ -96,6 +82,18 @@ export default function PassSelectionPage() {
 
     const handleDayPassModalClose = () => {
         setIsDayPassModalOpen(false);
+    };
+
+    const handleProshowModalClose = () => {
+        setIsProshowModalOpen(false);
+    };
+
+    const handleAllAccessModalClose = () => {
+        setIsAllAccessModalOpen(false);
+    };
+
+    const handleTestPassModalClose = () => {
+        setIsTestPassModalOpen(false);
     };
 
     // Show loading while checking auth or waiting for redirect
@@ -137,7 +135,9 @@ export default function PassSelectionPage() {
                     <section className="text-center mb-12">
                         <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-white/15 bg-white/5">
                             <span className="text-sm text-white/60">Registering as:</span>
-                            <span className="text-sm font-medium text-white">{userData.name || user?.displayName || user?.email}</span>
+                            <span className="text-sm font-medium text-white">
+                                {userData.name || user?.displayName || user?.email || 'User'}
+                            </span>
                         </div>
                     </section>
                 )}
@@ -164,13 +164,31 @@ export default function PassSelectionPage() {
             {/* Group Registration Modal */}
             <GroupRegistrationModal
                 isOpen={isGroupModalOpen}
-                onClose={handleGroupModalClose}
+                onCloseAction={handleGroupModalClose}
             />
 
             {/* Day Pass Modal */}
             <DayPassModal
                 isOpen={isDayPassModalOpen}
-                onClose={handleDayPassModalClose}
+                onCloseAction={handleDayPassModalClose}
+            />
+
+            {/* Proshow Pass Modal */}
+            <ProshowModal
+                isOpen={isProshowModalOpen}
+                onCloseAction={handleProshowModalClose}
+            />
+
+            {/* All Access Pass Modal */}
+            <AllAccessModal
+                isOpen={isAllAccessModalOpen}
+                onCloseAction={handleAllAccessModalClose}
+            />
+
+            {/* Test Pass Modal */}
+            <TestPassModal
+                isOpen={isTestPassModalOpen}
+                onCloseAction={handleTestPassModalClose}
             />
 
             <Footer />

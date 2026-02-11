@@ -8,57 +8,45 @@ import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import { X } from 'lucide-react';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
-// Price per day
-const PRICE_PER_DAY = 500;
+// Fixed price for all-access pass
+const ALL_ACCESS_PRICE = 2000;
 
-interface DayOption {
-    id: string;
-    date: string;
-    label: string;
-}
-
-const DAY_OPTIONS: DayOption[] = [
+// All 3 days
+const ALL_DAYS = [
     { id: 'day1', date: '2026-02-26', label: '26 Feb' },
     { id: 'day2', date: '2026-02-27', label: '27 Feb' },
     { id: 'day3', date: '2026-02-28', label: '28 Feb' },
 ];
 
-interface DayPassModalProps {
+interface AllAccessModalProps {
     isOpen: boolean;
     onCloseAction: () => void;
 }
 
-export default function DayPassModal({
+export default function AllAccessModal({
     isOpen,
     onCloseAction,
-}: DayPassModalProps) {
+}: AllAccessModalProps) {
     const { user, userData } = useAuth();
     const overlayRef = useRef<HTMLDivElement>(null);
 
-    // Selected days
-    const [selectedDays, setSelectedDays] = useState<string[]>([]);
-
-    // Events
-    const [availableEvents, setAvailableEvents] = useState<any[]>([]);
+    // Events grouped by day
+    const [eventsByDay, setEventsByDay] = useState<Record<string, any[]>>({});
     const [selectedEventIds, setSelectedEventIds] = useState<string[]>([]);
     const [loadingEvents, setLoadingEvents] = useState(false);
 
     // UI state
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [step, setStep] = useState<'days' | 'events' | 'review'>('days');
-
-    // Lock global body scroll (and Lenis) when modal is open
-    useLockBodyScroll(isOpen);
+    const [step, setStep] = useState<'events' | 'review'>('events');
 
     // Reset form when modal opens
     useEffect(() => {
         if (!isOpen) return;
         setError(null);
-        setSelectedDays([]);
         setSelectedEventIds([]);
-        setAvailableEvents([]);
-        setStep('days');
+        setEventsByDay({});
+        setStep('events');
     }, [isOpen]);
 
     // Handle escape key
@@ -73,32 +61,33 @@ export default function DayPassModal({
         };
     }, [isOpen, onCloseAction]);
 
-    // Fetch events when days are selected
+    // Lock global body scroll (and Lenis) when modal is open
+    useLockBodyScroll(isOpen);
+
+    // Fetch events for all 3 days
     useEffect(() => {
-        if (selectedDays.length === 0 || !isOpen) {
-            setAvailableEvents([]);
-            return;
-        }
+        if (!isOpen) return;
 
         const fetchEvents = async () => {
             setLoadingEvents(true);
             setError(null);
             try {
-                // Get selected dates
-                const dates = selectedDays
-                    .map(dayId => DAY_OPTIONS.find(d => d.id === dayId)?.date)
-                    .filter(Boolean);
-
-                // Fetch events for all selected days
-                const eventPromises = dates.map(date =>
-                    fetch(`/api/events?date=${date}&passType=day_pass`)
+                // Fetch events for all days
+                const eventPromises = ALL_DAYS.map(day =>
+                    fetch(`/api/events?date=${day.date}&passType=sana_concert`)
                         .then(r => r.json())
+                        .then(data => ({ dayId: day.id, events: data.events || [] }))
                 );
 
                 const results = await Promise.all(eventPromises);
-                const allEvents = results.flatMap(r => r.events || []);
+                
+                // Group events by day
+                const grouped: Record<string, any[]> = {};
+                results.forEach(({ dayId, events }) => {
+                    grouped[dayId] = events;
+                });
 
-                setAvailableEvents(allEvents);
+                setEventsByDay(grouped);
             } catch (err) {
                 console.error('Failed to fetch events:', err);
                 setError('Failed to load events. Please try again.');
@@ -108,29 +97,10 @@ export default function DayPassModal({
         };
 
         fetchEvents();
-    }, [selectedDays, isOpen]);
-
-    // Calculate total
-    const totalDays = selectedDays.length;
-    const totalAmount = totalDays * PRICE_PER_DAY;
-
-    // Toggle day selection
-    const toggleDay = useCallback((dayId: string) => {
-        setSelectedDays((prev) =>
-            prev.includes(dayId)
-                ? prev.filter((id) => id !== dayId)
-                : [...prev, dayId]
-        );
-    }, []);
+    }, [isOpen]);
 
     // Validate current step
     const validateStep = useCallback(() => {
-        if (step === 'days') {
-            if (selectedDays.length === 0) {
-                setError('Please select at least one day');
-                return false;
-            }
-        }
         if (step === 'events') {
             if (selectedEventIds.length === 0) {
                 setError('Please select at least one event');
@@ -139,18 +109,16 @@ export default function DayPassModal({
         }
         setError(null);
         return true;
-    }, [step, selectedDays, selectedEventIds]);
+    }, [step, selectedEventIds]);
 
     // Handle step navigation
     const goToNextStep = useCallback(() => {
         if (!validateStep()) return;
-        if (step === 'days') setStep('events');
-        else if (step === 'events') setStep('review');
+        if (step === 'events') setStep('review');
     }, [step, validateStep]);
 
     const goToPrevStep = useCallback(() => {
-        if (step === 'events') setStep('days');
-        else if (step === 'review') setStep('events');
+        if (step === 'review') setStep('events');
     }, [step]);
 
     // Handle form submission
@@ -168,10 +136,8 @@ export default function DayPassModal({
             const email = user.email || user.providerData?.[0]?.email || '';
             const name = userData.name || user.displayName || email || 'Attendee';
 
-            // Get selected day dates
-            const selectedDates = selectedDays.map(
-                (dayId) => DAY_OPTIONS.find((d) => d.id === dayId)?.date
-            ).filter(Boolean);
+            // Get all dates
+            const allDates = ALL_DAYS.map(d => d.date);
 
             // Create payment order via server
             const token = await auth.currentUser?.getIdToken(true);
@@ -185,9 +151,9 @@ export default function DayPassModal({
                 },
                 body: JSON.stringify({
                     userId: uid,
-                    passType: 'day_pass',
-                    amount: totalAmount,
-                    selectedDays: selectedDates,
+                    passType: 'sana_concert',
+                    amount: ALL_ACCESS_PRICE,
+                    selectedDays: allDates,
                     selectedEvents: selectedEventIds,
                     teamData: {
                         name,
@@ -222,7 +188,7 @@ export default function DayPassModal({
         } finally {
             setSubmitting(false);
         }
-    }, [user, userData, selectedDays, totalAmount, selectedEventIds, onCloseAction]);
+    }, [user, userData, selectedEventIds, onCloseAction]);
 
     if (!isOpen) return null;
 
@@ -232,13 +198,13 @@ export default function DayPassModal({
             className="modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="day-pass-title"
+            aria-labelledby="all-access-pass-title"
             onClick={(e) => e.target === overlayRef.current && onCloseAction()}
             onWheel={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
         >
             <div
-                className="modal-content-scroll w-full max-w-lg max-h-[90vh] flex flex-col overflow-y-auto bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative group"
+                className="modal-content-scroll w-full max-w-2xl max-h-[90vh] flex flex-col overflow-y-auto bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative group"
                 onClick={(e) => e.stopPropagation()}
                 onWheel={(e) => e.stopPropagation()}
                 onTouchMove={(e) => e.stopPropagation()}
@@ -247,7 +213,7 @@ export default function DayPassModal({
                 <div className="sticky top-0 z-20 bg-[#151515] border-b border-neutral-800">
                     <div className="h-6 w-full flex items-center justify-between px-2">
                         <div className="flex gap-2 text-[8px] tracking-[0.2em] text-neutral-500 uppercase font-bold font-orbitron">
-                            <span>SYS.DAY.01</span>
+                            <span>SYS.ALLACCESS.01</span>
                             <span>///</span>
                             <span>SECURE</span>
                         </div>
@@ -261,19 +227,19 @@ export default function DayPassModal({
                         </button>
                     </div>
                     <div className="px-6 pt-4 pb-2 bg-[#151515]">
-                        <h2 id="day-pass-title" className="text-xl md:text-2xl font-bold text-white font-orbitron tracking-tight mb-2 uppercase">
-                            Day Pass Registration
+                        <h2 id="all-access-pass-title" className="text-xl md:text-2xl font-bold text-white font-orbitron tracking-tight mb-2 uppercase">
+                            All-Access Pass Registration
                         </h2>
                         <div className="flex items-center gap-3 text-[10px] tracking-widest text-neutral-500 uppercase font-orbitron">
-                            <span>Step {step === 'days' ? '01' : step === 'events' ? '02' : '03'}</span>
+                            <span>Step {step === 'events' ? '01' : '02'}</span>
                             <div className="h-[1px] flex-1 bg-neutral-800"></div>
-                            <span>Total Steps: 03</span>
+                            <span>Total Steps: 02</span>
                         </div>
                         <div className="mt-4 mb-2 h-[2px] w-full bg-neutral-800">
                             <div
                                 className="h-full bg-neutral-400 transition-all duration-300 relative"
                                 style={{
-                                    width: step === 'days' ? '33%' : step === 'events' ? '66%' : '100%',
+                                    width: step === 'events' ? '50%' : '100%',
                                 }}
                             >
                                 <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
@@ -289,80 +255,17 @@ export default function DayPassModal({
                         <div className="absolute top-6 right-6 w-3 h-3 border-t border-r border-neutral-600 pointer-events-none" />
                         <div className="absolute bottom-6 left-6 w-3 h-3 border-b border-l border-neutral-600 pointer-events-none" />
 
-                        {/* Step 1: Select Days */}
-                        {step === 'days' && (
-                            <div className="space-y-6">
-                                <div className="p-4 bg-[#151515] border border-neutral-800 flex items-start gap-3">
-                                    <div className="w-1 h-full min-h-[2rem] bg-neutral-700" />
-                                    <div>
-                                        <p className="text-neutral-300 text-sm font-orbitron tracking-wide uppercase mb-1">
-                                            Select Access Days
-                                        </p>
-                                        <p className="text-neutral-500 text-xs font-mono">
-                                            // Choose one or more days for event access
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    {DAY_OPTIONS.map((day) => (
-                                        <button
-                                            key={day.id}
-                                            type="button"
-                                            onClick={() => toggleDay(day.id)}
-                                            className={`w-full p-4 border transition-all duration-300 flex items-center justify-between group/day ${selectedDays.includes(day.id)
-                                                    ? 'border-blue-500 bg-blue-500/10'
-                                                    : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
-                                                }`}
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${selectedDays.includes(day.id)
-                                                        ? 'border-blue-500 bg-blue-500/20'
-                                                        : 'border-neutral-600 bg-neutral-900'
-                                                    }`}>
-                                                    <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${selectedDays.includes(day.id) ? 'bg-blue-500' : 'bg-transparent'
-                                                        }`} />
-                                                </div>
-                                                <div className="text-left">
-                                                    <p className="text-white font-orbitron text-sm tracking-wide uppercase">
-                                                        {day.label}
-                                                    </p>
-                                                    <p className="text-neutral-500 text-xs font-mono">
-                                                        Day {day.id.replace('day', '')} Access
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="text-white font-orbitron text-sm">
-                                                ₹{PRICE_PER_DAY}
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {selectedDays.length > 0 && (
-                                    <div className="p-4 bg-[#151515] border border-neutral-700 flex justify-between items-center">
-                                        <span className="text-xs text-neutral-400 font-mono">
-                                            {selectedDays.length} day{selectedDays.length > 1 ? 's' : ''} selected
-                                        </span>
-                                        <span className="text-lg font-bold text-white font-orbitron">
-                                            ₹{totalAmount}
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Step 2: Select Events */}
+                        {/* Step 1: Select Events */}
                         {step === 'events' && (
                             <div className="space-y-6">
                                 <div className="p-4 bg-[#151515] border border-neutral-800 flex items-start gap-3">
                                     <div className="w-1 h-full min-h-[2rem] bg-neutral-700" />
                                     <div>
                                         <p className="text-neutral-300 text-sm font-orbitron tracking-wide uppercase mb-1">
-                                            Select Events
+                                            Select Events (Unlimited)
                                         </p>
                                         <p className="text-neutral-500 text-xs font-mono">
-                                            // Choose events for selected days
+                                            // Choose events from all 3 days - no limits!
                                         </p>
                                     </div>
                                 </div>
@@ -371,69 +274,82 @@ export default function DayPassModal({
                                     <div className="text-center py-8 text-neutral-500 font-mono text-xs">
                                         LOADING EVENTS...
                                     </div>
-                                ) : availableEvents.length === 0 ? (
-                                    <div className="text-center py-8 text-neutral-500 font-mono text-xs">
-                                        No events available for selected days
-                                    </div>
                                 ) : (
-                                    <div className="max-h-[40vh] overflow-y-auto space-y-3 pr-2">
-                                        {availableEvents.map((event) => (
-                                            <button
-                                                key={event.id}
-                                                type="button"
-                                                onClick={() => {
-                                                    setSelectedEventIds(prev =>
-                                                        prev.includes(event.id)
-                                                            ? prev.filter(id => id !== event.id)
-                                                            : [...prev, event.id]
-                                                    );
-                                                }}
-                                                className={`w-full p-4 border transition-all duration-300 flex items-start gap-4 group/event ${selectedEventIds.includes(event.id)
-                                                        ? 'border-blue-500 bg-blue-500/10'
-                                                        : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
-                                                    }`}
-                                            >
-                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 mt-1 ${selectedEventIds.includes(event.id)
-                                                        ? 'border-blue-500 bg-blue-500/20'
-                                                        : 'border-neutral-600 bg-neutral-900'
-                                                    }`}>
-                                                    <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${selectedEventIds.includes(event.id) ? 'bg-blue-500' : 'bg-transparent'
-                                                        }`} />
-                                                </div>
-                                                <div className="flex-1 text-left">
-                                                    <p className="text-white font-orbitron text-sm tracking-wide uppercase">
-                                                        {event.name}
-                                                    </p>
-                                                    <div className="flex gap-2 mt-1 flex-wrap">
-                                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                                            {event.category === 'technical' ? 'TECH' : 'NON-TECH'}
-                                                        </span>
-                                                        <span className="text-[10px] text-neutral-700">•</span>
-                                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                                            {event.type.toUpperCase()}
-                                                        </span>
-                                                        <span className="text-[10px] text-neutral-700">•</span>
-                                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                                            {event.venue}
-                                                        </span>
+                                    <div className="max-h-[40vh] overflow-y-auto space-y-6 pr-2">
+                                        {ALL_DAYS.map((day) => {
+                                            const events = eventsByDay[day.id] || [];
+                                            if (events.length === 0) return null;
+
+                                            return (
+                                                <div key={day.id}>
+                                                    <div className="mb-3 flex items-center gap-3">
+                                                        <h3 className="text-sm font-orbitron text-white uppercase tracking-wider">
+                                                            {day.label}
+                                                        </h3>
+                                                        <div className="h-[1px] flex-1 bg-neutral-800"></div>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        {events.map((event) => (
+                                                            <button
+                                                                key={event.id}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setSelectedEventIds(prev =>
+                                                                        prev.includes(event.id)
+                                                                            ? prev.filter(id => id !== event.id)
+                                                                            : [...prev, event.id]
+                                                                    );
+                                                                }}
+                                                                className={`w-full p-4 border transition-all duration-300 flex items-start gap-4 group/event ${selectedEventIds.includes(event.id)
+                                                                        ? 'border-blue-500 bg-blue-500/10'
+                                                                        : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
+                                                                    }`}
+                                                            >
+                                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 mt-1 ${selectedEventIds.includes(event.id)
+                                                                        ? 'border-blue-500 bg-blue-500/20'
+                                                                        : 'border-neutral-600 bg-neutral-900'
+                                                                    }`}>
+                                                                    <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${selectedEventIds.includes(event.id) ? 'bg-blue-500' : 'bg-transparent'
+                                                                        }`} />
+                                                                </div>
+                                                                <div className="flex-1 text-left">
+                                                                    <p className="text-white font-orbitron text-sm tracking-wide uppercase">
+                                                                        {event.name}
+                                                                    </p>
+                                                                    <div className="flex gap-2 mt-1 flex-wrap">
+                                                                        <span className="text-[10px] text-neutral-500 font-mono">
+                                                                            {event.category === 'technical' ? 'TECH' : 'NON-TECH'}
+                                                                        </span>
+                                                                        <span className="text-[10px] text-neutral-700">•</span>
+                                                                        <span className="text-[10px] text-neutral-500 font-mono">
+                                                                            {event.type.toUpperCase()}
+                                                                        </span>
+                                                                        <span className="text-[10px] text-neutral-700">•</span>
+                                                                        <span className="text-[10px] text-neutral-500 font-mono">
+                                                                            {event.venue}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </button>
+                                                        ))}
                                                     </div>
                                                 </div>
-                                            </button>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 )}
 
                                 {selectedEventIds.length > 0 && (
                                     <div className="p-4 bg-[#151515] border border-neutral-700">
                                         <span className="text-xs text-neutral-400 font-mono">
-                                            {selectedEventIds.length} event{selectedEventIds.length > 1 ? 's' : ''} selected
+                                            {selectedEventIds.length} event{selectedEventIds.length > 1 ? 's' : ''} selected across all 3 days
                                         </span>
                                     </div>
                                 )}
                             </div>
                         )}
 
-                        {/* Step 3: Review & Pay */}
+                        {/* Step 2: Review & Pay */}
                     {step === 'review' && (
                         <div className="space-y-6">
                             <div>
@@ -453,18 +369,28 @@ export default function DayPassModal({
                                     </div>
                                     <div className="p-3">
                                         <div className="flex justify-between items-center mb-2">
-                                            <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Selected Days</span>
-                                            <span className="text-[10px] text-neutral-500 font-mono">{selectedDays.length} Day{selectedDays.length > 1 ? 's' : ''}</span>
+                                            <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Pass Type</span>
+                                            <span className="text-[10px] text-neutral-400 font-mono">ALL-ACCESS (3 DAYS)</span>
                                         </div>
-                                        <div className="space-y-1 pl-2 border-l border-neutral-800">
-                                            {selectedDays.map((dayId) => {
-                                                const day = DAY_OPTIONS.find((d) => d.id === dayId);
-                                                return (
-                                                    <div key={dayId} className="flex justify-between text-xs font-mono">
-                                                        <span className="text-neutral-400">{day?.label}</span>
-                                                        <span className="text-neutral-500">₹{PRICE_PER_DAY}</span>
+                                    </div>
+                                    <div className="p-3">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Selected Events</span>
+                                            <span className="text-[10px] text-neutral-500 font-mono">{selectedEventIds.length} Event{selectedEventIds.length > 1 ? 's' : ''}</span>
+                                        </div>
+                                        <div className="space-y-1 pl-2 border-l border-neutral-800 max-h-40 overflow-y-auto">
+                                            {selectedEventIds.map((eventId) => {
+                                                // Find event in any day
+                                                let event: any = null;
+                                                for (const dayEvents of Object.values(eventsByDay)) {
+                                                    event = dayEvents.find((e: any) => e.id === eventId);
+                                                    if (event) break;
+                                                }
+                                                return event ? (
+                                                    <div key={eventId} className="text-xs font-mono text-neutral-400">
+                                                        {event.name}
                                                     </div>
-                                                );
+                                                ) : null;
                                             })}
                                         </div>
                                     </div>
@@ -480,11 +406,11 @@ export default function DayPassModal({
                                     <div>
                                         <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
                                         <div className="text-xs text-neutral-400 font-mono">
-                                            {totalDays} DAY{totalDays > 1 ? 'S' : ''} × ₹{PRICE_PER_DAY}
+                                            ALL-ACCESS PASS (BEST VALUE)
                                         </div>
                                     </div>
                                     <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
-                                        ₹{totalAmount}
+                                        ₹{ALL_ACCESS_PRICE}
                                     </div>
                                 </div>
                             </div>
@@ -507,7 +433,7 @@ export default function DayPassModal({
                         )}
 
                         <div className="flex gap-4">
-                            {step !== 'days' && (
+                            {step !== 'events' && (
                                 <button
                                     type="button"
                                     onClick={goToPrevStep}
@@ -517,7 +443,7 @@ export default function DayPassModal({
                                     Back
                                 </button>
                             )}
-                            {step === 'days' && (
+                            {step === 'events' && (
                                 <button
                                     type="button"
                                     onClick={onCloseAction}

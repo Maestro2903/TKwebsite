@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import StickyRegisterCTA from '@/components/layout/StickyRegisterCTA';
-import { useLenis } from '@/hooks/useLenis';
 import MusicPortfolio from '@/components/ui/music-portfolio';
 import PassCard from '@/components/ui/PassCard';
 import { REGISTRATION_PASSES } from '@/data/passes';
@@ -26,7 +25,6 @@ const SANTHOSH_ALBUMS = [
 ];
 
 export default function SanaArenaPage() {
-    useLenis();
     const router = useRouter();
     const heroAudioRef = useRef<HTMLAudioElement | null>(null);
     const [isHeroPlaying, setIsHeroPlaying] = useState(false);

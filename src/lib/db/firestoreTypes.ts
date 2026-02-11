@@ -1,8 +1,36 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type PassType = 'day_pass' | 'group_events' | 'proshow' | 'sana_concert';
+export type PassType = 'test_pass' | 'day_pass' | 'group_events' | 'proshow' | 'sana_concert';
 
 export type PaymentStatus = 'pending' | 'success' | 'failed';
+
+export type EventCategory = 'technical' | 'non_technical';
+export type EventType = 'individual' | 'group' | 'workshop';
+
+/** Event document structure in events/{eventId} collection */
+export interface Event {
+  id: string;
+  name: string;
+  category: EventCategory;
+  type: EventType;
+  date: string; // ISO format: "2026-02-26"
+  venue: string;
+  prizePool?: number;
+  allowedPassTypes: PassType[];
+  isActive: boolean;
+  description?: string;
+  image?: string;
+  createdAt: Timestamp | Date;
+  updatedAt: Timestamp | Date;
+}
+
+/** Event access rules stored in pass */
+export interface EventAccess {
+  tech: boolean;
+  nonTech: boolean;
+  proshowDays: string[];
+  fullAccess: boolean;
+}
 
 /** User profile stored in Firestore users/{uid} */
 export interface UserProfile {
@@ -36,6 +64,9 @@ export interface Payment {
     phone: string;
   };
   teamId?: string | null;
+  teamMemberCount?: number | null;
+  selectedDays?: string[] | null;
+  selectedEvents?: string[];
 }
 
 /** Individual team member with attendance tracking */
@@ -88,6 +119,11 @@ export interface Pass {
   createdAt: Timestamp | Date;
   usedAt?: Timestamp | Date;
   scannedBy?: string; // UID of the organizer
+
+  // Event selection fields
+  selectedEvents: string[];
+  selectedDays: string[];
+  eventAccess: EventAccess;
 
   // Group Events specific fields
   teamId?: string;

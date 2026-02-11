@@ -283,7 +283,7 @@ html {
 }
 
 /* Desktop: Takshashila text - 2x larger for prominent display */
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1025px) {
   .hero_center_logo__img--text {
     width: min(95vw, 2000px);
     max-height: 70vh;
@@ -291,7 +291,7 @@ html {
 }
 
 /* Mobile: logo 100% larger (legacy / non-text logos) */
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1024px) {
   .hero_center_logo__img:not(.hero_center_logo__img--text) {
     width: min(90vw, 640px);
     max-height: 95vh;
@@ -299,7 +299,7 @@ html {
 }
 
 /* Desktop: logo 150% larger (legacy / non-text logos) */
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1025px) {
   .hero_center_logo__img:not(.hero_center_logo__img--text) {
     width: min(90vw, 720px);
     max-height: 95vh;
@@ -337,6 +337,22 @@ html {
   background-color: #000;
   background: #000;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Skip link styling for accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #000;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10000;
+  text-decoration: none;
+}
+
+.skip-link:focus-visible {
+  top: 0;
 }
 
 /* SaNa The One page: solid black navbar fill only */
@@ -422,7 +438,9 @@ html {
 }
 
 .nav_desktop_right_wrap.u-column-8 {
-  grid-column-start: 5;
+  /* Pull desktop nav further left to use space better:
+     logo (2 cols) + 1 spacer + nav/auth/register (8 cols) */
+  grid-column-start: 4;
   grid-column-end: span 8;
 }
 
@@ -461,10 +479,20 @@ html {
   opacity: 0.6;
 }
 
+/* Shared typography class for all navbar items - extracted from Home button */
+.navbar-typography {
+  font-size: var(--_typography---font-size--text-small, 0.7rem);
+  font-weight: var(--_typography---font--primary-medium, 500);
+  letter-spacing: 0.05em;
+  text-transform: none;
+  white-space: nowrap;
+}
+
 .nav_desktop_link_text {
   font-size: var(--_typography---font-size--text-small, 0.7rem);
   font-weight: var(--_typography---font--primary-medium, 500);
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 /* Desktop nav active state (e.g. Events on /events) */
@@ -478,6 +506,24 @@ html {
   display: flex;
   align-items: center;
   gap: var(--nav-item-gap);
+}
+
+/* Compact desktop nav for tight widths / high zoom (single-line protection) */
+@media screen and (min-width: 1025px) and (max-width: 1280px) {
+  .nav_desktop_right {
+    gap: 0.75rem;
+  }
+
+  .nav_desktop_links_wrap {
+    gap: 0.75rem;
+  }
+
+  .nav_desktop_link_text,
+  .nav-auth-link,
+  .nav-auth-btn,
+  .nav_desktop_right_btns .btn-bubble-arrow__content-text {
+    font-size: 0.6rem;
+  }
 }
 
 .nav-auth-status-desktop {
@@ -502,9 +548,12 @@ html {
 
 .nav-auth-btn {
   padding: var(--nav-item-padding-y) var(--nav-item-padding-x);
+  /* Typography matches Home button exactly */
   font-size: var(--_typography---font-size--text-small, 0.7rem);
   font-weight: var(--_typography---font--primary-medium, 500);
   letter-spacing: 0.05em;
+  text-transform: none;
+  white-space: nowrap;
   transition: opacity 0.2s ease;
   background: none;
   border: none;
@@ -524,9 +573,12 @@ html {
 .nav-auth-link {
   text-decoration: none;
   color: #fff;
+  /* Typography matches Home button exactly */
   font-size: var(--_typography---font-size--text-small, 0.7rem);
   font-weight: var(--_typography---font--primary-medium, 500);
   letter-spacing: 0.05em;
+  text-transform: none;
+  white-space: nowrap;
   padding: var(--nav-item-padding-y) var(--nav-item-padding-x);
   transition: opacity 0.2s ease;
   background: none;
@@ -616,10 +668,20 @@ html {
 }
 
 .nav_desktop_right_btns .btn-bubble-arrow__content-text {
+  /* Typography inherited from .navbar-typography base */
   font-size: var(--_typography---font-size--text-small, 0.7rem);
   font-weight: var(--_typography---font--primary-medium, 500);
   letter-spacing: 0.05em;
   text-transform: none;
+}
+
+/* Visible focus styles for interactive elements in the nav */
+.nav_desktop_link:focus-visible,
+.nav_menu_link:focus-visible,
+.nav_menu_toggle:focus-visible,
+.btn-bubble-arrow:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
 }
 
 .btn-bubble-arrow__arrow {
@@ -661,12 +723,12 @@ html {
 
 .btn-bubble-arrow__content-text {
   line-height: 1;
-  text-transform: uppercase;
+  text-transform: none; /* Changed from uppercase to match navbar typography */
   font-size: 0.6rem; /* 20% smaller than 0.75rem */
   letter-spacing: 0.05em;
 }
 
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1025px) {
 
   /* Desktop: Hamburger menu always hidden - hide container, wrap, and button */
   .nav_desktop_right_wrap .nav_menu_toggle_contain,
@@ -731,7 +793,7 @@ html {
 }
 
 /* Mobile Navigation Styles - 30% smaller */
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1024px) {
   .nav_contain.u-container {
     display: flex;
     flex-direction: row;
@@ -840,6 +902,82 @@ html {
 
   .btn-bubble-arrow__arrow {
     margin: 0;
+  }
+}
+
+/* Fluid sizing and spacing for nav elements */
+:root {
+  --nav-padding-y: clamp(0.5rem, 2vw, 0.7rem);
+  --nav-padding-x: clamp(1rem, 3vw, 2rem);
+  --nav-item-gap: clamp(0.75rem, 2vw, 1.5rem);
+  --nav-logo-size: clamp(80px, 12vw, 132px);
+}
+
+.nav_contain.u-container {
+  padding-top: var(--nav-padding-y);
+  padding-bottom: var(--nav-padding-y);
+}
+
+.nav_mobile_logo .u-svg {
+  max-width: var(--nav-logo-size);
+}
+
+.nav_desktop_right {
+  gap: var(--nav-item-gap);
+}
+
+.nav_desktop_links_wrap {
+  gap: var(--nav-item-gap);
+}
+
+.nav_desktop_right_btns {
+  gap: var(--nav-item-gap);
+}
+
+/* Intermediate breakpoint refinements */
+@media screen and (min-width: 480px) and (max-width: 767px) {
+  .nav_contain.u-container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .nav_contain.u-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+/* Touch and interaction enhancements for navigation */
+.nav_wrap,
+.nav_menu_wrap,
+.nav_desktop_link,
+.nav_menu_link,
+.nav_menu_toggle,
+.btn-bubble-arrow {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav_menu_wrap {
+  overscroll-behavior: contain;
+}
+
+@media screen and (max-width: 991px) {
+  .nav_menu_toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .nav_menu_link {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+
+  .btn-bubble-arrow {
+    min-height: 44px;
+    padding: 0.625rem 1rem;
   }
 }
 
@@ -2260,7 +2398,7 @@ html {
 }
 
 /* ----- Laptop (992px - 1199px) ----- */
-@media screen and (min-width: 992px) and (max-width: 1199px) {
+@media screen and (min-width: 1025px) and (max-width: 1199px) {
   .cit_section .cit_about_component {
     padding-top: 5.5rem;
     padding-bottom: 5.5rem;
@@ -2489,7 +2627,7 @@ html {
 }
 
 /* Tablet Responsive */
-@media screen and (max-width: 991px) and (min-width: 768px) {
+@media screen and (max-width: 1024px) and (min-width: 768px) {
   .featured_client {
     font-size: clamp(1.75rem, 1.25rem + 2vw, 2.5rem);
     margin: 4rem auto;
@@ -2824,8 +2962,8 @@ html {
    MOBILE & TABLET RESPONSIVE - Hamburger Menu
    ================================================================= */
 
-/* Tablet Responsive (768px - 991px) */
-@media screen and (max-width: 991px) {
+/* Tablet & small-desktop Responsive (768px - 1024px) */
+@media screen and (max-width: 1024px) {
 
   /* Hide left column on tablet */
   .nav_menu_column.u-column-4 {
@@ -2936,7 +3074,7 @@ html {
 }
 
 /* Mobile-only: Centered minimal hamburger menu without icons */
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1024px) {
   
   /* Hide arrow icons on mobile - create minimal centered layout */
   .nav_menu_icon {
@@ -3154,7 +3292,7 @@ html {
   margin-top: 1rem;
 }
 
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1024px) {
   .page_main--events .u-section-spacer.w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 {
     height: 4.5rem;
   }
@@ -4276,6 +4414,7 @@ html {
   align-items: center;
   justify-content: center;
   padding: var(--site--gutter);
+  overscroll-behavior: contain;
 }
 
 .pass-selector-modal__panel {
@@ -4285,6 +4424,16 @@ html {
   width: 100%;
   max-height: 85vh;
   overflow-y: auto;
+}
+
+/* Modal scroll lock utilities */
+.modal-overlay {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-content-scroll {
+  overscroll-behavior: contain;
 }
 
 .pass-selector-modal__header {
@@ -4370,9 +4519,9 @@ html {
    ================================================================= */
 
 /* -------------------------
-   TABLET (768px - 991px)
+   TABLET (768px - 1024px)
    ------------------------- */
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1024px) {
 
   /* Grid System Adjustments */
   .u-grid-custom {
