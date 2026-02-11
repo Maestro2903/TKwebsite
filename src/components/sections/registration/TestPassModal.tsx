@@ -58,7 +58,7 @@ export default function TestPassModal({
         };
     }, [isOpen, onCloseAction]);
 
-    // Fetch events for test day
+    // Fetch events for test day (no passType filter for test pass - allows any event)
     useEffect(() => {
         if (!isOpen) return;
 
@@ -66,7 +66,7 @@ export default function TestPassModal({
             setLoadingEvents(true);
             setError(null);
             try {
-                const res = await fetch(`/api/events?date=${TEST_DAY_DATE}&passType=test_pass`);
+                const res = await fetch(`/api/events?date=${TEST_DAY_DATE}`);
                 const data = await res.json();
                 setAvailableEvents(data.events || []);
             } catch (err) {
