@@ -117,12 +117,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Validate allowedPassTypes for each event
-    const deniedEvents = events.filter((e: any) => !e.allowedPassTypes || !e.allowedPassTypes.includes(passType));
-    if (deniedEvents.length > 0) {
-      return NextResponse.json({ 
-        error: `These events are not available for ${passType}: ${deniedEvents.map((e: any) => e.name).join(', ')}` 
-      }, { status: 400 });
+    // Validate allowedPassTypes for each event (skip for test_pass - testing only)
+    if (passType !== 'test_pass') {
+      const deniedEvents = events.filter((e: any) => !e.allowedPassTypes || !e.allowedPassTypes.includes(passType));
+      if (deniedEvents.length > 0) {
+        return NextResponse.json({ 
+          error: `These events are not available for ${passType}: ${deniedEvents.map((e: any) => e.name).join(', ')}` 
+        }, { status: 400 });
+      }
     }
 
     const appId =
