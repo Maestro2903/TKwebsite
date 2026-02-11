@@ -2,15 +2,15 @@
 
 import * as React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase/clientApp';
+import { auth } from '@/lib/firebase/clientApp';
 import { useAuth } from '@/features/auth/AuthContext';
 import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import { X } from 'lucide-react';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
-// Test pass price
+// Test pass price and date (Day 1 for testing)
 const TEST_PASS_AMOUNT = 1;
+const TEST_DAY_DATE = '2026-02-26';
 
 interface TestPassModalProps {
     isOpen: boolean;
@@ -21,16 +21,18 @@ export default function TestPassModal({
     isOpen,
     onCloseAction,
 }: TestPassModalProps) {
-    const { user } = useAuth();
+    const { user, userData } = useAuth();
     const overlayRef = useRef<HTMLDivElement>(null);
 
-    // User info
-    const [phone, setPhone] = useState('');
-    const [college, setCollege] = useState('');
+    // Events
+    const [availableEvents, setAvailableEvents] = useState<any[]>([]);
+    const [selectedEventIds, setSelectedEventIds] = useState<string[]>([]);
+    const [loadingEvents, setLoadingEvents] = useState(false);
 
     // UI state
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [step, setStep] = useState<'events' | 'review'>('events');
 
     // Lock global body scroll (and Lenis) when modal is open
     useLockBodyScroll(isOpen);
@@ -39,8 +41,9 @@ export default function TestPassModal({
     useEffect(() => {
         if (!isOpen) return;
         setError(null);
-        setPhone('');
-        setCollege('');
+        setSelectedEventIds([]);
+        setAvailableEvents([]);
+        setStep('events');
     }, [isOpen]);
 
     // Handle escape key
@@ -55,42 +58,64 @@ export default function TestPassModal({
         };
     }, [isOpen, onCloseAction]);
 
+    // Fetch events for test day
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const fetchEvents = async () => {
+            setLoadingEvents(true);
+            setError(null);
+            try {
+                const res = await fetch(`/api/events?date=${TEST_DAY_DATE}&passType=test_pass`);
+                const data = await res.json();
+                setAvailableEvents(data.events || []);
+            } catch (err) {
+                console.error('Failed to fetch events:', err);
+                setError('Failed to load events. Please try again.');
+            } finally {
+                setLoadingEvents(false);
+            }
+        };
+
+        fetchEvents();
+    }, [isOpen]);
+
+    // Validate current step
+    const validateStep = useCallback(() => {
+        if (step === 'events') {
+            if (selectedEventIds.length === 0) {
+                setError('Please select at least one event');
+                return false;
+            }
+        }
+        setError(null);
+        return true;
+    }, [step, selectedEventIds]);
+
+    // Handle step navigation
+    const goToNextStep = useCallback(() => {
+        if (!validateStep()) return;
+        if (step === 'events') setStep('review');
+    }, [step, validateStep]);
+
+    const goToPrevStep = useCallback(() => {
+        if (step === 'review') setStep('events');
+    }, [step]);
+
     // Handle form submission
-    const handleSubmit = useCallback(async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = useCallback(async () => {
         if (!user) return;
-
-        // Validate
-        if (!phone.trim() || phone.trim().length < 10) {
-            setError('Please enter a valid phone number');
+        if (!userData) {
+            setError('Profile incomplete. Please complete your profile first.');
             return;
         }
-        if (!college.trim()) {
-            setError('Please enter your college name');
-            return;
-        }
-
         setError(null);
         setSubmitting(true);
 
         try {
             const uid = user.uid;
             const email = user.email || user.providerData?.[0]?.email || '';
-            const name = user.displayName || email || 'Attendee';
-
-            // Update user document (allowed by rules)
-            await setDoc(
-                doc(db, 'users', uid),
-                {
-                    uid,
-                    name,
-                    email,
-                    college: college.trim(),
-                    phone: phone.trim(),
-                    updatedAt: serverTimestamp(),
-                },
-                { merge: true }
-            );
+            const name = userData.name || user.displayName || email || 'Attendee';
 
             // Create payment order via server
             const token = await auth.currentUser?.getIdToken(true);
@@ -106,13 +131,13 @@ export default function TestPassModal({
                     userId: uid,
                     passType: 'test_pass',
                     amount: TEST_PASS_AMOUNT,
-                    selectedDays: [],
-                    selectedEvents: [],
+                    selectedDays: [TEST_DAY_DATE],
+                    selectedEvents: selectedEventIds,
                     teamData: {
                         name,
-                        email,
-                        phone: phone.trim(),
-                        college: college.trim(),
+                        email: userData.email ?? email,
+                        phone: userData.phone ?? '',
+                        college: userData.college ?? '',
                     },
                 }),
             });
@@ -141,7 +166,7 @@ export default function TestPassModal({
         } finally {
             setSubmitting(false);
         }
-    }, [user, phone, college, onCloseAction]);
+    }, [user, userData, selectedEventIds, onCloseAction]);
 
     if (!isOpen) return null;
 
@@ -179,25 +204,37 @@ export default function TestPassModal({
                             <X size={12} strokeWidth={1.5} />
                         </button>
                     </div>
-                    <div className="px-6 pt-4 pb-4 bg-[#151515]">
+                    <div className="px-6 pt-4 pb-2 bg-[#151515]">
                         <h2 id="test-pass-title" className="text-xl md:text-2xl font-bold text-white font-orbitron tracking-tight mb-2 uppercase">
                             🧪 Test Pass Registration
                         </h2>
-                        <p className="text-xs text-neutral-500 font-mono">
-                            // Minimal ₹1 pass for payment verification testing
-                        </p>
+                        <div className="flex items-center gap-3 text-[10px] tracking-widest text-neutral-500 uppercase font-orbitron">
+                            <span>Step {step === 'events' ? '01' : '02'}</span>
+                            <div className="h-[1px] flex-1 bg-neutral-800"></div>
+                            <span>Total Steps: 02</span>
+                        </div>
+                        <div className="mt-4 mb-2 h-[2px] w-full bg-neutral-800">
+                            <div
+                                className="h-full bg-neutral-400 transition-all duration-300 relative"
+                                style={{
+                                    width: step === 'events' ? '50%' : '100%',
+                                }}
+                            >
+                                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Form Content */}
-                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-                    <div className="p-6 space-y-6">
+                {/* Scrollable content */}
+                <div className="flex-1 overflow-y-auto">
+                    <div className="p-6 relative">
                         {/* Corner Accents */}
                         <div className="absolute top-6 right-6 w-3 h-3 border-t border-r border-neutral-600 pointer-events-none" />
                         <div className="absolute bottom-6 left-6 w-3 h-3 border-b border-l border-neutral-600 pointer-events-none" />
 
                         {/* Info Banner */}
-                        <div className="p-4 bg-[#151515] border border-yellow-900/50 flex items-start gap-3">
+                        <div className="p-4 bg-[#151515] border border-yellow-900/50 flex items-start gap-3 mb-6">
                             <div className="w-1 h-full min-h-[2rem] bg-yellow-700" />
                             <div>
                                 <p className="text-yellow-200 text-sm font-orbitron tracking-wide uppercase mb-1">
@@ -209,108 +246,210 @@ export default function TestPassModal({
                             </div>
                         </div>
 
-                        {/* User Identity */}
-                        <div className="p-4 bg-[#151515] border border-neutral-800 flex items-start gap-3">
-                            <div className="w-1 h-full min-h-[2rem] bg-neutral-700" />
-                            <div>
-                                <p className="text-neutral-300 text-sm font-orbitron tracking-wide uppercase mb-1">
-                                    Personal Identity
-                                </p>
-                                <p className="text-neutral-500 text-xs font-mono">
-                                    // {user?.displayName || user?.email}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Form Fields */}
-                        <div className="space-y-4">
-                            <div className="group/input">
-                                <label htmlFor="test-phone" className="mb-2 block text-xs text-neutral-500 font-orbitron tracking-widest uppercase">
-                                    Comms Frequency (Phone) <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    id="test-phone"
-                                    type="tel"
-                                    required
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    placeholder="0000000000"
-                                    className="w-full bg-[#0a0a0a] border border-neutral-800 px-4 py-3 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
-                                />
-                            </div>
-
-                            <div className="group/input">
-                                <label htmlFor="test-college" className="mb-2 block text-xs text-neutral-500 font-orbitron tracking-widest uppercase">
-                                    Affiliation (College) <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    id="test-college"
-                                    type="text"
-                                    required
-                                    value={college}
-                                    onChange={(e) => setCollege(e.target.value)}
-                                    placeholder="INSTITUTE NAME"
-                                    className="w-full bg-[#0a0a0a] border border-neutral-800 px-4 py-3 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Pricing Display */}
-                        <div className="p-4 bg-[#151515] border border-neutral-700 relative overflow-hidden">
-                            {/* Diagonal lines bg */}
-                            <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 10px)' }}></div>
-
-                            <div className="relative z-10 flex justify-between items-end">
-                                <div>
-                                    <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
-                                    <div className="text-xs text-neutral-400 font-mono">
-                                        TEST PASS × ₹1
+                        {/* Step 1: Select Events */}
+                        {step === 'events' && (
+                            <div className="space-y-6">
+                                <div className="p-4 bg-[#151515] border border-neutral-800 flex items-start gap-3">
+                                    <div className="w-1 h-full min-h-[2rem] bg-neutral-700" />
+                                    <div>
+                                        <p className="text-neutral-300 text-sm font-orbitron tracking-wide uppercase mb-1">
+                                            Select Events
+                                        </p>
+                                        <p className="text-neutral-500 text-xs font-mono">
+                                            // Test events from Day 1 (26 Feb)
+                                        </p>
                                     </div>
                                 </div>
-                                <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
-                                    ₹{TEST_PASS_AMOUNT}
+
+                                {loadingEvents ? (
+                                    <div className="text-center py-8 text-neutral-500 font-mono text-xs">
+                                        LOADING EVENTS...
+                                    </div>
+                                ) : availableEvents.length === 0 ? (
+                                    <div className="text-center py-8 text-neutral-500 font-mono text-xs">
+                                        No events available for test pass
+                                    </div>
+                                ) : (
+                                    <div className="max-h-[40vh] overflow-y-auto space-y-3 pr-2">
+                                        {availableEvents.map((event) => (
+                                            <button
+                                                key={event.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedEventIds(prev =>
+                                                        prev.includes(event.id)
+                                                            ? prev.filter(id => id !== event.id)
+                                                            : [...prev, event.id]
+                                                    );
+                                                }}
+                                                className={`w-full p-4 border transition-all duration-300 flex items-start gap-4 group/event ${selectedEventIds.includes(event.id)
+                                                        ? 'border-blue-500 bg-blue-500/10'
+                                                        : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
+                                                    }`}
+                                            >
+                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 mt-1 ${selectedEventIds.includes(event.id)
+                                                        ? 'border-blue-500 bg-blue-500/20'
+                                                        : 'border-neutral-600 bg-neutral-900'
+                                                    }`}>
+                                                    <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${selectedEventIds.includes(event.id) ? 'bg-blue-500' : 'bg-transparent'
+                                                        }`} />
+                                                </div>
+                                                <div className="flex-1 text-left">
+                                                    <p className="text-white font-orbitron text-sm tracking-wide uppercase">
+                                                        {event.name}
+                                                    </p>
+                                                    <div className="flex gap-2 mt-1 flex-wrap">
+                                                        <span className="text-[10px] text-neutral-500 font-mono">
+                                                            DAY 1
+                                                        </span>
+                                                        <span className="text-[10px] text-neutral-700">•</span>
+                                                        <span className="text-[10px] text-neutral-500 font-mono">
+                                                            {event.category === 'technical' ? 'TECH' : 'NON-TECH'}
+                                                        </span>
+                                                        <span className="text-[10px] text-neutral-700">•</span>
+                                                        <span className="text-[10px] text-neutral-500 font-mono">
+                                                            {event.venue}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {selectedEventIds.length > 0 && (
+                                    <div className="p-4 bg-[#151515] border border-neutral-700">
+                                        <span className="text-xs text-neutral-400 font-mono">
+                                            {selectedEventIds.length} event{selectedEventIds.length > 1 ? 's' : ''} selected
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Step 2: Review & Pay */}
+                        {step === 'review' && (
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className="text-sm font-orbitron text-white uppercase tracking-wider mb-4">Registration Summary</h3>
+
+                                    <div className="border border-neutral-800 bg-[#0a0a0a] divide-y divide-neutral-800">
+                                        <div className="p-3 flex justify-between items-center">
+                                            <span className="text-[10px] text-neutral-500 font-orbitron uppercase">User ID</span>
+                                            <div className="text-right">
+                                                <div className="text-sm text-white font-mono">
+                                                    {userData?.name || user?.displayName || user?.email || 'User'}
+                                                </div>
+                                                <div className="text-[10px] text-neutral-600 font-mono">
+                                                    {userData?.phone ?? '-'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="p-3">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Pass Type</span>
+                                                <span className="text-[10px] text-neutral-400 font-mono">TEST PASS (DAY 1)</span>
+                                            </div>
+                                        </div>
+                                        <div className="p-3">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Selected Events</span>
+                                                <span className="text-[10px] text-neutral-500 font-mono">{selectedEventIds.length} Event{selectedEventIds.length > 1 ? 's' : ''}</span>
+                                            </div>
+                                            <div className="space-y-1 pl-2 border-l border-neutral-800">
+                                                {selectedEventIds.map((eventId) => {
+                                                    const event = availableEvents.find((e) => e.id === eventId);
+                                                    return (
+                                                        <div key={eventId} className="text-xs font-mono text-neutral-400">
+                                                            {event?.name}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Pricing Display */}
+                                <div className="p-4 bg-[#151515] border border-neutral-700 relative overflow-hidden">
+                                    {/* Diagonal lines bg */}
+                                    <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 10px)' }}></div>
+
+                                    <div className="relative z-10 flex justify-between items-end">
+                                        <div>
+                                            <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
+                                            <div className="text-xs text-neutral-400 font-mono">
+                                                TEST PASS
+                                            </div>
+                                        </div>
+                                        <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
+                                            ₹{TEST_PASS_AMOUNT}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </div>
+                </div>
 
-                    {/* Error + Actions - sticky bottom */}
-                    <div className="sticky bottom-0 z-20 bg-[#151515] border-t border-neutral-800">
-                        <div className="px-6 pb-4 pt-4 space-y-4">
-                            {error && (
-                                <div className="border border-red-900/50 bg-red-900/10 p-3 flex items-start gap-2">
-                                    <div className="w-1 h-3 mt-1 bg-red-500 shrink-0" />
-                                    <p className="text-xs text-red-200 font-mono uppercase tracking-wide">
-                                        ERROR: {error}
-                                    </p>
-                                </div>
-                            )}
+                {/* Error + Actions - sticky bottom */}
+                <div className="sticky bottom-0 z-20 bg-[#151515] border-t border-neutral-800">
+                    <div className="px-6 pb-4 pt-4 space-y-4">
+                        {error && (
+                            <div className="border border-red-900/50 bg-red-900/10 p-3 flex items-start gap-2">
+                                <div className="w-1 h-3 mt-1 bg-red-500 shrink-0" />
+                                <p className="text-xs text-red-200 font-mono uppercase tracking-wide">
+                                    ERROR: {error}
+                                </p>
+                            </div>
+                        )}
 
-                            <div className="flex gap-4">
+                        <div className="flex gap-4">
+                            {step !== 'events' && (
                                 <button
                                     type="button"
-                                    onClick={onCloseAction}
+                                    onClick={goToPrevStep}
                                     disabled={submitting}
                                     className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition disabled:opacity-50 tracking-widest"
                                 >
+                                    Back
+                                </button>
+                            )}
+                            {step === 'events' && (
+                                <button
+                                    type="button"
+                                    onClick={onCloseAction}
+                                    className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition tracking-widest"
+                                >
                                     Abort
                                 </button>
+                            )}
+                            {step !== 'review' ? (
                                 <button
-                                    type="submit"
+                                    type="button"
+                                    onClick={goToNextStep}
+                                    className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition disabled:opacity-50 tracking-widest"
+                                >
+                                    Proceed
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={handleSubmit}
                                     disabled={submitting}
                                     className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition disabled:opacity-50 tracking-widest"
                                 >
                                     {submitting ? 'PROCESSING...' : `INITIATE PAYMENT ₹1`}
                                 </button>
-                            </div>
-                        </div>
-
-                        {/* --- Bottom Border Strip --- */}
-                        <div className="h-4 w-full flex items-center justify-end px-2 border-t border-neutral-800 bg-[#151515] text-[6px] text-neutral-600 font-orbitron uppercase">
-                            <span>TEST MODE - SECURE CONNECTION ESTABLISHED</span>
+                            )}
                         </div>
                     </div>
-                </form>
+
+                    {/* --- Bottom Border Strip --- */}
+                    <div className="h-4 w-full flex items-center justify-end px-2 border-t border-neutral-800 bg-[#151515] text-[6px] text-neutral-600 font-orbitron uppercase">
+                        <span>TEST MODE - SECURE CONNECTION ESTABLISHED</span>
+                    </div>
+                </div>
             </div>
         </div>
     );
