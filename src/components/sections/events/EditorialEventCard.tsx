@@ -93,11 +93,10 @@ function EditorialEventCard({ event, index = 0 }: EditorialEventCardProps) {
             href={REGISTER_URL}
             className={cn(
               buttonBaseStyles,
-              // Default: editorial blue background at 50% opacity
-              'bg-[var(--editorial-blue,#0047FF)] text-white opacity-50',
-              // Hover: smoothly transition to full opacity for a premium feel
-              'transition-opacity duration-200 ease-out hover:opacity-100'
+              '!bg-[var(--editorial-blue,#0047FF)] text-white opacity-50',
+              'transition-opacity duration-200 hover:opacity-100'
             )}
+            style={{ backgroundColor: 'var(--editorial-blue, #0047FF)' }}
           >
             REGISTER
           </Link>
@@ -106,11 +105,9 @@ function EditorialEventCard({ event, index = 0 }: EditorialEventCardProps) {
             onClick={() => setShowModal(true)}
             className={cn(
               buttonBaseStyles,
-              // Standalone white rectangular outline framing the INFO label
-              'bg-transparent border border-[var(--editorial-white,#FFF)] text-[var(--editorial-white,#FFF)]',
-              // Keep background transparent by default; add a subtle hover tint without solid fill
-              'transition-colors duration-200 ease-out',
-              'hover:bg-white/5 hover:border-[var(--editorial-white,#FFF)]'
+              '!border !border-solid !border-white text-[var(--editorial-white,#FFF)]',
+              'bg-[var(--editorial-black,#000)] transition-colors duration-200',
+              'hover:!border-[var(--editorial-white,#FFF)] hover:text-[var(--editorial-blue,#0047FF)]'
             )}
           >
             INFO

@@ -200,8 +200,8 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
                 className={cn(
                   'flex-1 py-3 px-4 text-center',
                   'font-editorial text-xs font-semibold uppercase tracking-wider',
-                  'bg-[var(--editorial-blue,#0047FF)] text-white',
-                  'transition-opacity hover:opacity-90',
+                  'bg-[var(--editorial-blue,#0047FF)]/50 text-white',
+                  'transition-colors duration-200 hover:bg-[var(--editorial-blue,#0047FF)]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--editorial-blue,#0047FF)] focus-visible:ring-offset-2 focus-visible:ring-offset-black'
                 )}
               >
@@ -213,7 +213,7 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
                 className={cn(
                   'py-3 px-4',
                   'font-editorial text-xs font-semibold uppercase tracking-wider',
-                  'border border-[var(--editorial-gray-dark,#555)] text-[var(--editorial-white,#FFF)]',
+                  'border border-[var(--editorial-white,#FFF)] text-[var(--editorial-white,#FFF)]',
                   'transition-colors hover:border-[var(--editorial-blue,#0047FF)] hover:text-[var(--editorial-blue,#0047FF)]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--editorial-blue,#0047FF)] focus-visible:ring-offset-2 focus-visible:ring-offset-black'
                 )}

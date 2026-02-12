@@ -3492,6 +3492,21 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* REGISTER link: explicit blue background (persist browser preview styles) */
+.editorial-event-card a[href="/register"] {
+  background-color: var(--editorial-blue, #0047FF);
+}
+
+/* INFO button: explicit solid 1px white border (persist browser preview styles) */
+.editorial-event-card button.flex-1 {
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 1) !important;
+}
+.editorial-event-card button.flex-1:hover {
+  border-color: var(--editorial-blue, #0047FF) !important;
+}
+
 /* Events page: SciFiCard image area — no padding so image fills fully on all screen sizes */
 .page_main--events .event-card .sci-fi-card__display {
   padding: 0;
