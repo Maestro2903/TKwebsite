@@ -9,7 +9,7 @@ export default function CTASection() {
     return (
         <section ref={sectionRef} id="section_cta" className="section_cta u-section" style={{ position: 'relative', overflow: 'hidden' }}>
             {/* Background: Canvas Spiral Animation */}
-            <CanvasSpiral className="z-0" />
+            <CanvasSpiral className="z-0 hidden md:block" />
 
             {/* Mid: Flame image */}
             <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">

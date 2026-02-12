@@ -837,17 +837,27 @@ html {
     display: none;
   }
 
-  /* Hide auth status on mobile - only show Register and hamburger */
-  .nav-auth-status-desktop {
+  /* Hide auth status on mobile - only show Register and hamburger (My Pass/Sign Out are in the menu) */
+  .nav-auth-status-desktop,
+  .nav-auth-status {
     display: none;
   }
 
-  .nav_menu_toggle_contain {
-    opacity: 1;
-  }
-
-  .nav_menu_toggle_wrap {
-    transform: scale(1);
+  /* Ensure hamburger menu button is visible on mobile */
+  .nav_desktop_right_wrap .nav_menu_toggle_contain,
+  .nav_desktop_right_btns .nav_menu_toggle_contain,
+  .nav_menu_toggle_contain,
+  .nav_desktop_right_wrap .nav_menu_toggle_wrap,
+  .nav_desktop_right_btns .nav_menu_toggle_wrap,
+  .nav_menu_toggle_wrap,
+  .nav_desktop_right_wrap .nav_menu_toggle,
+  .nav_desktop_right_btns .nav_menu_toggle,
+  .nav_menu_toggle {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: scale(1) !important;
   }
 
   .nav_desktop_right_btns {
