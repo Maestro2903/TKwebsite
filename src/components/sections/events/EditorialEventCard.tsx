@@ -106,7 +106,8 @@ function EditorialEventCard({ event, index = 0 }: EditorialEventCardProps) {
             className={cn(
               buttonBaseStyles,
               '!border !border-solid !border-white text-[var(--editorial-white,#FFF)]',
-              'bg-[var(--editorial-black,#000)] transition-colors duration-200',
+              'bg-[var(--editorial-black,#000)] opacity-50',
+              'transition-all duration-200 hover:opacity-100',
               'hover:!border-[var(--editorial-white,#FFF)] hover:text-[var(--editorial-blue,#0047FF)]'
             )}
           >
