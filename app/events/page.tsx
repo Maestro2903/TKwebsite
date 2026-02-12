@@ -5,11 +5,7 @@ import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import EventCategorySwitch from '@/components/sections/events/EventCategorySwitch';
 import EventsGrid from '@/components/sections/events/EventsGrid';
-import FabricGridBackground from '@/components/decorative/FabricGridBackground';
-import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
 import type { EventItem } from '@/data/events';
-import { Y2K_IMAGES } from '@/data/y2k-images';
-import { FONT1_IMAGES } from '@/data/font1-images';
 
 const SCROLL_THRESHOLD_DESKTOP = 60;
 const SCROLL_THRESHOLD_MOBILE = 100; // higher so bar doesn’t hide too easily on touch scroll
@@ -63,14 +59,12 @@ export default function EventsPage() {
 
   return (
     <>
-      <FabricGridBackground />
-      <ParallaxFloatingImages images={[...FONT1_IMAGES, ...Y2K_IMAGES]} className="opacity-50" mode="global" />
       <Navigation />
 
-      <main id="main" className="page_main page_main--events relative z-10">
+      <main id="main" className="page_main page_main--events page_main--events-editorial relative z-10 bg-[var(--editorial-black,#000)]">
         <EventCategorySwitch value={category} onChange={setCategory} isHidden={categoryBarHidden} />
 
-        <div className="mt-5">
+        <div className="events-content-shell mt-5">
           {isLoading ? (
             <div className="events-loading">
               <div className="events-loading__spinner">

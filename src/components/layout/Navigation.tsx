@@ -269,7 +269,7 @@ export default function Navigation() {
                                 <Link href="/events" className="featured_link" onClick={closeMenu}>
                                     <img
                                         loading="lazy"
-                                        src="/images/featured-project.jpg"
+                                        src="/assets/images/hero-poster.webp"
                                         alt="Featured Project"
                                         className="featured_image"
                                     />

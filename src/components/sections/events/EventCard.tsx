@@ -13,14 +13,13 @@ const REGISTER_URL = '/register';
 
 function EventCard({ event }: EventCardProps) {
   const [showModal, setShowModal] = useState(false);
-  const { name, description, fullDescription, image } = event;
+  const { name, image, description } = event;
 
   return (
     <article className="event-card h-full">
       <SciFiCard
         name={name}
         description={description}
-        fullDescription={fullDescription}
         image={image}
         registerHref={REGISTER_URL}
         onSecondaryAction={() => setShowModal(true)}

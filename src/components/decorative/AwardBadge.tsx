@@ -52,7 +52,7 @@ export const AwardBadge = ({ children, className = "", onClick, type = 'button',
         return (
             <Link
                 href={href}
-                className={`award-badge-simple group relative block w-full h-auto cursor-pointer overflow-hidden ${className}`}
+                className={`award-badge-simple group relative flex items-center justify-center w-auto max-w-[140px] sm:max-w-[180px] min-h-[44px] sm:min-h-[40px] cursor-pointer overflow-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none ${className}`}
             >
                 <div className="award-badge-simple__bg">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 54" className="w-full h-auto">
@@ -99,7 +99,7 @@ export const AwardBadge = ({ children, className = "", onClick, type = 'button',
                         </defs>
                         <foreignObject x="0" y="0" width="260" height="54">
                             <div className="flex items-center justify-center w-full h-full px-4">
-                                <span className="award-badge-simple__text text-[#666] font-bold text-sm uppercase tracking-wider transition-colors duration-300">
+                                <span className="award-badge-simple__text text-[#444] font-bold text-sm uppercase tracking-wider transition-colors duration-300">
                                     {badgeContent(children, variant)}
                                 </span>
                             </div>
@@ -113,7 +113,7 @@ export const AwardBadge = ({ children, className = "", onClick, type = 'button',
         <button
             type={type}
             disabled={disabled}
-            className={`award-badge-simple group relative block w-full h-auto cursor-pointer overflow-hidden ${className}`}
+            className={`award-badge-simple group relative flex items-center justify-center w-auto max-w-[140px] sm:max-w-[180px] min-h-[44px] sm:min-h-[40px] cursor-pointer overflow-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none ${className}`}
             onClick={onClick}
         >
             {/* Background with gradient */}
@@ -171,7 +171,7 @@ export const AwardBadge = ({ children, className = "", onClick, type = 'button',
                     {/* Text content */}
                     <foreignObject x="0" y="0" width="260" height="54">
                         <div className="flex items-center justify-center w-full h-full px-4">
-                            <span className="award-badge-simple__text text-[#666] font-bold text-sm uppercase tracking-wider transition-colors duration-300">
+                            <span className="award-badge-simple__text text-[#444] font-bold text-sm uppercase tracking-wider transition-colors duration-300">
                                 {children || "REGISTER"}
                             </span>
                         </div>

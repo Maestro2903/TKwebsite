@@ -1,12 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { X } from 'lucide-react';
 import type { EventItem } from '@/data/events';
 import { cn } from '@/lib/utils';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
+import { BarcodeStripe, SectionLabel } from '@/components/decorative/EditorialMotifs';
 
 interface EventDetailsModalProps {
   event: EventItem;
@@ -16,11 +18,41 @@ interface EventDetailsModalProps {
 
 export default function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  const focusableSelector =
+    'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])';
+
+  const trapFocus = React.useCallback((e: KeyboardEvent) => {
+    if (e.key !== 'Tab') return;
+    const root = contentRef.current;
+    if (!root) return;
+    const focusables = Array.from(root.querySelectorAll<HTMLElement>(focusableSelector)).filter(
+      (el) => !el.hasAttribute('disabled') && el.tabIndex !== -1
+    );
+    if (focusables.length === 0) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+
+    if (!e.shiftKey && active === last) {
+      e.preventDefault();
+      first.focus();
+      return;
+    }
+
+    if (e.shiftKey && (active === first || active === root)) {
+      e.preventDefault();
+      last.focus();
+    }
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
-      setIsAnimating(true);
+      previousActiveElementRef.current = document.activeElement as HTMLElement | null;
       const t = requestAnimationFrame(() => {
         requestAnimationFrame(() => setIsVisible(true));
       });
@@ -28,151 +60,167 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
     }
   }, [isOpen]);
 
-  // Lock global body scroll (and Lenis) when modal is open
   useLockBodyScroll(isOpen);
 
-  const handleClose = () => {
+  const handleClose = React.useCallback(() => {
     setIsVisible(false);
-    setIsAnimating(true);
     const timer = setTimeout(() => {
       onClose();
-      setIsAnimating(false);
+      previousActiveElementRef.current?.focus?.();
     }, 200);
     return () => clearTimeout(timer);
-  };
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const t = window.setTimeout(() => {
+      closeBtnRef.current?.focus?.();
+    }, 0);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClose();
+        return;
+      }
+      trapFocus(e);
+    };
+
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => {
+      window.clearTimeout(t);
+      document.removeEventListener('keydown', onKeyDown, true);
+    };
+  }, [isOpen, handleClose, trapFocus]);
 
   if (!isOpen) return null;
 
   const description = event.fullDescription ?? event.description;
+  const registerHref = '/register';
 
   return (
     <div
       className={cn(
-        'modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4',
-        'bg-black/90 backdrop-blur-sm',
+        'modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6',
+        'bg-black/95',
         'transition-opacity duration-200',
         isVisible ? 'opacity-100' : 'opacity-0'
       )}
       role="dialog"
       aria-modal="true"
       aria-labelledby="event-details-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose();
+      }}
       onWheel={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
     >
       <div
+        ref={contentRef}
         className={cn(
-          'modal-content-scroll w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto',
-          'bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative',
+          'event-details-modal w-full max-w-lg sm:max-w-xl',
+          'max-h-[90vh] overflow-y-auto',
+          'bg-[var(--editorial-black,#000)]',
+          'border border-[var(--editorial-gray-dark,#333)]',
           'transition-all duration-300 ease-out',
-          isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+          isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.98]',
+          'rounded-none flex flex-col'
         )}
+        tabIndex={-1}
         onWheel={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* --- Top Tech Border Strip --- */}
-        <div className="h-11 sm:h-6 w-full flex items-center justify-between px-3 sm:px-2 border-b border-neutral-800 bg-[#151515] sticky top-0 z-20 min-h-[44px] sm:min-h-0">
-          <div className="flex gap-2 text-[8px] tracking-[0.2em] text-neutral-500 uppercase font-bold font-orbitron min-w-0 overflow-hidden">
-            <span>Event.Data</span>
-            <span>///</span>
-            <span>Secure</span>
+        {/* Header - electric blue title block */}
+        <div className="flex-shrink-0 bg-[var(--editorial-blue,#0047FF)] px-4 sm:px-6 py-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <SectionLabel className="text-white/70 mb-1 block text-[10px]">
+                EVENT /// INFO
+              </SectionLabel>
+              <h2
+                id="event-details-title"
+                className="font-editorial font-bold text-lg sm:text-xl text-white uppercase tracking-tight leading-tight"
+              >
+                {event.name}
+              </h2>
+              <BarcodeStripe variant="horizontal" color="white" className="mt-2 opacity-60 max-w-[80px]" />
+            </div>
+            <button
+              ref={closeBtnRef}
+              type="button"
+              className={cn(
+                'shrink-0 p-2 -m-2 min-w-[44px] min-h-[44px]',
+                'text-white/80 hover:text-white transition-colors',
+                'flex items-center justify-center',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-600'
+              )}
+              aria-label="Close"
+              onClick={handleClose}
+            >
+              <X size={18} strokeWidth={2.5} />
+            </button>
           </div>
-          <button
-            type="button"
-            className="text-neutral-500 hover:text-white active:text-white transition-colors duration-300 shrink-0 p-2 -m-2 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:p-1 sm:-m-1 flex items-center justify-center touch-manipulation"
-            aria-label="Close"
-            onClick={handleClose}
-          >
-            <X size={18} strokeWidth={2} className="sm:w-3.5 sm:h-3.5" />
-          </button>
         </div>
 
-        <div className="relative">
-          {/* Event Image */}
-          <div
-            className="aspect-[16/10] w-full bg-[#050505] border-b border-neutral-700 relative overflow-hidden"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% 88%, 92% 100%, 8% 100%, 0 88%)' }}
-          >
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Image
-                src={event.image}
-                alt={event.name}
-                fill
-                className="object-cover opacity-80"
-              />
-            </div>
-            <div
-              className="absolute inset-0 border-[0.5px] border-neutral-800 m-0.5 opacity-50 z-10 pointer-events-none"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% 88%, 92% 100%, 8% 100%, 0 88%)' }}
-            />
-            <div
-              className="absolute inset-0 opacity-10 z-10 pointer-events-none"
-              style={{
-                backgroundImage:
-                  'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)',
-                backgroundSize: '20px 20px',
-              }}
+        {/* Scrollable body */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          {/* Image */}
+          <div className="relative w-full aspect-[4/3] border-b border-[var(--editorial-gray-dark,#333)]">
+            <Image
+              src={event.image}
+              alt={event.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, 36rem"
+              priority={false}
             />
           </div>
 
-          {/* Content Section */}
-          <div className="p-4 sm:p-6 relative">
-            {/* Corner Accents */}
-            <div className="absolute top-4 right-4 sm:top-6 sm:right-6 w-3 h-3 border-t border-r border-neutral-600 pointer-events-none" />
-            <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 w-3 h-3 border-b border-l border-neutral-600 pointer-events-none" />
-
-            <h2
-              id="event-details-title"
-              className="font-orbitron font-bold text-xl sm:text-2xl text-neutral-300 uppercase tracking-tight mb-3 sm:mb-4 leading-tight"
-            >
-              {event.name}
-            </h2>
-
-            {/* Decorative Divider */}
-            <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
-              <div className="h-[1px] flex-1 bg-neutral-800" />
-              <div className="flex gap-1">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="w-1 h-1 rounded-full bg-neutral-600" />
-                ))}
-              </div>
-              <div className="h-[1px] flex-1 bg-neutral-800" />
-            </div>
-
-            {description && (
-              <div className="max-h-[35vh] sm:max-h-[200px] overflow-y-auto pr-2 -webkit-overflow-scrolling-touch">
-                <p className="text-neutral-400 text-sm leading-relaxed">{description}</p>
-              </div>
+          {/* Content */}
+          <div className="p-4 sm:p-6">
+            <SectionLabel className="text-[var(--editorial-gray-muted,#999)] mb-3 block">
+              ABOUT
+            </SectionLabel>
+            {description ? (
+              <p className="text-[var(--editorial-gray,#E5E5E5)] text-sm leading-relaxed whitespace-pre-line">
+                {description}
+              </p>
+            ) : (
+              <p className="text-[var(--editorial-gray-muted,#666)] text-sm italic">
+                No description available.
+              </p>
             )}
 
-            {/* Decorative Tech Elements */}
-            <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-neutral-800 flex flex-wrap justify-between items-end gap-2">
-              <div className="grid grid-cols-4 gap-1">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      'w-1 h-1 rounded-full',
-                      i < 3 ? 'bg-neutral-400' : 'bg-neutral-800'
-                    )}
-                  />
-                ))}
-              </div>
-              <div className="h-1 bg-neutral-800 flex-1 mx-2 sm:mx-4 rounded-sm relative min-w-[60px] max-w-[120px]">
-                <div className="absolute left-0 top-0 h-full w-2/3 bg-neutral-600" />
-              </div>
-              <div className="text-[8px] font-bold text-neutral-600 font-orbitron uppercase tracking-widest shrink-0">
-                Status: Active
-              </div>
+            {/* CTAs */}
+            <div className="mt-6 pt-4 border-t border-[var(--editorial-gray-dark,#333)] flex flex-col sm:flex-row gap-2">
+              <Link
+                href={registerHref}
+                className={cn(
+                  'flex-1 py-3 px-4 text-center',
+                  'font-editorial text-xs font-semibold uppercase tracking-wider',
+                  'bg-[var(--editorial-blue,#0047FF)] text-white',
+                  'transition-opacity hover:opacity-90',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--editorial-blue,#0047FF)] focus-visible:ring-offset-2 focus-visible:ring-offset-black'
+                )}
+              >
+                REGISTER
+              </Link>
+              <button
+                type="button"
+                onClick={handleClose}
+                className={cn(
+                  'py-3 px-4',
+                  'font-editorial text-xs font-semibold uppercase tracking-wider',
+                  'border border-[var(--editorial-gray-dark,#555)] text-[var(--editorial-white,#FFF)]',
+                  'transition-colors hover:border-[var(--editorial-blue,#0047FF)] hover:text-[var(--editorial-blue,#0047FF)]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--editorial-blue,#0047FF)] focus-visible:ring-offset-2 focus-visible:ring-offset-black'
+                )}
+              >
+                CLOSE
+              </button>
             </div>
-          </div>
-
-          {/* --- Bottom Tech Border Strip --- */}
-          <div className="h-6 w-full flex items-center justify-between px-3 sm:px-2 border-t border-neutral-700 bg-[#151515]">
-            <X size={10} className="text-neutral-500" />
-            <div className="flex gap-2 sm:gap-4 text-[8px] tracking-[0.2em] text-neutral-600 uppercase font-bold font-orbitron min-w-0 overflow-hidden">
-              <span className="truncate">Data Link Secured</span>
-            </div>
-            <X size={10} className="text-neutral-500" />
           </div>
         </div>
       </div>

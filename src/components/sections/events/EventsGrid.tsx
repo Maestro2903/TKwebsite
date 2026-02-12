@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, memo } from 'react';
 import { useGSAP } from '@/hooks/useGSAP';
-import EventCard from './EventCard';
+import EditorialEventCard from './EditorialEventCard';
 import type { EventItem } from '@/data/events';
 
 interface EventsGridProps {
@@ -17,18 +17,22 @@ function EventsGrid({ events, category }: EventsGridProps) {
   useEffect(() => {
     if (!gridRef.current || isLoading || !gsapModules) return;
 
-    const { gsap, ScrollTrigger } = gsapModules;
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const { gsap } = gsapModules;
     const cards = gridRef.current.querySelectorAll('.event-card');
     const ctx = gsap.context(() => {
       gsap.fromTo(
         cards,
-        { opacity: 0, y: 20 },
+        { opacity: 0, y: prefersReducedMotion ? 0 : 20 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
+          duration: prefersReducedMotion ? 0.01 : 0.8,
           ease: 'power3.out',
-          stagger: 0.1,
+          stagger: prefersReducedMotion ? 0 : 0.1,
           scrollTrigger: {
             trigger: gridRef.current,
             start: 'top 80%',
@@ -50,15 +54,20 @@ function EventsGrid({ events, category }: EventsGridProps) {
       id={id}
       role="tabpanel"
       aria-labelledby={ariaLabelledBy}
-      className="events-grid u-container"
+      className="events-grid events-grid--editorial u-container"
     >
       {events.length === 0 ? (
-        <p className="events-grid__empty" style={{ gridColumn: '1 / -1', opacity: 0.6, textAlign: 'center', padding: '3rem 1rem' }}>
-          No technical events at the moment. Check back soon.
+        <p
+          className="events-grid__empty"
+          role="status"
+          aria-live="polite"
+          style={{ gridColumn: '1 / -1', opacity: 0.6, textAlign: 'center', padding: '3rem 1rem' }}
+        >
+          No {category === 'non-technical' ? 'non-technical' : 'technical'} events at the moment. Check back soon.
         </p>
       ) : (
-        events.map((event) => (
-          <EventCard key={event.id} event={event} />
+        events.map((event, index) => (
+          <EditorialEventCard key={event.id} event={event} index={index} />
         ))
       )}
     </div>

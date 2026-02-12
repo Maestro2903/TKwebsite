@@ -32,6 +32,49 @@
   --nav-item-padding-x: 1.25rem;
   /* Equal spacing between all navbar items */
   --nav-item-gap: 1.5rem;
+
+  /* Editorial events page palette */
+  --editorial-black: #000000;
+  --editorial-white: #FFFFFF;
+  --editorial-gray: #E5E5E5;
+  --editorial-gray-muted: #CCCCCC;
+  --editorial-gray-dark: #333333;
+  --editorial-blue: #0047FF;
+}
+
+/* Editorial typography - Space Grotesk */
+.font-editorial {
+  font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Halftone / dithered image effect - monochrome print-like */
+.halftone-image {
+  filter: grayscale(100%) contrast(1.35) brightness(1.05);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Editorial card base */
+.editorial-card {
+  background: var(--editorial-black);
+  border: 1px solid var(--editorial-gray-dark);
+}
+
+/* Editorial title - bold uppercase headlines */
+.editorial-title {
+  font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+/* Editorial label - small metadata */
+.editorial-label {
+  font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
 }
 
 /* Custom font-face for Interdisplay - uses locally installed Inter or fallback */
@@ -3281,6 +3324,14 @@ html {
   }
 }
 
+/* Enhanced category switch for very small mobile */
+@media screen and (max-width: 479px) {
+  .events-category-switch button[role="tab"] {
+    touch-action: manipulation;
+    min-height: 44px;
+  }
+}
+
 /* Events page: clear fixed nav, tab bar flush under nav */
 .page_main--events {
   padding-top: calc(var(--nav-height, 85px) + env(safe-area-inset-top, 0px));
@@ -3331,10 +3382,33 @@ html {
 .events-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--site--gutter);
+  gap: var(--_spacing---space--5);
   align-items: stretch;
   width: 100%;
   min-width: 0;
+  padding-bottom: var(--_spacing---space--6);
+}
+
+.events-content-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.events-content-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.8) 45%,
+      rgba(0, 0, 0, 0.95) 100%);
+}
+
+.events-content-shell>* {
+  position: relative;
+  z-index: 1;
 }
 
 @media screen and (max-width: 767px) {
@@ -3346,13 +3420,40 @@ html {
 @media screen and (min-width: 768px) {
   .events-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: var(--_spacing---space--6);
   }
 }
 
 @media screen and (min-width: 992px) {
   .events-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 1.75rem;
   }
+}
+
+@media screen and (min-width: 1400px) {
+  .events-grid {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Editorial events page - solid black, no gradient overlay */
+.page_main--events-editorial .events-content-shell::before {
+  background: transparent;
+}
+
+/* Editorial events grid - uniform cards, poster proportions */
+.events-grid--editorial {
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+}
+
+/* Editorial empty state */
+.events-grid--editorial .events-grid__empty {
+  color: var(--editorial-gray-muted, #999);
 }
 
 /* Event card: flex column, natural height, no overflow clipping */
@@ -3363,6 +3464,32 @@ html {
   background: #000;
   overflow: visible;
   min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.4s ease, border-color 0.4s ease;
+}
+
+@media (hover: hover) and (min-width: 992px) {
+  .event-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  /* Editorial cards: no lift, only border accent */
+  .editorial-event-card:hover {
+    transform: none;
+  }
+}
+
+/* Ensure Editorial Event Card buttons and links share identical typography */
+.editorial-event-card a,
+.editorial-event-card button {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Events page: SciFiCard image area — no padding so image fills fully on all screen sizes */
@@ -3373,13 +3500,17 @@ html {
 
 /* Image wrapper: overflow hidden ONLY here; no border to avoid grey bar */
 .event-card__image {
-  aspect-ratio: 756 / 430;
+  aspect-ratio: 3 / 4;
   width: 100%;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
   border: none;
   isolation: isolate;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Ensure Next/Image fill and any wrapper fully cover the container (fixes grey bar) */
@@ -3393,12 +3524,20 @@ html {
 .event-card__image img {
   object-fit: cover;
   object-position: center;
-  transition: transform 0.735s cubic-bezier(0.625, 0.05, 0, 1);
+  transition: opacity 0.4s ease;
 }
 
-@media (hover: hover) {
-  .event-card:hover .event-card__image img {
-    transform: scale(1.05);
+@media (max-width: 767px) {
+  .event-card__image {
+    aspect-ratio: 4 / 5;
+  }
+
+  .event-content {
+    padding: 0.75rem;
+  }
+
+  .event-cta {
+    margin-top: 1rem;
   }
 }
 
@@ -3406,23 +3545,61 @@ html {
 .event-content {
   display: flex;
   flex-direction: column;
-  gap: var(--_spacing---space--4);
-  padding: var(--_spacing---space--5);
+  gap: var(--_spacing---space--3);
+  padding: var(--_spacing---space--4);
   flex: 1;
   min-height: 0;
   overflow: visible;
 }
 
 .event-cta {
-  margin-top: auto;
+  margin-top: 1.25rem;
   display: flex;
+  flex-direction: row;
+  gap: 1rem;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
 }
 
-.event-cta>a {
-  width: auto;
-  max-width: min(260px, 100%);
+/* Ensure CTA baseline alignment across cards (fixed CTA region) */
+.event-cta-zone {
+  --event-cta-gap: 1rem;
+  gap: var(--event-cta-gap);
+  min-height: 50px;
+}
+
+.event-content__description {
+  /* Keeps cards feeling intentional with variable copy length */
+  text-wrap: pretty;
+}
+
+.event-cta>a,
+.event-cta>button {
+  width: 100%;
+  max-width: 100%;
+}
+
+.event-cta__primary {
+  width: 100%;
+}
+
+.event-cta__secondary {
+  width: 100%;
+  opacity: 0.82;
+}
+
+.event-cta .award-badge-simple.event-cta__primary,
+.event-cta .award-badge-simple.event-cta__secondary {
+  width: 100%;
+  max-width: 100% !important;
+}
+
+.event-cta__secondary .award-badge-simple__bg svg {
+  filter: grayscale(0.35) brightness(0.9);
+}
+
+.event-card .sci-fi-card__title {
+  margin: 0;
 }
 
 .event-content__title {
@@ -5019,6 +5196,15 @@ html {
 
   .pixel-card {
     background: rgba(255, 255, 255, 0.03);
+  }
+
+  /* Events page: disable hover transforms */
+  .event-card:hover {
+    transform: none !important;
+  }
+
+  .event-card__image img {
+    transform: none !important;
   }
 }
 
