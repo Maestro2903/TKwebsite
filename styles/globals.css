@@ -17,8 +17,8 @@
   --_spacing---space--5: clamp(1.75*1rem, ((1.75 - ((2 - 1.75)/(var(--site--viewport-max) - var(--site--viewport-min))*var(--site--viewport-min)))*1rem + ((2 - 1.75)/(var(--site--viewport-max) - var(--site--viewport-min)))*100vw), 2*1rem);
   --_spacing---space--6: clamp(2*1rem, ((2 - ((2.5 - 2)/(var(--site--viewport-max) - var(--site--viewport-min))*var(--site--viewport-min)))*1rem + ((2.5 - 2)/(var(--site--viewport-max) - var(--site--viewport-min)))*100vw), 2.5*1rem);
   --_spacing---space--7: clamp(2.25*1rem, ((2.25 - ((3 - 2.25)/(var(--site--viewport-max) - var(--site--viewport-min))*var(--site--viewport-min)))*1rem + ((3 - 2.25)/(var(--site--viewport-max) - var(--site--viewport-min)))*100vw), 3*1rem);
-  --_typography---font--primary-family: Interdisplay, Arial, sans-serif;
-  --_typography---font--display-family: 'MADE Kenfolg', Interdisplay, Arial, sans-serif;
+  --_typography---font--primary-family: 'Trebuchet MS', Interdisplay, Arial, sans-serif;
+  --_typography---font--display-family: 'Akira', 'MADE Kenfolg', Interdisplay, Arial, sans-serif;
   --_typography---font--primary-regular: 400;
   --_typography---font--primary-medium: 500;
   --_typography---font--primary-bold: 700;
@@ -89,6 +89,16 @@
   font-family: 'MADE Kenfolg';
   src: local('MADE Kenfolg'),
     url(/assets/fonts/MADEKenfolg.otf) format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Akira – bold display heading font */
+@font-face {
+  font-family: 'Akira';
+  src: local('Akira Expanded'),
+    url(/assets/fonts/Akira.otf) format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -6618,6 +6628,7 @@ html {
   min-height: 100vh;
 }
 
+/* Profile page – Y2K override: move hero + form up */
 .registration-hero-v2 {
   min-height: 28vh;
   background-color: #000;
@@ -6653,6 +6664,93 @@ html {
   letter-spacing: 0.15em;
   margin: 0;
   color: #fff;
+}
+
+/* --- Profile page Y2K overrides --- */
+.page_main--profile .registration-hero-v2 {
+  min-height: 18vh;
+  padding-top: calc(var(--nav-height, 64px) + 0.75rem);
+  padding-bottom: 0;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.page_main--profile .registration-hero-v2__title {
+  font-family: 'Akira', var(--_typography---font--display-family);
+  font-size: clamp(1.75rem, 5vw, 3.5rem);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(
+    180deg,
+    #e0e8f0 0%,
+    #8ab4d6 30%,
+    #ffffff 50%,
+    #6a9ec0 70%,
+    #c0d8e8 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.page_main--profile .registration-hero-v2__subtext {
+  font-family: 'Trebuchet MS', var(--_typography---font--primary-family);
+  color: rgba(120, 170, 210, 0.6);
+  letter-spacing: 0.12em;
+}
+
+.page_main--profile .eyebrow_text {
+  font-family: 'Akira', var(--_typography---font--display-family);
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+}
+
+/* Profile page background – dark with subtle Y2K mesh */
+.page_main--profile {
+  background: #050a12;
+  position: relative;
+  overflow: hidden;
+}
+
+.page_main--profile::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 50% 50% at 25% 30%, rgba(12, 61, 110, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 45% 45% at 70% 60%, rgba(30, 58, 138, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 55% 50% at 50% 80%, rgba(59, 40, 130, 0.10) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  animation: auth-mesh-drift 12s ease-in-out infinite alternate;
+}
+
+/* Y2K scanlines on profile page */
+.page_main--profile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.012) 2px,
+    rgba(255, 255, 255, 0.012) 4px
+  );
+  mix-blend-mode: overlay;
+}
+
+/* Make all profile content above the bg effects */
+.page_main--profile > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* =================================================================
@@ -7512,15 +7610,46 @@ html {
 
 /* Profile Form V2 */
 .registration-profile-v2 {
-  max-width: 480px;
+  max-width: 440px;
   margin: 0 auto;
-  padding: var(--_spacing---section-space--main) 0;
+  padding: 1.5rem 0 var(--_spacing---section-space--main);
 }
 
 .registration-profile-v2__form {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 2rem;
+  background: rgba(10, 18, 32, 0.85);
+  border: 1px solid rgba(59, 143, 212, 0.15);
+  border-radius: 2px;
+  padding: 2.5rem 2rem 2rem;
+  position: relative;
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    0 1px 0 rgba(59, 143, 212, 0.08) inset;
+}
+
+/* Y2K corner accents on form */
+.registration-profile-v2__form::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 20px;
+  height: 20px;
+  border-top: 2px solid rgba(59, 143, 212, 0.35);
+  border-left: 2px solid rgba(59, 143, 212, 0.35);
+  pointer-events: none;
+}
+
+.registration-profile-v2__form::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 20px;
+  height: 20px;
+  border-bottom: 2px solid rgba(59, 143, 212, 0.35);
+  border-right: 2px solid rgba(59, 143, 212, 0.35);
+  pointer-events: none;
 }
 
 .registration-profile-v2__field {
@@ -7529,39 +7658,48 @@ html {
 
 .registration-profile-v2__label {
   display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-family: 'Akira', var(--_typography---font--display-family);
+  font-size: 0.55rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 0.625rem;
+  letter-spacing: 0.15em;
+  color: rgba(59, 143, 212, 0.7);
+  margin-bottom: 0.5rem;
 }
 
+/* Y2K pill-shaped inputs with rounded borders (inspired by reference) */
 .registration-profile-v2__input {
   width: 100%;
-  padding: 1rem 1.25rem;
-  font-family: var(--_typography---font--primary-family);
-  font-size: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.3);
+  padding: 0.875rem 1.5rem;
+  font-family: 'Trebuchet MS', var(--_typography---font--primary-family);
+  font-size: 0.9375rem;
+  border: 2px solid rgba(59, 143, 212, 0.2);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.4);
   color: #fff;
-  transition: border-color 0.3s ease, background 0.3s ease;
+  letter-spacing: 0.02em;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  box-sizing: border-box;
 }
 
 .registration-profile-v2__input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.25);
+  font-style: italic;
 }
 
 .registration-profile-v2__input:focus {
   outline: none;
-  border-color: rgba(243, 227, 172, 0.5);
-  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(59, 143, 212, 0.5);
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow:
+    0 0 0 3px rgba(30, 109, 171, 0.12),
+    0 0 12px rgba(30, 109, 171, 0.1);
 }
 
 .registration-profile-v2__cta {
   display: flex;
   justify-content: center;
-  padding-top: 0.5rem;
+  padding-top: 1rem;
 }
 
 /* Sign In State V2 */
@@ -7735,6 +7873,57 @@ html {
   min-height: 100vh;
   background: #0a0a0a;
   border-left: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+/* Mesh Gradient Background – deep blue blobs behind form */
+.auth-right-panel::before {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 55% 55% at 20% 30%, rgba(12, 61, 110, 0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 75% 25%, rgba(30, 58, 138, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 45% at 60% 75%, rgba(59, 40, 130, 0.14) 0%, transparent 70%),
+    radial-gradient(ellipse 45% 55% at 30% 80%, rgba(8, 80, 120, 0.12) 0%, transparent 70%);
+  animation: auth-mesh-drift 12s ease-in-out infinite alternate;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+/* Second layer – offset timing for organic movement */
+.auth-right-panel::after {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 40% 50% at 70% 40%, rgba(12, 61, 110, 0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 55% 40% at 25% 60%, rgba(59, 40, 130, 0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 50% 20%, rgba(30, 58, 138, 0.08) 0%, transparent 70%);
+  animation: auth-mesh-drift-reverse 15s ease-in-out infinite alternate;
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+/* All right-panel content above the mesh */
+.auth-right-panel > *:not(.auth-right-bg):not(.auth-right-overlay) {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes auth-mesh-drift {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33%  { transform: translate(5%, -3%) rotate(3deg) scale(1.05); }
+  66%  { transform: translate(-4%, 5%) rotate(-2deg) scale(0.97); }
+  100% { transform: translate(3%, 2%) rotate(1deg) scale(1.02); }
+}
+
+@keyframes auth-mesh-drift-reverse {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+  50%  { transform: translate(-5%, 4%) rotate(-3deg) scale(1.04); }
+  100% { transform: translate(4%, -3%) rotate(2deg) scale(0.98); }
 }
 
 /* Mobile only: parallax image as background */
@@ -8100,11 +8289,11 @@ html {
 }
 
 .auth-footer-link {
-  color: rgba(243, 227, 172, 0.9);
+  color: rgba(59, 143, 212, 0.9);
   text-decoration: underline;
   text-underline-offset: 3px;
   font-weight: 500;
-  transition: color 0.2s ease;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
   background: none;
   background-color: transparent;
   box-shadow: none;
@@ -8113,8 +8302,380 @@ html {
 }
 
 .auth-footer-link:hover {
-  color: rgba(243, 227, 172, 1);
-}/* Glowing Interactive Dots Grid Styles */
+  color: rgba(59, 143, 212, 1);
+  text-shadow: 0 0 8px rgba(30, 109, 171, 0.5);
+}
+
+/* =================================================================
+   LOGIN PAGE – Right Panel Akira Font + Light-Blue CTA Button
+   ================================================================= */
+
+/* Right panel: use Akira for all headings */
+.auth-right-panel .auth-title {
+  font-family: 'Akira', var(--_typography---font--display-family);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.auth-right-panel .auth-subtitle {
+  font-family: 'Trebuchet MS', var(--_typography---font--primary-family);
+  letter-spacing: 0.02em;
+}
+
+.auth-right-panel .auth-logo-text {
+  font-family: 'Akira', var(--_typography---font--display-family);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.95rem;
+}
+
+.auth-right-panel .auth-footer-text,
+.auth-right-panel .auth-footer-link {
+  font-family: 'Trebuchet MS', var(--_typography---font--primary-family);
+}
+
+/* =================================================================
+   Y2K AESTHETIC – Scanlines, Chrome Text, Stars, Angular Borders
+   ================================================================= */
+
+/* Scanline overlay on the right panel */
+.auth-y2k-scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.015) 2px,
+    rgba(255, 255, 255, 0.015) 4px
+  );
+  mix-blend-mode: overlay;
+}
+
+/* Chrome / metallic heading effect */
+.auth-right-panel .auth-title {
+  background: linear-gradient(
+    180deg,
+    #e0e8f0 0%,
+    #8ab4d6 30%,
+    #ffffff 50%,
+    #6a9ec0 70%,
+    #c0d8e8 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+
+/* Subtitle: muted blue */
+.auth-right-panel .auth-subtitle {
+  color: rgba(120, 170, 210, 0.6);
+}
+
+/* Y2K star sparkles - decorative elements */
+.auth-y2k-star {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  color: rgba(59, 143, 212, 0.35);
+  animation: y2k-star-pulse 3s ease-in-out infinite;
+}
+
+.auth-y2k-star--1 {
+  top: 12%;
+  right: 8%;
+  font-size: 1.2rem;
+  animation-delay: 0s;
+}
+
+.auth-y2k-star--2 {
+  bottom: 18%;
+  left: 10%;
+  font-size: 0.9rem;
+  animation-delay: 1s;
+}
+
+.auth-y2k-star--3 {
+  top: 35%;
+  left: 6%;
+  font-size: 0.7rem;
+  animation-delay: 2s;
+}
+
+.auth-y2k-star--4 {
+  bottom: 30%;
+  right: 12%;
+  font-size: 1rem;
+  animation-delay: 0.5s;
+}
+
+@keyframes y2k-star-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
+  50%      { opacity: 1;   transform: scale(1.3) rotate(90deg); }
+}
+
+/* Y2K angular corner accents on the form container */
+.auth-form-container {
+  position: relative;
+}
+
+.auth-form-container::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 24px;
+  height: 24px;
+  border-top: 2px solid rgba(59, 143, 212, 0.3);
+  border-left: 2px solid rgba(59, 143, 212, 0.3);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.auth-form-container::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 24px;
+  height: 24px;
+  border-bottom: 2px solid rgba(59, 143, 212, 0.3);
+  border-right: 2px solid rgba(59, 143, 212, 0.3);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Thin horizontal rule above the footer */
+.auth-y2k-divider {
+  width: 60%;
+  max-width: 200px;
+  height: 1px;
+  margin: 0.5rem auto 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(59, 143, 212, 0.3) 30%,
+    rgba(59, 143, 212, 0.5) 50%,
+    rgba(59, 143, 212, 0.3) 70%,
+    transparent 100%
+  );
+  border: none;
+}
+
+/* Y2K-style small label above the title */
+.auth-y2k-label {
+  display: inline-block;
+  font-family: 'Akira', var(--_typography---font--display-family);
+  font-size: 0.45rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(59, 143, 212, 0.6);
+  border: 1px solid rgba(59, 143, 212, 0.2);
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Mobile: hide some stars for less clutter */
+@media screen and (max-width: 479px) {
+  .auth-y2k-star--3,
+  .auth-y2k-star--4 {
+    display: none;
+  }
+
+  .auth-form-container::before,
+  .auth-form-container::after {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* ---------- Dark-Blue CTA Button ---------- */
+.login-cta-btn {
+  --btn-blue: #1e6dab;
+  --btn-blue-light: #3b8fd4;
+  --btn-blue-dark: #0c3d6e;
+  --btn-glow: rgba(30, 109, 171, 0.4);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 320px;
+  height: 56px;
+  padding: 0 2rem;
+  font-family: 'Akira', var(--_typography---font--display-family);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* All decorative children – don't block clicks */
+.login-cta-btn__bg,
+.login-cta-btn__glitch,
+.login-cta-btn__border {
+  pointer-events: none;
+}
+
+/* Animated gradient background */
+.login-cta-btn__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(
+    135deg,
+    var(--btn-blue-dark) 0%,
+    var(--btn-blue) 40%,
+    var(--btn-blue-light) 70%,
+    var(--btn-blue) 100%
+  );
+  background-size: 250% 250%;
+  animation: login-btn-shimmer 4s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+/* Glitch / duplicate text layer (visible on hover) */
+.login-cta-btn__glitch {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--btn-blue-light);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.login-cta-btn__glitch::before {
+  content: attr(data-text);
+}
+
+/* Text */
+.login-cta-btn__text {
+  position: relative;
+  z-index: 3;
+  transition: text-shadow 0.3s ease;
+}
+
+/* Animated border overlay */
+.login-cta-btn__border {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  pointer-events: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Loading state */
+.login-cta-btn__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.login-cta-btn__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: auth-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ---- Hover Effects ---- */
+.login-cta-btn:hover:not(:disabled) {
+  transform: scale(1.03);
+}
+
+.login-cta-btn:hover:not(:disabled) .login-cta-btn__bg {
+  animation: login-btn-shimmer 1.5s ease-in-out infinite;
+  filter: brightness(1.15);
+}
+
+.login-cta-btn:hover:not(:disabled) .login-cta-btn__border {
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 0 18px var(--btn-glow),
+    0 0 48px rgba(56, 189, 248, 0.2),
+    inset 0 0 12px rgba(56, 189, 248, 0.1);
+}
+
+.login-cta-btn:hover:not(:disabled) .login-cta-btn__text {
+  text-shadow:
+    0 0 8px var(--btn-glow),
+    0 0 20px rgba(56, 189, 248, 0.3);
+}
+
+/* Glitch flash on hover */
+.login-cta-btn:hover:not(:disabled) .login-cta-btn__glitch {
+  animation: login-glitch-flash 0.35s steps(2) 0.1s 1 forwards;
+}
+
+/* ---- Active / Press ---- */
+.login-cta-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* ---- Disabled ---- */
+.login-cta-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: saturate(0.5);
+}
+
+/* ---- Focus-Visible ---- */
+.login-cta-btn:focus-visible {
+  outline: 2px solid var(--btn-blue);
+  outline-offset: 3px;
+}
+
+/* ---- Keyframes ---- */
+@keyframes login-btn-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+@keyframes login-glitch-flash {
+  0%   { opacity: 0;   transform: translate(0, 0); }
+  25%  { opacity: 0.7; transform: translate(-3px, 1px); }
+  50%  { opacity: 0;   transform: translate(3px, -1px); }
+  75%  { opacity: 0.5; transform: translate(-1px, 2px); }
+  100% { opacity: 0;   transform: translate(0, 0); }
+}
+
+/* Responsive: smaller button text on mobile */
+@media screen and (max-width: 479px) {
+  .login-cta-btn {
+    font-size: 0.6rem;
+    height: 50px;
+    padding: 0 1.25rem;
+    max-width: 280px;
+  }
+}
+
+/* Glowing Interactive Dots Grid Styles */
 .glowing-dots-grid {
     position: absolute;
     top: 0;

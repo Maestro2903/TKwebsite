@@ -4,7 +4,6 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Navigation from '@/components/layout/Navigation';
-import { AwardBadge } from '@/components/decorative/AwardBadge';
 
 export default function LoginPage() {
   const { signIn, user, loading } = useAuth();
@@ -110,6 +109,13 @@ export default function LoginPage() {
 
           {/* Right Panel - Auth Form */}
           <div className="auth-right-panel">
+            {/* Y2K scanline overlay */}
+            <div className="auth-y2k-scanlines" aria-hidden />
+            {/* Y2K star sparkles */}
+            <span className="auth-y2k-star auth-y2k-star--1" aria-hidden>✦</span>
+            <span className="auth-y2k-star auth-y2k-star--2" aria-hidden>✦</span>
+            <span className="auth-y2k-star auth-y2k-star--3" aria-hidden>✧</span>
+            <span className="auth-y2k-star auth-y2k-star--4" aria-hidden>✦</span>
             {/* Mobile: background image (hidden on desktop) */}
             <div
               className="auth-right-bg"
@@ -138,22 +144,30 @@ export default function LoginPage() {
               {/* Auth Form */}
               <div className="auth-form">
                 <div className="auth-form-fields items-center">
-                  <div className="w-full max-w-[260px]">
-                    <AwardBadge type="button" onClick={handleGoogleSignIn} disabled={signingIn}>
+                  <button
+                    className="login-cta-btn"
+                    onClick={handleGoogleSignIn}
+                    disabled={signingIn}
+                  >
+                    <span className="login-cta-btn__bg" />
+                    <span className="login-cta-btn__glitch" data-text={signingIn ? "SIGNING IN..." : "SIGN IN WITH GOOGLE"} />
+                    <span className="login-cta-btn__text">
                       {signingIn ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="reg-spinner w-4 h-4 border-2 border-white/30 border-t-white" />
-                          <span>SIGNING IN...</span>
-                        </div>
+                        <span className="login-cta-btn__loading">
+                          <span className="login-cta-btn__spinner" />
+                          SIGNING IN...
+                        </span>
                       ) : (
                         "SIGN IN WITH GOOGLE"
                       )}
-                    </AwardBadge>
-                  </div>
+                    </span>
+                    <span className="login-cta-btn__border" />
+                  </button>
                 </div>
               </div>
 
               {/* Register Link */}
+              <hr className="auth-y2k-divider" />
               <div className="auth-footer">
                 <p className="auth-footer-text">
                   Don&apos;t have an account?{' '}

@@ -48,9 +48,9 @@ export default function AboutSection() {
       if (parallaxBgRef.current) {
         gsap.fromTo(
           parallaxBgRef.current.querySelector(".parallax-img"),
-          { y: "0%" },
+          { y: "10%" },
           {
-            y: "20%",
+            y: "-40%",
             ease: "none",
             scrollTrigger: {
               trigger: parallaxBgRef.current,
@@ -239,11 +239,17 @@ export default function AboutSection() {
             alt=""
             sizes="100vw"
             className="parallax-img"
-            style={{ objectPosition: "top" }}
+            style={{ objectPosition: "center" }}
           />
         </div>
 
-        <div className="parallax-demo-row u-container pb-32 pt-32 md:pb-48 md:pt-48 lg:pb-56 lg:pt-56">
+        {/* Dark blur overlay for readability */}
+        <div
+          className="absolute inset-0 z-[1] backdrop-blur-sm"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.01)" }}
+        />
+
+        <div className="parallax-demo-row u-container relative z-[2] pb-16 pt-16 md:pb-24 md:pt-24 lg:pb-32 lg:pt-32">
           {/* Card 1: 50+ */}
           <div className="parallax-demo-row__third">
             <div
@@ -254,12 +260,13 @@ export default function AboutSection() {
               data-parallax-start="0"
               className="parallax-demo-card"
             >
-              <div className="flex h-full flex-col items-center justify-center text-center">
-                <div className="mb-4 text-7xl font-black leading-none md:text-8xl lg:text-9xl">
+              <div className="flex h-full flex-col items-center justify-center text-center px-4">
+                <div className="mb-3 text-4xl font-black leading-none sm:text-5xl md:text-6xl lg:text-7xl">
                   50+
                 </div>
-                <div className="text-lg font-semibold text-neutral-700 md:text-xl dark:text-neutral-300">
-                  Technical &amp; Non-Technical Events
+                <div className="text-sm font-semibold text-neutral-700 sm:text-base md:text-lg lg:text-xl dark:text-neutral-300 max-w-32 sm:max-w-40 md:max-w-48 leading-tight">
+                  <div>Technical &amp;</div>
+                  <div>Non-Technical Events</div>
                 </div>
               </div>
             </div>
@@ -275,12 +282,13 @@ export default function AboutSection() {
               data-parallax-end="0"
               className="parallax-demo-card"
             >
-              <div className="flex h-full flex-col items-center justify-center text-center">
-                <div className="mb-4 text-7xl font-black leading-none md:text-8xl lg:text-9xl">
+              <div className="flex h-full flex-col items-center justify-center text-center px-4">
+                <div className="mb-3 text-4xl font-black leading-none sm:text-5xl md:text-6xl lg:text-7xl">
                   15K+
                 </div>
-                <div className="text-lg font-semibold text-neutral-700 md:text-xl dark:text-neutral-300">
-                  Students &amp; Attendees from across India
+                <div className="text-sm font-semibold text-neutral-700 sm:text-base md:text-lg lg:text-xl dark:text-neutral-300 max-w-32 sm:max-w-40 md:max-w-48 leading-tight">
+                  <div>Students &amp; Attendees</div>
+                  <div>from across India</div>
                 </div>
               </div>
             </div>
@@ -296,12 +304,13 @@ export default function AboutSection() {
               data-parallax-end="0"
               className="parallax-demo-card"
             >
-              <div className="flex h-full flex-col items-center justify-center text-center">
-                <div className="mb-4 text-7xl font-black leading-none md:text-8xl lg:text-9xl">
+              <div className="flex h-full flex-col items-center justify-center text-center px-4">
+                <div className="mb-3 text-4xl font-black leading-none sm:text-5xl md:text-6xl lg:text-7xl">
                   ₹20L+
                 </div>
-                <div className="text-lg font-semibold text-neutral-700 md:text-xl dark:text-neutral-300">
-                  Total Prize Pool &amp; Awards
+                <div className="text-sm font-semibold text-neutral-700 sm:text-base md:text-lg lg:text-xl dark:text-neutral-300 max-w-32 sm:max-w-40 md:max-w-48 leading-tight">
+                  <div>Total Prize Pool</div>
+                  <div>&amp; Awards</div>
                 </div>
               </div>
             </div>
