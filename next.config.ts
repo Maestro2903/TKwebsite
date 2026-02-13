@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Disable Strict Mode – React 19 double-mounts break WebGL contexts
+  // (R3F Canvas creates a GL context on mount, strict-mode teardown invalidates it,
+  //  remount gets the same dead context → "Context Lost")
+  reactStrictMode: false,
   experimental: {
     serverComponentsHmrCache: false,
   },

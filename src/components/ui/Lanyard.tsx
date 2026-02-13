@@ -28,15 +28,252 @@ interface LanyardProps {
   gravity?: [number, number, number];
   fov?: number;
   transparent?: boolean;
+  /** Data-URL or URL of the QR code image to render on the card face */
+  qrCode?: string | null;
+  /** User's display name rendered on the card */
+  userName?: string;
+  /** User's college rendered on the card */
+  college?: string;
+  /** Pass type label rendered on the card */
+  passType?: string;
+}
+
+// ── roundRect polyfill for older browsers ──
+function drawRoundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number, w: number, h: number, r: number
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+/**
+ * Generates the card-face artwork as a PNG data-URL.
+ * Runs entirely in normal DOM context (outside R3F Canvas).
+ */
+function generateCardFaceDataUrl(
+  qrCode: string,
+  userName?: string,
+  college?: string,
+  passType?: string
+): Promise<string> {
+  return new Promise((resolve) => {
+    // ── Texture dimensions (power-of-2 for GPU) ──
+    const TEX = 1024;
+    const canvas = document.createElement('canvas');
+    canvas.width = TEX;
+    canvas.height = TEX;
+    const ctx = canvas.getContext('2d')!;
+
+    // ── card.glb UV mapping ──
+    // Front face UVs: U [0.011, 0.489], V [0.0105, 0.748]
+    // So the front face occupies the LEFT HALF, top 75% of the texture.
+    const FX = Math.round(0.011 * TEX);   // ~11
+    const FY = Math.round(0.0105 * TEX);  // ~11
+    const FW = Math.round((0.489 - 0.011) * TEX); // ~490
+    const FH = Math.round((0.748 - 0.0105) * TEX); // ~755
+    const CX = FX + FW / 2; // center X of front face
+
+    const draw = (qrImg?: HTMLImageElement) => {
+      // Fill entire texture black
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, TEX, TEX);
+
+      // ── Front face background ──
+      const bgGrad = ctx.createLinearGradient(FX, FY, FX, FY + FH);
+      bgGrad.addColorStop(0, '#111111');
+      bgGrad.addColorStop(0.5, '#0a0a0a');
+      bgGrad.addColorStop(1, '#111111');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(FX, FY, FW, FH);
+
+      // Top accent bar
+      const accentGrad = ctx.createLinearGradient(FX, 0, FX + FW, 0);
+      accentGrad.addColorStop(0, 'rgba(0,0,0,0)');
+      accentGrad.addColorStop(0.3, '#3b82f6');
+      accentGrad.addColorStop(0.5, '#8b5cf6');
+      accentGrad.addColorStop(0.7, '#3b82f6');
+      accentGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = accentGrad;
+      ctx.fillRect(FX, FY, FW, 6);
+
+      // ── Hole punch ──
+      ctx.beginPath();
+      ctx.arc(CX, FY + 35, 12, 0, Math.PI * 2);
+      ctx.fillStyle = '#000';
+      ctx.fill();
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // ── Header text: TAKSHASHILA ──
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.font = '700 22px sans-serif';
+      ctx.fillText('T A K S H A S H I L A', CX, FY + 90);
+
+      // Year
+      const yearGrad = ctx.createLinearGradient(CX - 60, 0, CX + 60, 0);
+      yearGrad.addColorStop(0, '#60a5fa');
+      yearGrad.addColorStop(1, '#a78bfa');
+      ctx.fillStyle = yearGrad;
+      ctx.font = '800 42px sans-serif';
+      ctx.fillText('2026', CX, FY + 140);
+
+      // ── Divider ──
+      const divGrad = ctx.createLinearGradient(FX + FW * 0.15, 0, FX + FW * 0.85, 0);
+      divGrad.addColorStop(0, 'rgba(0,0,0,0)');
+      divGrad.addColorStop(0.5, 'rgba(255,255,255,0.18)');
+      divGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = divGrad;
+      ctx.fillRect(FX + FW * 0.15, FY + 160, FW * 0.7, 1);
+
+      // ── QR Code ──
+      const qrSize = Math.round(FW * 0.55); // ~270px, proportional to face width
+      const qrX = CX - qrSize / 2;
+      const qrY = FY + 185;
+      const pad = 16;
+
+      // White QR background
+      ctx.fillStyle = '#ffffff';
+      drawRoundRect(ctx, qrX - pad, qrY - pad, qrSize + pad * 2, qrSize + pad * 2, 14);
+      ctx.fill();
+
+      if (qrImg) {
+        ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+      }
+
+      // ── Decorative corner brackets around QR ──
+      ctx.strokeStyle = 'rgba(59,130,246,0.5)';
+      ctx.lineWidth = 2;
+      const bLen = 22;
+      const bOff = 8;
+      // top-left
+      ctx.beginPath();
+      ctx.moveTo(qrX - pad - bOff, qrY - pad - bOff + bLen);
+      ctx.lineTo(qrX - pad - bOff, qrY - pad - bOff);
+      ctx.lineTo(qrX - pad - bOff + bLen, qrY - pad - bOff);
+      ctx.stroke();
+      // top-right
+      ctx.beginPath();
+      ctx.moveTo(qrX + qrSize + pad + bOff - bLen, qrY - pad - bOff);
+      ctx.lineTo(qrX + qrSize + pad + bOff, qrY - pad - bOff);
+      ctx.lineTo(qrX + qrSize + pad + bOff, qrY - pad - bOff + bLen);
+      ctx.stroke();
+      // bottom-left
+      ctx.beginPath();
+      ctx.moveTo(qrX - pad - bOff, qrY + qrSize + pad + bOff - bLen);
+      ctx.lineTo(qrX - pad - bOff, qrY + qrSize + pad + bOff);
+      ctx.lineTo(qrX - pad - bOff + bLen, qrY + qrSize + pad + bOff);
+      ctx.stroke();
+      // bottom-right
+      ctx.beginPath();
+      ctx.moveTo(qrX + qrSize + pad + bOff - bLen, qrY + qrSize + pad + bOff);
+      ctx.lineTo(qrX + qrSize + pad + bOff, qrY + qrSize + pad + bOff);
+      ctx.lineTo(qrX + qrSize + pad + bOff, qrY + qrSize + pad + bOff - bLen);
+      ctx.stroke();
+
+      // ── Instruction text ──
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.font = '500 14px sans-serif';
+      ctx.fillText('Show this QR code at entry', CX, qrY + qrSize + pad + bOff + 35);
+
+      // ── User name ──
+      const infoY = qrY + qrSize + pad + bOff + 75;
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 24px sans-serif';
+      const displayName = (userName || 'ATTENDEE').toUpperCase();
+      let nameText = displayName;
+      const maxTextW = FW - 40;
+      if (ctx.measureText(nameText).width > maxTextW) {
+        while (ctx.measureText(nameText + '\u2026').width > maxTextW && nameText.length > 0) {
+          nameText = nameText.slice(0, -1);
+        }
+        nameText += '\u2026';
+      }
+      ctx.fillText(nameText, CX, infoY);
+
+      // ── College ──
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.font = '600 14px sans-serif';
+      const collegeText = (college || '').toUpperCase();
+      let colText = collegeText;
+      if (ctx.measureText(colText).width > maxTextW) {
+        while (ctx.measureText(colText + '\u2026').width > maxTextW && colText.length > 0) {
+          colText = colText.slice(0, -1);
+        }
+        colText += '\u2026';
+      }
+      ctx.fillText(colText, CX, infoY + 28);
+
+      // ── Pass type badge ──
+      if (passType) {
+        const badgeY = infoY + 65;
+        const badgeText = passType.toUpperCase();
+        ctx.font = '700 13px sans-serif';
+        const badgeW = ctx.measureText(badgeText).width + 40;
+        const badgeH = 32;
+        const badgeX = CX - badgeW / 2;
+
+        ctx.fillStyle = 'rgba(59,130,246,0.12)';
+        drawRoundRect(ctx, badgeX, badgeY - badgeH / 2 - 4, badgeW, badgeH, 6);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(99,102,241,0.3)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(165,180,252,0.9)';
+        ctx.fillText(badgeText, CX, badgeY + 3);
+      }
+
+      // ── Bottom barcode decoration ──
+      const barcodeY = FY + FH - 30;
+      for (let i = 0; i < 40; i++) {
+        const x = CX - 80 + i * 4;
+        const h = 6 + Math.random() * 14;
+        ctx.fillStyle = `rgba(255,255,255,${(0.12 + Math.random() * 0.2).toFixed(2)})`;
+        ctx.fillRect(x, barcodeY - h, 2, h);
+      }
+
+      // ── Scanline overlay (front face only) ──
+      for (let y = FY; y < FY + FH; y += 4) {
+        ctx.fillStyle = 'rgba(255,255,255,0.008)';
+        ctx.fillRect(FX, y, FW, 2);
+      }
+
+      resolve(canvas.toDataURL('image/png'));
+    };
+
+    // Load QR image then draw
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => draw(img);
+    img.onerror = () => draw(); // draw without QR if loading fails
+    img.src = qrCode;
+  });
 }
 
 export default function Lanyard({
-  position = [0, 0, 30],
+  position = [0, 0, 20],
   gravity = [0, -40, 0],
   fov = 20,
-  transparent = true
+  transparent = true,
+  qrCode,
+  userName,
+  college,
+  passType,
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const [cardFaceUrl, setCardFaceUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const handleResize = (): void => setIsMobile(window.innerWidth < 768);
@@ -44,17 +281,45 @@ export default function Lanyard({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Generate card-face image as a data-URL (runs in normal DOM, outside Canvas)
+  useEffect(() => {
+    if (!qrCode) {
+      setCardFaceUrl(null);
+      return;
+    }
+    let cancelled = false;
+    generateCardFaceDataUrl(qrCode, userName, college, passType).then((url) => {
+      if (!cancelled) setCardFaceUrl(url);
+    });
+    return () => { cancelled = true; };
+  }, [qrCode, userName, college, passType]);
+
+  // Prevent unrecoverable WebGL context loss
+  const handleCreated = ({ gl }: { gl: THREE.WebGLRenderer }) => {
+    gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1);
+    const canvas = gl.domElement;
+    const onLost = (e: Event) => {
+      e.preventDefault(); // tells the browser we want to restore
+      console.warn('[Lanyard] WebGL context lost — waiting for restore');
+    };
+    const onRestored = () => {
+      console.info('[Lanyard] WebGL context restored');
+    };
+    canvas.addEventListener('webglcontextlost', onLost);
+    canvas.addEventListener('webglcontextrestored', onRestored);
+  };
+
   return (
     <div className="lanyard-wrapper">
       <Canvas
         camera={{ position, fov }}
         dpr={[1, isMobile ? 1.5 : 2]}
         gl={{ alpha: transparent }}
-        onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
+        onCreated={handleCreated}
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
-          <Band isMobile={isMobile} />
+          <Band isMobile={isMobile} cardFaceUrl={cardFaceUrl} />
         </Physics>
         <Environment blur={0.75}>
           <Lightformer
@@ -95,9 +360,43 @@ interface BandProps {
   maxSpeed?: number;
   minSpeed?: number;
   isMobile?: boolean;
+  cardFaceUrl?: string | null;
 }
 
-function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
+function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardFaceUrl }: BandProps) {
+  // Load the custom card-face texture from a data-URL (safe inside R3F)
+  const [cardTex, setCardTex] = useState<THREE.Texture | null>(null);
+
+  useEffect(() => {
+    if (!cardFaceUrl) {
+      setCardTex(null);
+      return;
+    }
+    let cancelled = false;
+    const img = new Image();
+    img.onload = () => {
+      if (cancelled) return;
+      const tex = new THREE.Texture(img);
+      tex.flipY = false;       // GLTF UV convention — card.glb expects no flip
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.needsUpdate = true;
+      setCardTex((prev) => {
+        // Dispose previous only AFTER the new one is ready
+        if (prev) prev.dispose();
+        return tex;
+      });
+    };
+    img.src = cardFaceUrl;
+    return () => { cancelled = true; };
+  }, [cardFaceUrl]);
+
+  // Clean up drei caches on unmount so remounts get fresh GPU resources
+  useEffect(() => {
+    return () => {
+      useGLTF.clear(cardGLB);
+    };
+  }, []);
+
   // Using "any" for refs since the exact types depend on Rapier's internals
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
@@ -106,10 +405,11 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
   const j3 = useRef<any>(null);
   const card = useRef<any>(null);
 
-  const vec = new THREE.Vector3();
-  const ang = new THREE.Vector3();
-  const rot = new THREE.Vector3();
-  const dir = new THREE.Vector3();
+  // Persistent temp vectors — allocated once, reused every frame
+  const vec = useRef(new THREE.Vector3()).current;
+  const ang = useRef(new THREE.Vector3()).current;
+  const rot = useRef(new THREE.Vector3()).current;
+  const dir = useRef(new THREE.Vector3()).current;
 
   const segmentProps: any = {
     type: 'dynamic' as RigidBodyProps['type'],
@@ -216,12 +516,12 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
           >
             <mesh geometry={nodes.card.geometry}>
               <meshPhysicalMaterial
-                map={materials.base.map}
+                map={cardTex ?? materials.base.map}
                 map-anisotropy={16}
                 clearcoat={isMobile ? 0 : 1}
                 clearcoatRoughness={0.15}
-                roughness={0.9}
-                metalness={0.8}
+                roughness={cardTex ? 0.5 : 0.9}
+                metalness={cardTex ? 0.1 : 0.8}
               />
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
