@@ -26,7 +26,7 @@ const ANIMATION_CSS = `
       fill: transparent;
     }
     50% {
-      fill: white;
+      fill: transparent;
       stroke-dasharray: 100;
       transform: scale(1.1);
     }
@@ -35,7 +35,7 @@ const ANIMATION_CSS = `
     }
     94% {
       display: block;
-      fill: rgb(255, 255, 255);
+      fill: transparent;
       opacity: 1;
       transform: scale(1);
     }
@@ -45,6 +45,19 @@ const ANIMATION_CSS = `
       opacity: 0;
       transform: scale(1);
     }
+  }
+
+  .flame-logo-image {
+    opacity: 0;
+    animation: flameFillFade 4s infinite;
+  }
+
+  @keyframes flameFillFade {
+    0%, 20% { opacity: 0; }
+    40% { opacity: 1; }
+    50% { opacity: 1; }
+    94% { opacity: 1; }
+    100% { opacity: 0; }
   }
 `;
 
@@ -194,12 +207,27 @@ function HybridXLoader({ onComplete }: { onComplete?: () => void }) {
                           <stop offset="40%" stopColor="#29b6f6" />
                           <stop offset="100%" stopColor="#0d47a1" />
                         </linearGradient>
+                        <clipPath id="flameClip">
+                          <path d={FLAME_PATH} />
+                        </clipPath>
                       </defs>
+                      {/* Flame stroke outline animation */}
                       <path
                         d={FLAME_PATH}
                         stroke="#29b6f6"
                         strokeLinejoin="round"
                         strokeWidth="4"
+                      />
+                      {/* TK logo image clipped to the flame shape, fades in */}
+                      <image
+                        href="/assets/images/tk-logo.webp"
+                        x="-500"
+                        y="-500"
+                        width="2000"
+                        height="2000"
+                        clipPath="url(#flameClip)"
+                        className="flame-logo-image"
+                        preserveAspectRatio="xMidYMid slice"
                       />
                     </svg>
                   </motion.div>

@@ -83,7 +83,7 @@ function generateCardFaceDataUrl(
     const FH = Math.round((0.748 - 0.0105) * TEX); // ~755
     const CX = FX + FW / 2; // center X of front face
 
-    const draw = (qrImg?: HTMLImageElement) => {
+    const drawAll = (qrImg?: HTMLImageElement, logoImg?: HTMLImageElement) => {
       // Fill entire texture black
       ctx.fillStyle = '#0a0a0a';
       ctx.fillRect(0, 0, TEX, TEX);
@@ -115,11 +115,19 @@ function generateCardFaceDataUrl(
       ctx.lineWidth = 2;
       ctx.stroke();
 
+      // ── TK Logo (above the header, replaces generic branding) ──
+      if (logoImg) {
+        const logoSize = 50;
+        const logoX = CX - logoSize / 2;
+        const logoY = FY + 50;
+        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+      }
+
       // ── Header text: TAKSHASHILA ──
       ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(255,255,255,0.55)';
       ctx.font = '700 22px sans-serif';
-      ctx.fillText('T A K S H A S H I L A', CX, FY + 90);
+      ctx.fillText('T A K S H A S H I L A', CX, FY + 115);
 
       // Year
       const yearGrad = ctx.createLinearGradient(CX - 60, 0, CX + 60, 0);
@@ -127,7 +135,7 @@ function generateCardFaceDataUrl(
       yearGrad.addColorStop(1, '#a78bfa');
       ctx.fillStyle = yearGrad;
       ctx.font = '800 42px sans-serif';
-      ctx.fillText('2026', CX, FY + 140);
+      ctx.fillText('2026', CX, FY + 165);
 
       // ── Divider ──
       const divGrad = ctx.createLinearGradient(FX + FW * 0.15, 0, FX + FW * 0.85, 0);
@@ -135,12 +143,12 @@ function generateCardFaceDataUrl(
       divGrad.addColorStop(0.5, 'rgba(255,255,255,0.18)');
       divGrad.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = divGrad;
-      ctx.fillRect(FX + FW * 0.15, FY + 160, FW * 0.7, 1);
+      ctx.fillRect(FX + FW * 0.15, FY + 185, FW * 0.7, 1);
 
       // ── QR Code ──
-      const qrSize = Math.round(FW * 0.55); // ~270px, proportional to face width
+      const qrSize = Math.round(FW * 0.55);
       const qrX = CX - qrSize / 2;
-      const qrY = FY + 185;
+      const qrY = FY + 210;
       const pad = 16;
 
       // White QR background
@@ -253,12 +261,31 @@ function generateCardFaceDataUrl(
       resolve(canvas.toDataURL('image/png'));
     };
 
-    // Load QR image then draw
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => draw(img);
-    img.onerror = () => draw(); // draw without QR if loading fails
-    img.src = qrCode;
+    // Pre-load both QR image and logo image, then draw
+    let qrImg: HTMLImageElement | undefined;
+    let logoImg: HTMLImageElement | undefined;
+    let loaded = 0;
+    const totalToLoad = 2;
+
+    const onAssetReady = () => {
+      loaded++;
+      if (loaded < totalToLoad) return;
+      drawAll(qrImg, logoImg);
+    };
+
+    // Load QR
+    const qi = new Image();
+    qi.crossOrigin = 'anonymous';
+    qi.onload = () => { qrImg = qi; onAssetReady(); };
+    qi.onerror = () => { onAssetReady(); };
+    qi.src = qrCode;
+
+    // Load TK logo
+    const li = new Image();
+    li.crossOrigin = 'anonymous';
+    li.onload = () => { logoImg = li; onAssetReady(); };
+    li.onerror = () => { onAssetReady(); };
+    li.src = '/assets/images/tk-logo.webp';
   });
 }
 

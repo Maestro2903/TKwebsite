@@ -12,6 +12,13 @@ import { generatePassPDF } from '@/features/passes/pdfGenerator.client';
 import PassDetailsCard from '@/components/ui/PassDetailsCard';
 import { Download } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { NON_TECHNICAL_EVENTS, TECHNICAL_EVENTS } from '@/data/events';
+
+// Build a slug → display-name map from events data
+const EVENT_NAME_MAP: Record<string, string> = {};
+[...NON_TECHNICAL_EVENTS, ...TECHNICAL_EVENTS].forEach((e) => {
+  EVENT_NAME_MAP[e.id] = e.name;
+});
 
 // Dynamic import for the 3D Lanyard (needs WebGL, can't SSR)
 const Lanyard = dynamic(() => import('@/components/ui/Lanyard'), {
@@ -256,9 +263,9 @@ export default function MyPassPage() {
 
             {/* Main layout: Details Card (left) + Lanyard Badge (right) */}
             {activePass && userProfile && (
-              <div className="flex flex-col lg:flex-row gap-10 items-start justify-center">
+              <div className="flex flex-col lg:flex-row gap-10 items-start lg:justify-center lg:pl-16">
                 {/* Left: Details card */}
-                <div className="flex-1 w-full lg:max-w-md">
+                <div className="w-full lg:max-w-lg">
                   <PassDetailsCard
                     passType={passTypeLabel[activePass.passType] ?? activePass.passType}
                     amount={activePass.amount}
@@ -273,7 +280,7 @@ export default function MyPassPage() {
                         : null
                     }
                     selectedDays={activePass.selectedDays ?? []}
-                    selectedEvents={activePass.selectedEvents ?? []}
+                    selectedEvents={(activePass.selectedEvents ?? []).map((slug: string) => EVENT_NAME_MAP[slug] || slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()))}
                     eventAccess={activePass.eventAccess ?? null}
                     teamSnapshot={activePass.teamSnapshot ?? null}
                     userName={userProfile.name}

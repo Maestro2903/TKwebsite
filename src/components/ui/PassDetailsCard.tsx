@@ -80,25 +80,37 @@ export default function PassDetailsCard({
         )}
 
         {/* Selected Days */}
-        {selectedDays.length > 0 && (
-          <DetailSection title="Selected Days">
+        <DetailSection title="Selected Days">
+          {selectedDays.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {selectedDays.map((day) => (
-                <span
-                  key={day}
-                  className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-xs text-blue-300 font-medium"
-                >
-                  <Calendar size={10} className="inline mr-1 -mt-0.5" />
-                  {day}
-                </span>
-              ))}
+              {selectedDays.map((day) => {
+                // Format date string nicely if possible
+                let displayDay = day;
+                try {
+                  const d = new Date(day);
+                  if (!isNaN(d.getTime())) {
+                    displayDay = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                  }
+                } catch {}
+                return (
+                  <span
+                    key={day}
+                    className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-xs text-blue-300 font-medium"
+                  >
+                    <Calendar size={10} className="inline mr-1 -mt-0.5" />
+                    {displayDay}
+                  </span>
+                );
+              })}
             </div>
-          </DetailSection>
-        )}
+          ) : (
+            <p className="text-xs text-neutral-500 italic">No specific days selected</p>
+          )}
+        </DetailSection>
 
         {/* Selected Events */}
-        {selectedEvents.length > 0 && (
-          <DetailSection title="Registered Events">
+        <DetailSection title="Registered Events">
+          {selectedEvents.length > 0 ? (
             <div className="space-y-1.5">
               {selectedEvents.map((event) => (
                 <div
@@ -110,8 +122,10 @@ export default function PassDetailsCard({
                 </div>
               ))}
             </div>
-          </DetailSection>
-        )}
+          ) : (
+            <p className="text-xs text-neutral-500 italic">No events registered yet</p>
+          )}
+        </DetailSection>
 
         {/* Event Access */}
         {eventAccess && (
