@@ -245,8 +245,12 @@ export default function AboutSection() {
 
         {/* Dark blur overlay for readability */}
         <div
-          className="absolute inset-0 z-[1] backdrop-blur-sm"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.01)" }}
+          className="absolute z-[1] backdrop-blur-sm"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.01)",
+            inset: "-25% 0 0 0",
+            height: "150%",
+          }}
         />
 
         <div className="parallax-demo-row u-container relative z-[2] pb-16 pt-16 md:pb-24 md:pt-24 lg:pb-32 lg:pt-32">

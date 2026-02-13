@@ -7668,7 +7668,8 @@ figure {
 .parallax-bg {
   z-index: 0;
   width: 100%;
-  height: 120%;
+  height: 150%;
+  top: -25%;
   position: absolute;
 }
 

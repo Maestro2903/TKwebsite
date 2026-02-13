@@ -49,8 +49,8 @@ export default function ProfilePage() {
     return (
       <>
         <Navigation />
-        <main className="page_main page_main--registration registration-loading">
-          <div className="registration-loading__spinner">
+        <main className="min-h-screen bg-black flex items-center justify-center">
+          <div className="flex flex-col items-center">
             <div className="reg-spinner" />
           </div>
         </main>
@@ -64,15 +64,10 @@ export default function ProfilePage() {
     return (
       <>
         <Navigation />
-        <main className="page_main page_main--registration registration-loading">
-          <div className="registration-loading__spinner">
+        <main className="min-h-screen bg-black flex items-center justify-center">
+          <div className="flex flex-col items-center">
             <div className="reg-spinner" />
-            <p
-              style={{
-                marginTop: "1rem",
-                color: "var(--color-text-secondary)",
-              }}
-            >
+            <p className="mt-4 text-gray-400" style={{ fontFamily: '"Trebuchet MS", sans-serif' }}>
               Redirecting to sign in...
             </p>
           </div>
@@ -87,15 +82,10 @@ export default function ProfilePage() {
     return (
       <>
         <Navigation />
-        <main className="page_main page_main--registration registration-loading">
-          <div className="registration-loading__spinner">
+        <main className="min-h-screen bg-black flex items-center justify-center">
+          <div className="flex flex-col items-center">
             <div className="reg-spinner" />
-            <p
-              style={{
-                marginTop: "1rem",
-                color: "var(--color-text-secondary)",
-              }}
-            >
+            <p className="mt-4 text-gray-400" style={{ fontFamily: '"Trebuchet MS", sans-serif' }}>
               Redirecting...
             </p>
           </div>
@@ -111,44 +101,67 @@ export default function ProfilePage() {
       <Navigation />
       <main
         id="main"
-        className="page_main page_main--registration page_main--profile"
+        className="min-h-screen bg-black text-white py-20 px-4"
       >
         {/* Hero */}
-        <section className="registration-hero-v2">
-          <div className="registration-hero-v2__eyebrow">
-            <div className="eyebrow_wrap">
-              <div className="eyebrow_layout">
-                <div className="eyebrow_marker" aria-hidden />
-                <div className="eyebrow_text u-text-style-main">
-                  PROFILE SETUP
-                </div>
+        <section className="max-w-2xl mx-auto text-center mb-16">
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-3 px-4 py-2 border border-blue-500/30 rounded-full">
+              <div className="w-2 h-2 bg-blue-500 rounded-full" aria-hidden />
+              <div className="text-[0.5rem] font-bold tracking-[0.2em] uppercase text-blue-400/70" style={{ fontFamily: '"Akira", sans-serif' }}>
+                PROFILE SETUP
               </div>
             </div>
           </div>
-          <h1 className="registration-hero-v2__title">Complete Your Profile</h1>
-          <p className="registration-hero-v2__subtext">
+          <h1 
+            className="text-5xl md:text-6xl font-extrabold mb-6 tracking-[0.04em] uppercase"
+            style={{ 
+              fontFamily: '"Akira", sans-serif',
+              background: 'linear-gradient(180deg, #e0e8f0 0%, #8ab4d6 30%, #ffffff 50%, #6a9ec0 70%, #c0d8e8 100%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))'
+            }}
+          >
+            Complete Your Profile
+          </h1>
+          <p className="text-sm tracking-[0.12em] uppercase" style={{ fontFamily: '"Trebuchet MS", sans-serif', color: 'rgba(120, 170, 210, 0.6)' }}>
             We need a few details to get you started
           </p>
         </section>
 
         {/* Profile Form */}
-        <div className="u-container registration-profile-v2">
+        <div className="max-w-xl mx-auto relative">
           {/* Y2K star sparkles */}
-          <span className="auth-y2k-star auth-y2k-star--1" aria-hidden>
+          <span 
+            className="absolute text-blue-400/40 text-2xl pointer-events-none animate-pulse"
+            style={{ top: '-2rem', left: '10%' }}
+            aria-hidden
+          >
             ✦
           </span>
-          <span className="auth-y2k-star auth-y2k-star--2" aria-hidden>
+          <span 
+            className="absolute text-blue-300/30 text-3xl pointer-events-none animate-pulse"
+            style={{ top: '50%', right: '-2rem', animationDelay: '0.5s' }}
+            aria-hidden
+          >
             ✦
           </span>
-          <span className="auth-y2k-star auth-y2k-star--3" aria-hidden>
+          <span 
+            className="absolute text-blue-500/30 text-xl pointer-events-none animate-pulse"
+            style={{ bottom: '10%', left: '-1.5rem', animationDelay: '1s' }}
+            aria-hidden
+          >
             ✧
           </span>
-          <form
-            onSubmit={handleProfileSubmit}
-            className="registration-profile-v2__form"
-          >
-            <div className="registration-profile-v2__field">
-              <label className="registration-profile-v2__label">
+          
+          <form onSubmit={handleProfileSubmit} className="space-y-6">
+            <div className="mb-6">
+              <label 
+                className="block text-[0.55rem] font-bold uppercase tracking-[0.15em] text-blue-400/70 mb-2"
+                style={{ fontFamily: '"Akira", sans-serif' }}
+              >
                 Full Name
               </label>
               <input
@@ -157,13 +170,18 @@ export default function ProfilePage() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="registration-profile-v2__input"
+                className="w-full px-6 py-3.5 text-[0.9375rem] border-2 border-blue-500/20 bg-black/40 text-white tracking-wide transition-all duration-300 focus:outline-none focus:border-blue-500/50 focus:bg-black/55 focus:shadow-[0_0_0_3px_rgba(30,109,171,0.12),0_0_12px_rgba(30,109,171,0.1)] placeholder:text-white/25"
+                style={{ fontFamily: '"Trebuchet MS", sans-serif' }}
                 placeholder="Enter your full name"
                 required
               />
             </div>
-            <div className="registration-profile-v2__field">
-              <label className="registration-profile-v2__label">
+            
+            <div className="mb-6">
+              <label 
+                className="block text-[0.55rem] font-bold uppercase tracking-[0.15em] text-blue-400/70 mb-2"
+                style={{ fontFamily: '"Akira", sans-serif' }}
+              >
                 College Name
               </label>
               <input
@@ -172,13 +190,18 @@ export default function ProfilePage() {
                 onChange={(e) =>
                   setFormData({ ...formData, college: e.target.value })
                 }
-                className="registration-profile-v2__input"
+                className="w-full px-6 py-3.5 text-[0.9375rem] border-2 border-blue-500/20 bg-black/40 text-white tracking-wide transition-all duration-300 focus:outline-none focus:border-blue-500/50 focus:bg-black/55 focus:shadow-[0_0_0_3px_rgba(30,109,171,0.12),0_0_12px_rgba(30,109,171,0.1)] placeholder:text-white/25"
+                style={{ fontFamily: '"Trebuchet MS", sans-serif' }}
                 placeholder="Enter your college name"
                 required
               />
             </div>
-            <div className="registration-profile-v2__field">
-              <label className="registration-profile-v2__label">
+            
+            <div className="mb-6">
+              <label 
+                className="block text-[0.55rem] font-bold uppercase tracking-[0.15em] text-blue-400/70 mb-2"
+                style={{ fontFamily: '"Akira", sans-serif' }}
+              >
                 Phone Number
               </label>
               <input
@@ -187,12 +210,14 @@ export default function ProfilePage() {
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })
                 }
-                className="registration-profile-v2__input"
+                className="w-full px-6 py-3.5 text-[0.9375rem] border-2 border-blue-500/20 bg-black/40 text-white tracking-wide transition-all duration-300 focus:outline-none focus:border-blue-500/50 focus:bg-black/55 focus:shadow-[0_0_0_3px_rgba(30,109,171,0.12),0_0_12px_rgba(30,109,171,0.1)] placeholder:text-white/25"
+                style={{ fontFamily: '"Trebuchet MS", sans-serif' }}
                 placeholder="Enter your phone number"
                 required
               />
             </div>
-            <div className="registration-profile-v2__cta">
+            
+            <div className="flex justify-center pt-4">
               {isLoading ? (
                 <div className="flex justify-center items-center h-[54px]">
                   <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
