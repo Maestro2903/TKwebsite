@@ -5,6 +5,7 @@ import { useGSAP } from "@/hooks/useGSAP";
 
 import { Y2K_IMAGES } from "@/data/y2k-images";
 import ParallaxFloatingImages from "@/components/ui/parallax-floating-images";
+import { Tooltip } from "@/components/ui/tooltip-card";
 
 // Exact HTML structure from original Zeit Media website for About Section with GSAP animations
 export default function AboutSection() {
@@ -47,9 +48,9 @@ export default function AboutSection() {
       if (parallaxBgRef.current) {
         gsap.fromTo(
           parallaxBgRef.current.querySelector(".parallax-img"),
-          { y: "-30%" },
+          { y: "0%" },
           {
-            y: "-10%",
+            y: "20%",
             ease: "none",
             scrollTrigger: {
               trigger: parallaxBgRef.current,
@@ -61,57 +62,23 @@ export default function AboutSection() {
         );
       }
 
-      // Card 1 parallax animation
-      if (card1Ref.current) {
+      // Animate all stats cards together
+      if (card1Ref.current && card2Ref.current && card3Ref.current) {
+        const cards = [card1Ref.current, card2Ref.current, card3Ref.current];
+
         gsap.fromTo(
-          card1Ref.current,
-          { y: "20%", opacity: 0 },
+          cards,
+          { y: 50, opacity: 0 },
           {
-            y: "0%",
+            y: 0,
             opacity: 1,
+            duration: 1,
             ease: "power3.out",
+            stagger: 0,
             scrollTrigger: {
-              trigger: card1Ref.current,
-              start: "top 90%",
+              trigger: card1Ref.current.parentElement?.parentElement,
+              start: "top 75%",
               end: "top 50%",
-              scrub: 1,
-            },
-          },
-        );
-      }
-
-      // Card 2 parallax animation
-      if (card2Ref.current) {
-        gsap.fromTo(
-          card2Ref.current,
-          { y: "30%", opacity: 0 },
-          {
-            y: "-10%",
-            opacity: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: card2Ref.current,
-              start: "top 90%",
-              end: "top 40%",
-              scrub: 1,
-            },
-          },
-        );
-      }
-
-      // Card 3 parallax animation
-      if (card3Ref.current) {
-        gsap.fromTo(
-          card3Ref.current,
-          { y: "40%", opacity: 0 },
-          {
-            y: "-20%",
-            opacity: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: card3Ref.current,
-              start: "top 90%",
-              end: "top 30%",
               scrub: 1,
             },
           },
@@ -147,26 +114,42 @@ export default function AboutSection() {
             data-wf--typography-paragraph--font-style="inherit"
             className="c-paragraph w-richtext u-rich-text u-max-width-60ch u-opacity-80 u-margin-bottom-7"
           >
-            <p>GenZ Vibes where vibes, voices, and vision collide</p>
             <p>
-              Takshashila, the flagship techno cultural fest of Chennai
-              Institute of Technology, is back to set the stage alive as Tamil
-              Nadu’s most awaited cultural celebration. It’s where creativity,
-              innovation, and passion collide, giving students the freedom to
-              express, experiment, and excel. This year, Takshashila embraces
-              its theme GenZ Kondattam, celebrating the bold energy, fearless
-              expression, and ever evolving culture of today’s generation.
+              <Tooltip content="The flagship techno-cultural fest of Chennai Institute of Technology — Tamil Nadu’s most awaited cultural celebration.">
+                <span className="cursor-pointer font-semibold text-[#06B6D4] transition-colors hover:text-[#22D3EE]">
+                  Takshashila
+                </span>
+              </Tooltip>{" "}
+              is back to set the stage alive. It’s where creativity, innovation,
+              and passion collide — giving students the freedom to express,
+              experiment, and excel.
             </p>
             <p>
-              From trend driven performances and culture forward showcases to
-              cutting edge technical challenges and innovation led events, the
-              fest thrives on movement, momentum, and modern expression.
-              Takshashila is more than a fest it’s an experience that builds
-              confidence, fuels collaboration, and amplifies voices that refuse
-              to blend in. With a dynamic lineup of workshops, competitions, and
-              technical presentations led by industry experts, Takshashila
-              promises a celebration where ideas move fast, creativity runs
-              loud, and Gen Z takes center stage.
+              This year’s theme,{" "}
+              <Tooltip content="A celebration of bold energy, fearless expression, and the ever-evolving culture of today’s generation. ’Kondattam’ means celebration in Tamil.">
+                <span className="cursor-pointer font-semibold text-[#06B6D4] transition-colors hover:text-[#22D3EE]">
+                  GenZ Kondattam
+                </span>
+              </Tooltip>
+              , brings{" "}
+              <Tooltip content="From trend-driven performances and culture-forward showcases to cutting-edge technical challenges and innovation-led events.">
+                <span className="cursor-pointer font-semibold text-[#06B6D4] transition-colors hover:text-[#22D3EE]">
+                  50+ events
+                </span>
+              </Tooltip>{" "}
+              spanning workshops, competitions, and{" "}
+              <Tooltip content="Technical presentations and hands-on sessions led by industry experts across AI, robotics, design, and more.">
+                <span className="cursor-pointer font-semibold text-[#06B6D4] transition-colors hover:text-[#22D3EE]">
+                  expert-led sessions
+                </span>
+              </Tooltip>
+              . Ideas move fast, creativity runs loud, and{" "}
+              <Tooltip content="15,000+ students and attendees from across India, with a total prize pool of ₹20 Lakhs+.">
+                <span className="cursor-pointer font-semibold text-[#06B6D4] transition-colors hover:text-[#22D3EE]">
+                  Gen Z takes center stage
+                </span>
+              </Tooltip>
+              .
             </p>
           </div>
           <div className="btn-group">
@@ -256,89 +239,69 @@ export default function AboutSection() {
             alt=""
             sizes="100vw"
             className="parallax-img"
+            style={{ objectPosition: "top" }}
           />
         </div>
 
-        <div className="parallax-demo-row u-container">
-          {/* Card 1: 200+ */}
+        <div className="parallax-demo-row u-container pb-32 pt-32 md:pb-48 md:pt-48 lg:pb-56 lg:pt-56">
+          {/* Card 1: 50+ */}
           <div className="parallax-demo-row__third">
             <div
               ref={card1Ref}
               data-parallax-end="0"
               data-parallax="trigger"
               data-parallax-disable="mobileLandscape"
-              data-parallax-start="20"
+              data-parallax-start="0"
               className="parallax-demo-card"
             >
-              <div>
-                <div
-                  data-heading=""
-                  data-wf--typography-heading--font-style="display"
-                  className="c-heading w-variant-41c609dc-9c80-9eef-75df-03bf0eea00b4 w-richtext u-margin-bottom-4"
-                >
-                  <h2>50+</h2>
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <div className="mb-4 text-7xl font-black leading-none md:text-8xl lg:text-9xl">
+                  50+
                 </div>
-                <div
-                  data-wf--typography-paragraph--font-style="text-large"
-                  className="c-paragraph w-variant-fdb8e663-01e0-aae6-13eb-e6dfca16b689 w-richtext u-rich-text u-max-width-20ch u-weight-bold u-line-height-large"
-                >
-                  <p>Technical &amp; Non-Technical Events</p>
+                <div className="text-lg font-semibold text-neutral-700 md:text-xl dark:text-neutral-300">
+                  Technical &amp; Non-Technical Events
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Card 2: 1000+ */}
+          {/* Card 2: 15,000+ */}
           <div className="parallax-demo-row__third">
             <div
               ref={card2Ref}
               data-parallax-disable="mobileLandscape"
               data-parallax="trigger"
-              data-parallax-start="30"
-              data-parallax-end="-10"
+              data-parallax-start="0"
+              data-parallax-end="0"
               className="parallax-demo-card"
             >
-              <div>
-                <div
-                  data-heading=""
-                  data-wf--typography-heading--font-style="display"
-                  className="c-heading w-variant-41c609dc-9c80-9eef-75df-03bf0eea00b4 w-richtext u-margin-bottom-4"
-                >
-                  <h2>15,000+</h2>
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <div className="mb-4 text-7xl font-black leading-none md:text-8xl lg:text-9xl">
+                  15K+
                 </div>
-                <div
-                  data-wf--typography-paragraph--font-style="text-large"
-                  className="c-paragraph w-variant-fdb8e663-01e0-aae6-13eb-e6dfca16b689 w-richtext u-rich-text u-max-width-20ch u-weight-bold u-line-height-large"
-                >
-                  <p>Students &amp; Attendees from across India</p>
+                <div className="text-lg font-semibold text-neutral-700 md:text-xl dark:text-neutral-300">
+                  Students &amp; Attendees from across India
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Card 3: 50+ */}
+          {/* Card 3: ₹20 Lakhs+ */}
           <div className="parallax-demo-row__third">
             <div
               ref={card3Ref}
               data-parallax-disable="mobileLandscape"
               data-parallax="trigger"
-              data-parallax-start="40"
-              data-parallax-end="-20"
+              data-parallax-start="0"
+              data-parallax-end="0"
               className="parallax-demo-card"
             >
-              <div>
-                <div
-                  data-heading=""
-                  data-wf--typography-heading--font-style="display"
-                  className="c-heading w-variant-41c609dc-9c80-9eef-75df-03bf0eea00b4 w-richtext u-margin-bottom-4"
-                >
-                  <h2>₹20 Lakhs+</h2>
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <div className="mb-4 text-7xl font-black leading-none md:text-8xl lg:text-9xl">
+                  ₹20L+
                 </div>
-                <div
-                  data-wf--typography-paragraph--font-style="text-large"
-                  className="c-paragraph w-variant-fdb8e663-01e0-aae6-13eb-e6dfca16b689 w-richtext u-rich-text u-max-width-12ch u-weight-bold u-line-height-large"
-                >
-                  <p>Total Prize Pool &amp; Awards</p>
+                <div className="text-lg font-semibold text-neutral-700 md:text-xl dark:text-neutral-300">
+                  Total Prize Pool &amp; Awards
                 </div>
               </div>
             </div>
