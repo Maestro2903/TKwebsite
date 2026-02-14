@@ -120,7 +120,11 @@ function generateCardFaceDataUrl(
         const logoSize = 50;
         const logoX = CX - logoSize / 2;
         const logoY = FY + 50;
-        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+        try {
+          ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+        } catch (error) {
+          console.error('Failed to draw logo image on lanyard canvas:', error);
+        }
       }
 
       // ── Header text: TAKSHASHILA ──
