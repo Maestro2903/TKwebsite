@@ -68,7 +68,19 @@ function generateCardFaceDataUrl(
 ): Promise<string> {
   return new Promise((resolve) => {
     // ── Texture dimensions (power-of-2 for GPU) ──
-    const TEX = 1024;
+    const BASE_TEX = 1024;
+    let TEX = BASE_TEX;
+
+    // Simple resolution scaling based on device capabilities
+    if (typeof window !== 'undefined') {
+      const dpr = window.devicePixelRatio || 1;
+      const isSmallScreen = window.innerWidth <= 768;
+
+      // Use lower resolution on small screens or low-DPR devices
+      if (isSmallScreen || dpr <= 1) {
+        TEX = 512;
+      }
+    }
     const canvas = document.createElement('canvas');
     canvas.width = TEX;
     canvas.height = TEX;
@@ -120,7 +132,11 @@ function generateCardFaceDataUrl(
         const logoSize = 50;
         const logoX = CX - logoSize / 2;
         const logoY = FY + 50;
-        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+        try {
+          ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+        } catch (error) {
+          console.error('Failed to draw logo image on lanyard canvas:', error);
+        }
       }
 
       // ── Header text: TAKSHASHILA ──

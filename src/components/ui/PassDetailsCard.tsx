@@ -91,7 +91,9 @@ export default function PassDetailsCard({
                   if (!isNaN(d.getTime())) {
                     displayDay = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
                   }
-                } catch {}
+                } catch (error) {
+                  console.error('Failed to parse selected day date:', day, error);
+                }
                 return (
                   <span
                     key={day}
