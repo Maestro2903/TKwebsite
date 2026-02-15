@@ -91,18 +91,6 @@ function AboutSection() {
   }, [isLoading, gsapModules]);
 
   return (
-    <div
-      ref={sectionRef}
-      className="u-section u-zindex-3"
-      style={{ position: "relative" }}
-    >
-      <ParallaxFloatingImages images={Y2K_IMAGES} className="z-0" />
-      <div
-        data-wf--spacer--section-space="large"
-        className="u-section-spacer w-variant-8cc18b30-4618-8767-0111-f6abfe45aaa3 u-ignore-trim"
-      />
-
-    return (
         <div ref={sectionRef} className="u-section u-zindex-3" style={{ position: 'relative' }}>
             <ParallaxFloatingImages images={Y2K_IMAGES} className="z-0" />
             <div
@@ -192,76 +180,6 @@ function AboutSection() {
                     </div>
                 </div>
             </div>
-
-            <div
-                data-wf--spacer--section-space="large"
-                className="u-section-spacer w-variant-8cc18b30-4618-8767-0111-f6abfe45aaa3 u-ignore-trim"
-            />
-
-            {/* Parallax Stats Section */}
-            <div className="parallax-demo-row__half">
-                <div
-                    ref={parallaxBgRef}
-                    data-parallax-scrub="2"
-                    data-parallax="trigger"
-                    data-parallax-start="-30"
-                    data-parallax-end="-10"
-                    className="parallax-bg"
-                >
-                  <polyline
-                    points="18 8 18 18 8 18"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeMiterlimit={10}
-                    strokeWidth={1.5}
-                  />
-                  <line
-                    x1="18"
-                    y1="18"
-                    x2="5"
-                    y2="5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeMiterlimit={10}
-                    strokeWidth={1.5}
-                  />
-                </svg>
-              </div>
-              <div className="btn-bubble-arrow__content">
-                <span className="btn-bubble-arrow__content-text">
-                  Learn More
-                </span>
-              </div>
-              <div className="btn-bubble-arrow__arrow is--duplicate">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  width="100%"
-                  className="btn-bubble-arrow__arrow-svg"
-                >
-                  <polyline
-                    points="18 8 18 18 8 18"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeMiterlimit={10}
-                    strokeWidth={1.5}
-                  />
-                  <line
-                    x1="18"
-                    y1="18"
-                    x2="5"
-                    y2="5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeMiterlimit={10}
-                    strokeWidth={1.5}
-                  />
-                </svg>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
 
       <div
         data-wf--spacer--section-space="large"
