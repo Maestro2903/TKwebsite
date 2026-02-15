@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useRef } from 'react';
-import { SectionLabel } from '@/components/decorative/EditorialMotifs';
 import { cn } from '@/lib/utils';
 
 export type EventCategory = 'non-technical' | 'technical';
@@ -9,14 +8,11 @@ export type EventCategory = 'non-technical' | 'technical';
 interface EventCategorySwitchProps {
   value: EventCategory;
   onChange: (value: EventCategory) => void;
-  /** When true, the sticky bar is hidden (e.g. after scrolling down) */
-  isHidden?: boolean;
 }
 
 export default function EventCategorySwitch({
   value,
   onChange,
-  isHidden = false,
 }: EventCategorySwitchProps) {
   const tabListRef = useRef<HTMLDivElement>(null);
 
@@ -39,22 +35,12 @@ export default function EventCategorySwitch({
     <div
       className={cn(
         'events-category-switch',
-        isHidden && 'events-category-switch--hidden',
-        'sticky z-40 flex flex-col items-center',
+        'flex flex-col items-center',
         'bg-[var(--editorial-black,#000)]',
         'border-y border-[var(--editorial-gray-dark,#333)]',
-        'px-4 py-4 transition-transform duration-300 ease-out',
-        'top-[var(--nav-height,85px)]'
+        'px-4 py-4'
       )}
-      aria-hidden={isHidden}
     >
-      {/* Editorial label */}
-      <div className="mb-3 flex w-full max-w-lg items-center justify-center">
-        <SectionLabel className="text-[var(--editorial-gray-muted,#999)]">
-          EVENTS /// CATEGORY
-        </SectionLabel>
-      </div>
-
       <div
         ref={tabListRef}
         className="w-full max-w-lg min-w-0 overflow-x-auto overflow-y-hidden sm:overflow-visible"

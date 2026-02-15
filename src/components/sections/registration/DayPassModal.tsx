@@ -8,8 +8,8 @@ import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import { X } from 'lucide-react';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
-// Price per day
-const PRICE_PER_DAY = 500;
+const MOCK_SUMMIT_EVENT_ID = 'mock-global-summit';
+const MOCK_SUMMIT_DATE = '2026-02-27';
 
 interface DayOption {
     id: string;
@@ -47,6 +47,10 @@ export default function DayPassModal({
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [step, setStep] = useState<'days' | 'events' | 'review'>('days');
+    const [mockSummitInviteCode, setMockSummitInviteCode] = useState('');
+
+    // Invite-unlock: dynamic price per day (500 if unlocked, 600 otherwise)
+    const pricePerDay = userData?.dayPassUnlocked ? 500 : 600;
 
     // Lock global body scroll (and Lenis) when modal is open
     useLockBodyScroll(isOpen);
@@ -58,6 +62,7 @@ export default function DayPassModal({
         setSelectedDays([]);
         setSelectedEventIds([]);
         setAvailableEvents([]);
+        setMockSummitInviteCode('');
         setStep('days');
     }, [isOpen]);
 
@@ -112,7 +117,10 @@ export default function DayPassModal({
 
     // Calculate total
     const totalDays = selectedDays.length;
-    const totalAmount = totalDays * PRICE_PER_DAY;
+    const totalAmount = totalDays * pricePerDay;
+
+    const hasMockSummitSelected = selectedEventIds.includes(MOCK_SUMMIT_EVENT_ID);
+    const canInitiatePayment = !hasMockSummitSelected || mockSummitInviteCode.trim().length > 0;
 
     // Toggle day selection
     const toggleDay = useCallback((dayId: string) => {
@@ -189,6 +197,7 @@ export default function DayPassModal({
                     amount: totalAmount,
                     selectedDays: selectedDates,
                     selectedEvents: selectedEventIds,
+                    ...(hasMockSummitSelected && mockSummitInviteCode.trim() && { inviteCode: mockSummitInviteCode.trim() }),
                     teamData: {
                         name,
                         email: userData.email ?? email,
@@ -222,7 +231,7 @@ export default function DayPassModal({
         } finally {
             setSubmitting(false);
         }
-    }, [user, userData, selectedDays, totalAmount, selectedEventIds, onCloseAction]);
+    }, [user, userData, selectedDays, totalAmount, selectedEventIds, hasMockSummitSelected, mockSummitInviteCode, onCloseAction]);
 
     if (!isOpen) return null;
 
@@ -333,7 +342,7 @@ export default function DayPassModal({
                                                 </div>
                                             </div>
                                             <div className="text-white font-orbitron text-sm">
-                                                ₹{PRICE_PER_DAY}
+                                                ₹{pricePerDay}
                                             </div>
                                         </button>
                                     ))}
@@ -377,19 +386,42 @@ export default function DayPassModal({
                                     </div>
                                 ) : (
                                     <div className="max-h-[40vh] overflow-y-auto space-y-3 pr-2">
-                                        {availableEvents.map((event) => (
+                                        {availableEvents.map((event) => {
+                                            const isMockSummit = event.id === MOCK_SUMMIT_EVENT_ID;
+                                            const isMockSummitDate = event.date === MOCK_SUMMIT_DATE;
+                                            const mockSummitSelected = selectedEventIds.includes(MOCK_SUMMIT_EVENT_ID);
+                                            const isDisabled = isMockSummitDate && !isMockSummit && mockSummitSelected;
+                                            const isSelected = selectedEventIds.includes(event.id);
+                                            return (
                                             <button
                                                 key={event.id}
                                                 type="button"
+                                                disabled={isDisabled}
                                                 onClick={() => {
-                                                    setSelectedEventIds(prev =>
-                                                        prev.includes(event.id)
-                                                            ? prev.filter(id => id !== event.id)
-                                                            : [...prev, event.id]
-                                                    );
+                                                    if (isDisabled) return;
+                                                    if (isMockSummit) {
+                                                        setSelectedEventIds(prev =>
+                                                            prev.includes(event.id)
+                                                                ? prev.filter(id => id !== event.id)
+                                                                : [...prev.filter(id => {
+                                                                    const ev = availableEvents.find(e => e.id === id);
+                                                                    return ev?.date !== MOCK_SUMMIT_DATE;
+                                                                }), event.id]
+                                                        );
+                                                    } else if (mockSummitSelected && isMockSummitDate) {
+                                                        return;
+                                                    } else {
+                                                        setSelectedEventIds(prev =>
+                                                            prev.includes(event.id)
+                                                                ? prev.filter(id => id !== event.id)
+                                                                : [...prev, event.id]
+                                                        );
+                                                    }
                                                 }}
-                                                className={`w-full p-4 border transition-all duration-300 flex items-start gap-4 group/event ${selectedEventIds.includes(event.id)
+                                                className={`w-full p-4 border transition-all duration-300 flex items-start gap-4 group/event ${isSelected
                                                         ? 'border-blue-500 bg-blue-500/10'
+                                                        : isDisabled
+                                                        ? 'border-neutral-800 bg-[#0a0a0a] opacity-50 cursor-not-allowed'
                                                         : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
                                                     }`}
                                             >
@@ -419,7 +451,8 @@ export default function DayPassModal({
                                                     </div>
                                                 </div>
                                             </button>
-                                        ))}
+                                        );
+                                        })}
                                     </div>
                                 )}
 
@@ -462,7 +495,7 @@ export default function DayPassModal({
                                                 return (
                                                     <div key={dayId} className="flex justify-between text-xs font-mono">
                                                         <span className="text-neutral-400">{day?.label}</span>
-                                                        <span className="text-neutral-500">₹{PRICE_PER_DAY}</span>
+                                                        <span className="text-neutral-500">₹{pricePerDay}</span>
                                                     </div>
                                                 );
                                             })}
@@ -470,6 +503,26 @@ export default function DayPassModal({
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Mock Global Summit Invite Code - required when event is selected */}
+                            {hasMockSummitSelected && (
+                                <div className="p-4 bg-[#151515] border border-neutral-800 space-y-2">
+                                    <label htmlFor="mock-summit-invite" className="block text-[10px] text-neutral-500 font-orbitron uppercase">
+                                        Mock Global Summit Invite Code *
+                                    </label>
+                                    <input
+                                        id="mock-summit-invite"
+                                        type="text"
+                                        value={mockSummitInviteCode}
+                                        onChange={(e) => setMockSummitInviteCode(e.target.value)}
+                                        placeholder="Enter invite code"
+                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-700 text-white font-mono text-sm placeholder:text-neutral-600 focus:outline-none focus:border-blue-500"
+                                    />
+                                    <p className="text-[10px] text-neutral-500 font-mono">
+                                        This event requires a valid invite code.
+                                    </p>
+                                </div>
+                            )}
 
                             {/* Pricing Display */}
                             <div className="p-4 bg-[#151515] border border-neutral-700 relative overflow-hidden">
@@ -480,7 +533,7 @@ export default function DayPassModal({
                                     <div>
                                         <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
                                         <div className="text-xs text-neutral-400 font-mono">
-                                            {totalDays} DAY{totalDays > 1 ? 'S' : ''} × ₹{PRICE_PER_DAY}
+                                            {totalDays} DAY{totalDays > 1 ? 'S' : ''} × ₹{pricePerDay}
                                         </div>
                                     </div>
                                     <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
@@ -538,7 +591,7 @@ export default function DayPassModal({
                                 <button
                                     type="button"
                                     onClick={handleSubmit}
-                                    disabled={submitting}
+                                    disabled={submitting || !canInitiatePayment}
                                     className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition disabled:opacity-50 tracking-widest"
                                 >
                                     {submitting ? 'PROCESSING...' : `INITIATE PAYMENT`}

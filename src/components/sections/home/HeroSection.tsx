@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo, memo } from 'react';
 import Image from 'next/image';
 import { GlassButton } from '@/components/ui/glass-button';
 
@@ -20,13 +20,16 @@ const mobileVideoSources = [
     { src: '/videos/hero-bg-mobile.mp4', type: 'video/mp4' },
 ];
 
-export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
+function HeroSection({ onShowReelClick }: HeroSectionProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const sectionRef = useRef<HTMLElement>(null);
     const [playerStatus, setPlayerStatus] = useState<'idle' | 'loading' | 'ready' | 'playing' | 'paused'>('idle');
     const [playerActivated, setPlayerActivated] = useState(false);
     const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+
+    const videoSources = useMemo(() => isMobile ? mobileVideoSources : desktopVideoSources, [isMobile]);
+    const videoSrc = useMemo(() => videoSources[0].src, [videoSources]);
 
     // Detect mobile on mount and window resize (for layout/attributes)
     useEffect(() => {
@@ -44,8 +47,6 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
-    const videoSources = isMobile ? mobileVideoSources : desktopVideoSources;
-    const videoSrc = videoSources[0].src;
 
     // IntersectionObserver: only start loading video when section is near viewport
     useEffect(() => {
@@ -77,6 +78,8 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
         video.load();
 
         const onCanPlay = () => {
+            video.volume = 0;
+            video.muted = true;
             setPlayerStatus('ready');
             video.play()
                 .then(() => {
@@ -151,7 +154,7 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                     </video>
 
                     {/* Hero center logo overlay - Takshashila 2026 with Register CTA */}
-                    <div className="hero_center_logo" aria-hidden={false}>
+                    <div className="hero_center_logo">
                         <div className="hero_center_logo__inner">
                             <Image
                                 src="/images/tk-26-logo.png"
@@ -174,7 +177,18 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                     </div>
 
                     <div data-player-control="playpause" className="bunny-bg__playpause">
-                        <button className="bunny-bg__btn" onClick={togglePlayPause} aria-label={playerStatus === 'playing' ? 'Pause' : 'Play'}>
+                        <button
+                            type="button"
+                            className="bunny-bg__btn"
+                            onClick={togglePlayPause}
+                            aria-label={playerStatus === 'playing' ? 'Pause video' : 'Play video'}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    togglePlayPause();
+                                }
+                            }}
+                        >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="100%"
@@ -200,9 +214,10 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                         </button>
                     </div>
 
-                    <div className="bunny-bg__loading">
+                    <div className="bunny-bg__loading" aria-hidden="true">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden="true"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                             version="1.1"
                             id="L9"
@@ -237,3 +252,5 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
         </section>
     );
 }
+
+export default memo(HeroSection);

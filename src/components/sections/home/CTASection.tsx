@@ -29,6 +29,8 @@ export default function CTASection() {
                 <img
                     src="/assets/flame-bg.png"
                     alt=""
+                    width={1200}
+                    height={800}
                     className="opacity-60 mix-blend-screen object-cover"
                     style={{
                         width: '85%',

@@ -10,7 +10,7 @@ export default function Navigation() {
     const { user, signOut, loading } = useAuth();
     const [isScrolled, setIsScrolled] = useState(false);
     const [scrollingDirection, setScrollingDirection] = useState<'up' | 'down'>('up');
-    const [lastScrollY, setLastScrollY] = useState(0);
+
     const lastScrollYRef = useRef(0);
     const [isAtTop, setIsAtTop] = useState(true);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -41,7 +41,7 @@ export default function Navigation() {
                 setIsScrolled(scrolled);
                 setScrollingDirection(direction);
                 lastScrollYRef.current = currentScrollY;
-                setLastScrollY(currentScrollY);
+
 
                 if (navRef.current) {
                     navRef.current.setAttribute(
@@ -77,18 +77,7 @@ export default function Navigation() {
         setMenuOpen(false);
     }, []);
 
-    const handleMenuKeyDown = useCallback(
-        (event: React.KeyboardEvent<HTMLButtonElement>) => {
-            if (event.key === ' ' || event.key === 'Enter') {
-                event.preventDefault();
-                setMenuOpen((prev) => !prev);
-            } else if (event.key === 'Escape') {
-                event.preventDefault();
-                setMenuOpen(false);
-            }
-        },
-        []
-    );
+
 
     // Focus management for the mobile menu
     useEffect(() => {

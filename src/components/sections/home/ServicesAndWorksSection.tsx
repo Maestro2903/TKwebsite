@@ -3,179 +3,81 @@
 import { useEffect, useRef } from 'react';
 import { useGSAP } from '@/hooks/useGSAP';
 import { Y2K_IMAGES } from '@/data/y2k-images';
-import EventCard from '@/components/sections/events/EventCard';
-import { NON_TECHNICAL_EVENTS, TECHNICAL_EVENTS, type EventItem } from '@/data/events';
+import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
 
 const QUOTE =
     'We curate an exhilarating journey of technical challenges, creative arts, and musical extravaganzas fished straight out of the ocean.';
 
-// Highlights grid (reuse the same card design as the Events page)
-const HIGHLIGHT_EVENTS: EventItem[] = [
-    NON_TECHNICAL_EVENTS.find((e) => e.id === 'battle-of-bands'),
-    NON_TECHNICAL_EVENTS.find((e) => e.id === 'choreo-showcase'),
-    NON_TECHNICAL_EVENTS.find((e) => e.id === 'treasure-hunt'),
-    TECHNICAL_EVENTS.find((e) => e.id === 'deadlock'),
-    TECHNICAL_EVENTS.find((e) => e.id === 'prompt-pixel'),
-].filter((e): e is EventItem => Boolean(e));
-
-// CIT sticky cards - Excellence, Industry Ready, Vision
-const SERVICES = [
-    {
-        number: '01',
-        title: 'Excellence in Education',
-        features: [
-            'A prominent institution ranking amongst the top colleges in Tamil Nadu.',
-            'Partnered with leading companies to offer diverse opportunities in education and recreation.',
-        ],
-        image: '/images/about/chairman.jpeg',
-        isQuote: false,
-    },
-    {
-        number: '02',
-        title: 'Industry Ready',
-        features: [
-            'Our objective for establishing CIT is to transfer our knowledge to you, so that you can transform into a proper engineer',
-            '~Shri Sriram Parthasarathy',
-        ],
-        image: '/images/about/students.jpeg',
-        isQuote: true,
-    },
-    {
-        number: '03',
-        title: 'Our Vision',
-        features: [
-            "The students' appetite for knowledge makes them thrive to prepare for the ready-to-serve industrial requirements.",
-            'Chennai Institute of Technology has been awarded the National Award of Excellence for Best Placements & has been ranked Second in Tamil Nadu.',
-        ],
-        image: '/images/about/students1.jpeg',
-        isQuote: false,
-    },
-];
-
 export default function ServicesAndWorksSection() {
-    const wrapperRef = useRef<HTMLElement>(null);
-    const textRef = useRef<HTMLHeadingElement>(null);
-    const highlightsRef = useRef<HTMLDivElement>(null);
-    const worksGridRef = useRef<HTMLDivElement>(null);
-    const stickySectionRef = useRef<HTMLDivElement>(null);
-    const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const wrapperRef = useRef<HTMLElement | null>(null);
+    const textRef = useRef<HTMLHeadingElement | null>(null);
     const [gsapModules, isLoading] = useGSAP();
 
     useEffect(() => {
-        if (isLoading || !gsapModules || !wrapperRef.current || !textRef.current) return;
+        if (isLoading || !gsapModules || !wrapperRef.current || !textRef.current) {
+            return;
+        }
 
-        const { gsap, ScrollTrigger } = gsapModules;
+        const { gsap } = gsapModules;
         const wrapper = wrapperRef.current;
         const text = textRef.current;
+        if (!wrapper || !text) return;
+        
         const chars = text.querySelectorAll<HTMLElement>('.Horizontal__char');
 
-        const ctx = gsap.context(() => {
-            const scrollTween = gsap.to(text, {
-                xPercent: -100,
-                ease: 'none',
-                scrollTrigger: {
-                    trigger: wrapper,
-                    pin: true,
-                    start: 'top top',
-                    end: '+=5000',
-                    scrub: true,
-                },
-            });
-
-            chars.forEach((char) => {
-                gsap.from(char, {
-                    yPercent: () => gsap.utils.random(-200, 200),
-                    rotation: () => gsap.utils.random(-20, 20),
-                    ease: 'back.out(1.2)',
+        try {
+            const ctx = gsap.context(() => {
+                const scrollTween = gsap.to(text, {
+                    xPercent: -100,
+                    ease: 'none',
                     scrollTrigger: {
-                        trigger: char,
-                        containerAnimation: scrollTween,
-                        start: 'left 100%',
-                        end: 'left 30%',
-                        scrub: 1,
+                        trigger: wrapper,
+                        pin: true,
+                        start: 'top top',
+                        end: '+=5000',
+                        scrub: true,
+                        onLeave: () => wrapper.classList.add('Horizontal--ended'),
+                        onLeaveBack: () => wrapper.classList.remove('Horizontal--ended'),
+                        onUpdate: (self) => {
+                            if (self.progress === 1) wrapper.classList.add('Horizontal--ended');
+                            else if (self.direction === -1) wrapper.classList.remove('Horizontal--ended');
+                        },
                     },
                 });
-            });
-        }, wrapper);
 
-        return () => ctx.revert();
-    }, [isLoading, gsapModules]);
-
-    // Highlights / works grid animation
-    useEffect(() => {
-        if (isLoading || !gsapModules || !highlightsRef.current || !worksGridRef.current) return;
-        const { gsap, ScrollTrigger } = gsapModules;
-        const ctx = gsap.context(() => {
-            const workItems = worksGridRef.current?.querySelectorAll('.home_work_item');
-            if (workItems?.length) {
-                gsap.fromTo(
-                    workItems,
-                    { opacity: 0, y: 60 },
-                    {
-                        opacity: 1,
-                        y: 0,
-                        duration: 0.8,
-                        ease: 'power3.out',
-                        stagger: 0.1,
+                chars.forEach((char) => {
+                    gsap.from(char, {
+                        yPercent: () => gsap.utils.random(-200, 200),
+                        rotation: () => gsap.utils.random(-20, 20),
+                        ease: 'back.out(1.2)',
                         scrollTrigger: {
-                            trigger: worksGridRef.current,
-                            start: 'top 75%',
-                            toggleActions: 'play none none reverse',
+                            trigger: char,
+                            containerAnimation: scrollTween,
+                            start: 'left 100%',
+                            end: 'left 30%',
+                            scrub: 1,
                         },
-                    }
-                );
-            }
-        }, highlightsRef.current);
+                    });
+                });
+            }, wrapper);
 
-        return () => ctx.revert();
-    }, [isLoading, gsapModules]);
-
-    // Sticky cards scroll animations
-    useEffect(() => {
-        if (isLoading || !gsapModules || !stickySectionRef.current) return;
-        const { gsap, ScrollTrigger } = gsapModules;
-        const ctx = gsap.context(() => {
-            cardRefs.current.forEach((card) => {
-                if (card) {
-                    gsap.fromTo(
-                        card,
-                        { opacity: 0.3 },
-                        {
-                            opacity: 1,
-                            duration: 0.6,
-                            ease: 'power2.out',
-                            scrollTrigger: {
-                                trigger: card,
-                                start: 'top 80%',
-                                end: 'top 20%',
-                                scrub: true,
-                            },
-                        }
-                    );
-                }
-            });
-        }, stickySectionRef);
-
-        return () => ctx.revert();
+            return () => {
+                wrapper.classList.remove('Horizontal--ended');
+                ctx.revert();
+            };
+        } catch (error) {
+            console.error('GSAP animation error:', error);
+        }
     }, [isLoading, gsapModules]);
 
     return (
-        <>
         <section
             ref={wrapperRef}
             className="Horizontal"
             aria-label="What we do"
         >
-            {/* Y2K icons background - fills section, no white space (from y2k icons, not parallax) */}
-            <div className="Horizontal__bg" aria-hidden>
-                {Y2K_IMAGES.flatMap((src, i) =>
-                    Array.from({ length: 24 }, (_, j) => (
-                        <div key={`${i}-${j}`} className="Horizontal__bg-icon">
-                            <img src={src} alt="" loading="lazy" />
-                        </div>
-                    ))
-                )}
-            </div>
+            {/* Y2K icons background - same as About/Marquee; no grid so pinning doesn't reflow */}
+            <ParallaxFloatingImages images={Y2K_IMAGES} className="Horizontal__y2k" mode="section" />
 
             <div className="Horizontal__container">
                 <h3 ref={textRef} className="Horizontal__text heading-xl">
@@ -187,133 +89,5 @@ export default function ServicesAndWorksSection() {
                 </h3>
             </div>
         </section>
-
-        {/* Highlights / Explore Events section */}
-        <div ref={highlightsRef} className="section_contain u-section u-zindex-3">
-            <div
-                data-wf--spacer--section-space="large"
-                className="u-section-spacer w-variant-8cc18b30-4618-8767-0111-f6abfe45aaa3 u-ignore-trim"
-            />
-            <div className="u-container">
-                <div className="u-grid-custom">
-                    <div className="about_heading u-column-8">
-                        <div
-                            data-wf--button-main--style="primary"
-                            className="button_main_wrap u-margin-bottom-6"
-                            data-button=" "
-                        >
-                            <div className="clickable_wrap u-cover-absolute">
-                                <a target="" href="/events" className="clickable_link w-inline-block">
-                                    <span className="clickable_text u-sr-only">[ Explore Events ]</span>
-                                </a>
-                            </div>
-                            <div aria-hidden="true" className="button_main_text u-text-style-main">
-                                [ Explore Events ]
-                            </div>
-                            <div className="button_bg" />
-                        </div>
-                        <h2 className="u-text-style-h2 u-margin-bottom-6">Highlights</h2>
-                    </div>
-                </div>
-                <div data-swiper-wrap="" className="home_work_component w-dyn-list">
-                    <div ref={worksGridRef} role="list" className="home_work_grid u-grid-custom w-dyn-items">
-                        {HIGHLIGHT_EVENTS.map((event) => (
-                            <div
-                                key={event.id}
-                                role="listitem"
-                                className="home_work_item u-column-3 w-dyn-item"
-                            >
-                                <EventCard event={event} />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div className="u-alignment-center u-margin-top-5">
-                    <div
-                        data-wf--button-main--style="primary"
-                        className="button_main_wrap"
-                        data-button=" "
-                    >
-                        <div className="clickable_wrap u-cover-absolute">
-                            <a target="" href="/events" className="clickable_link w-inline-block">
-                                <span className="clickable_text u-sr-only">[ All Events ]</span>
-                            </a>
-                        </div>
-                        <div aria-hidden="true" className="button_main_text u-text-style-main">
-                            [ All Events ]
-                        </div>
-                        <div className="button_bg" />
-                    </div>
-                </div>
-            </div>
-            <div
-                data-wf--spacer--section-space="main"
-                className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
-            />
-        </div>
-
-        {/* Sticky card section */}
-        <div ref={stickySectionRef} className="services-works-section u-section" data-wf--section--theme="inherit">
-            <div
-                data-wf--spacer--section-space="main"
-                className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
-            />
-            <div data-wf--content-wrapper--alignment="inherit" className="u-display-contents">
-                <div className="u-content-wrapper u-zindex-3 u-container">
-                    {SERVICES.map((service, index) => (
-                        <div
-                            key={service.number}
-                            ref={(el) => { cardRefs.current[index] = el; }}
-                            data-home-service=""
-                            className="sticky-card-wrap"
-                            style={{ zIndex: 10 + index }}
-                        >
-                            <div className="sticky-card">
-                                <div className="services_item u-grid-custom">
-                                    <div className="services_number_wrap u-column-1">
-                                        <div className="u-opacity-60">{service.number}</div>
-                                    </div>
-                                    <div className="services_heading_wrap u-column-4">
-                                        <div>
-                                            <h2 className="u-text-style-h3 u-margin-bottom-4">{service.title}</h2>
-                                            <div className={`u-rich-text u-opacity-80 w-richtext ${service.isQuote ? 'services_card_quote' : ''}`}>
-                                                {service.isQuote ? (
-                                                    <>
-                                                        <p className="services_quote_text">{service.features[0]}</p>
-                                                        <p className="services_quote_attribution">{service.features[1]}</p>
-                                                    </>
-                                                ) : (
-                                                    <ul role="list">
-                                                        {service.features.map((feature, i) => (
-                                                            <li key={i}>{feature}</li>
-                                                        ))}
-                                                    </ul>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="services_image_wrap u-column-6">
-                                        <img
-                                            src={service.image}
-                                            loading="lazy"
-                                            width={698}
-                                            height={393}
-                                            alt={service.title}
-                                            sizes="(max-width: 767px) 100vw, 698px"
-                                            className="services_image"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-            <div
-                data-wf--spacer--section-space="main"
-                className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
-            />
-        </div>
-        </>
     );
 }

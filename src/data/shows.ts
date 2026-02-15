@@ -66,6 +66,12 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
         title: 'DJ Night',
         imageUrl: '/images/proshows/dj-night.webp',
       },
+      {
+        id: 'day3-surprise-guest',
+        title: 'Surprise Guest',
+        subtitle: 'Walk-in Guest',
+        imageUrl: '/images/proshows/concert.webp',
+      },
     ],
   },
 ];

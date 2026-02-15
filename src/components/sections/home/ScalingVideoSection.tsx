@@ -1,4 +1,7 @@
-import { useRef, useLayoutEffect } from 'react';
+'use client';
+
+import { useRef, useLayoutEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useGSAP } from '@/hooks/useGSAP';
 
 export default function ScalingVideoSection() {
@@ -103,11 +106,11 @@ export default function ScalingVideoSection() {
         };
     }, [isLoading, gsapModules]);
 
-    const addToRefs = (el: HTMLDivElement | null) => {
+    const addToRefs = useCallback((el: HTMLDivElement | null) => {
         if (el && !textElements.current.includes(el)) {
             textElements.current.push(el);
         }
-    };
+    }, []);
 
     return (
         <section ref={sectionRef} className="section_scale u-section">
@@ -192,16 +195,15 @@ export default function ScalingVideoSection() {
                                     data-button=" "
                                 >
                                     <div className="clickable_wrap u-cover-absolute">
-                                        <a
-                                            target=""
+                                        <Link
                                             href="/register"
                                             className="clickable_link w-inline-block"
                                         >
                                             <span className="clickable_text u-sr-only">
                                                 [ Get Gate Pass ]
                                             </span>
-                                        </a>
-                                        <button type="button" className="clickable_btn">
+                                        </Link>
+                                        <button type="button" className="clickable_btn" aria-label="Get Gate Pass">
                                             <span className="clickable_text u-sr-only">
                                                 [ Get Gate Pass ]
                                             </span>

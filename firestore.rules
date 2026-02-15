@@ -3,8 +3,14 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
       allow read: if request.auth.uid == userId;
-      allow create: if request.auth.uid == userId && request.resource.data.isOrganizer == false;
-      allow update: if request.auth.uid == userId && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['isOrganizer']));
+      // Create: allow if isOrganizer not set or explicitly false (client profile doesn't send it)
+      allow create: if request.auth.uid == userId &&
+        (!('isOrganizer' in request.resource.data) || request.resource.data.isOrganizer == false);
+      // Update: block client from writing server-managed fields
+      allow update: if request.auth.uid == userId &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'isOrganizer', 'referralCode', 'invitedUsers', 'inviteCount', 'dayPassUnlocked', 'inviteUnlockedAt'
+        ]);
     }
     match /registrations/{doc} {
       allow read: if request.auth.uid == resource.data.uid;
@@ -31,6 +37,9 @@ service cloud.firestore {
     match /payments/{paymentId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create, update, delete: if false;  // Server only via Admin SDK
+    }
+    match /mockSummitInvites/{code} {
+      allow read, write: if false;  // Server only via Admin SDK
     }
   }
 }

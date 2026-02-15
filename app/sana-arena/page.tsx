@@ -2,7 +2,6 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import StickyRegisterCTA from '@/components/layout/StickyRegisterCTA';
 import MusicPortfolio from '@/components/ui/music-portfolio';
@@ -83,8 +82,6 @@ export default function SanaArenaPage() {
 
     return (
         <>
-            <Navigation />
-
             <main id="main" className="page_main">
                 <section
                     className="relative w-full flex items-center justify-center overflow-hidden sana-hero"

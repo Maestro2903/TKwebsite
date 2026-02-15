@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/adminApp';
+import { FieldValue } from 'firebase-admin/firestore';
 import { PASS_TYPES } from '@/types/passes';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
+
+const MOCK_SUMMIT_EVENT_ID = 'mock-global-summit';
 
 const CASHFREE_BASE =
   process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production'
@@ -33,7 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { userId, amount, passType, teamData, teamId, selectedDays, selectedEvents } = body;
+    const { userId, amount, passType, teamData, teamId, selectedDays, selectedEvents, inviteCode } = body;
 
     if (decoded.uid !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -44,14 +47,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid pass type' }, { status: 400 });
     }
 
+    const db = getAdminFirestore();
+
     // Calculate expected amount based on pass type
     let expectedAmount: number;
     if (passType === 'group_events') {
       expectedAmount = (body.teamMemberCount ?? 1) * ((validPass as { pricePerPerson?: number }).pricePerPerson ?? 250);
     } else if (passType === 'day_pass' && selectedDays && Array.isArray(selectedDays)) {
-      // For day pass with selected days, amount = number of days * price per day
+      // Invite-unlock: fetch user to determine price (500 if unlocked, 600 otherwise)
+      const userDoc = await db.collection('users').doc(userId).get();
+      const dayPassUnlocked = userDoc.data()?.dayPassUnlocked === true;
+      const pricePerDay = dayPassUnlocked ? 500 : 600;
       const daysCount = selectedDays.length;
-      expectedAmount = daysCount * ((validPass as { price?: number }).price ?? 500);
+      expectedAmount = daysCount * pricePerDay;
     } else {
       expectedAmount = (validPass as { price?: number }).price ?? 0;
     }
@@ -66,7 +74,6 @@ export async function POST(req: NextRequest) {
     }
 
     // Fetch selected events from Firestore to validate them
-    const db = getAdminFirestore();
     const eventDocs = await Promise.all(
       selectedEvents.map((eventId: string) => db.collection('events').doc(eventId).get())
     );
@@ -125,6 +132,51 @@ export async function POST(req: NextRequest) {
           error: `These events are not available for ${passType}: ${deniedEvents.map((e: any) => e.name).join(', ')}` 
         }, { status: 400 });
       }
+    }
+
+    // Mock Global Summit: invite-gated validation (day_pass only)
+    let mockSummitInviteCodeUsed: string | null = null;
+    if (passType === 'day_pass' && selectedEvents?.includes(MOCK_SUMMIT_EVENT_ID)) {
+      const inviteCodeTrimmed = typeof inviteCode === 'string' ? inviteCode.trim() : '';
+      if (!inviteCodeTrimmed) {
+        return NextResponse.json({ error: 'Invite code required for Mock Global Summit.' }, { status: 400 });
+      }
+
+      const inviteDoc = await db.collection('mockSummitInvites').doc(inviteCodeTrimmed).get();
+      if (!inviteDoc.exists) {
+        return NextResponse.json({ error: 'Invalid or expired invite code.' }, { status: 400 });
+      }
+
+      const inviteData = inviteDoc.data();
+      const now = new Date();
+      const expiresAt = inviteData?.expiresAt?.toDate?.() ?? inviteData?.expiresAt;
+      if (
+        !inviteData?.active ||
+        (expiresAt && new Date(expiresAt) <= now) ||
+        (inviteData?.usedCount ?? 0) >= (inviteData?.maxUsage ?? 0)
+      ) {
+        return NextResponse.json({ error: 'Invalid or expired invite code.' }, { status: 400 });
+      }
+
+      // Event exclusivity: mock-global-summit cannot be combined with other events on same date
+      const mockSummitEvent = events.find((e: any) => e.id === MOCK_SUMMIT_EVENT_ID) as { date?: string } | undefined;
+      const mockSummitDate = mockSummitEvent?.date;
+      if (mockSummitDate) {
+        const otherEventsOnSameDate = events.filter(
+          (e: any) => e.id !== MOCK_SUMMIT_EVENT_ID && e.date === mockSummitDate
+        );
+        if (otherEventsOnSameDate.length > 0) {
+          return NextResponse.json({
+            error: 'Mock Global Summit cannot be combined with other events on this date.',
+          }, { status: 400 });
+        }
+      }
+
+      // Atomic increment usedCount
+      await db.collection('mockSummitInvites').doc(inviteCodeTrimmed).update({
+        usedCount: FieldValue.increment(1),
+      });
+      mockSummitInviteCodeUsed = inviteCodeTrimmed;
     }
 
     const appId =
@@ -234,6 +286,10 @@ export async function POST(req: NextRequest) {
       teamMemberCount: body.teamMemberCount || null,
       selectedDays: selectedDays || null,
       selectedEvents: selectedEvents || [],
+      ...(mockSummitInviteCodeUsed && {
+        mockSummitSelected: true,
+        mockSummitInviteCode: mockSummitInviteCodeUsed,
+      }),
     });
 
     // For group registration, create the team document here to ensure ACID consistency

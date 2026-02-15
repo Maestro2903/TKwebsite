@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/clientApp';
 import { useAuth } from '@/features/auth/AuthContext';
-import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import { PASS_TYPES } from '@/types/passes';
 import { generatePassPDF } from '@/features/passes/pdfGenerator.client';
@@ -96,7 +95,6 @@ export default function MyPassPage() {
   if (loading || !user) {
     return (
       <>
-        <Navigation />
         <main id="main" className="page_main min-h-[60vh] flex flex-col items-center justify-center u-container py-16">
           {loading ? (
             <p className="text-white/70">Loading…</p>
@@ -120,7 +118,6 @@ export default function MyPassPage() {
 
   return (
     <>
-      <Navigation />
       <main id="main" className="page_main u-container py-[var(--_spacing---section-space--large)]">
         <div className="mb-12">
           <h1 className="text-2xl font-semibold text-white md:text-3xl">My Pass</h1>

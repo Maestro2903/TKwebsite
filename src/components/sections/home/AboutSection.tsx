@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
+import Link from 'next/link';
 import { useGSAP } from '@/hooks/useGSAP';
 
 import { Y2K_IMAGES } from '@/data/y2k-images';
 import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
 
 // Exact HTML structure from original Zeit Media website for About Section with GSAP animations
-export default function AboutSection() {
+function AboutSection() {
     const sectionRef = useRef<HTMLDivElement>(null);
     const parallaxBgRef = useRef<HTMLDivElement>(null);
     const card1Ref = useRef<HTMLDivElement>(null);
@@ -150,13 +151,14 @@ export default function AboutSection() {
                         <p>From trend driven performances and culture forward showcases to cutting edge technical challenges and innovation led events, the fest thrives on movement, momentum, and modern expression. Takshashila is more than a fest it’s an experience that builds confidence, fuels collaboration, and amplifies voices that refuse to blend in. With a dynamic lineup of workshops, competitions, and technical presentations led by industry experts, Takshashila promises a celebration where ideas move fast, creativity runs loud, and Gen Z takes center stage.</p>
                     </div>
                     <div className="btn-group">
-                        <a href="/events" className="btn-bubble-arrow w-inline-block">
+                        <Link href="/events" className="btn-bubble-arrow w-inline-block">
                             <div className="btn-bubble-arrow__arrow">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
                                     width="100%"
                                     className="btn-bubble-arrow__arrow-svg"
+                                    aria-hidden="true"
                                 >
                                     <polyline
                                         points="18 8 18 18 8 18"
@@ -186,6 +188,7 @@ export default function AboutSection() {
                                     viewBox="0 0 24 24"
                                     width="100%"
                                     className="btn-bubble-arrow__arrow-svg"
+                                    aria-hidden="true"
                                 >
                                     <polyline
                                         points="18 8 18 18 8 18"
@@ -206,7 +209,7 @@ export default function AboutSection() {
                                     />
                                 </svg>
                             </div>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -326,3 +329,5 @@ export default function AboutSection() {
         </div>
     );
 }
+
+export default memo(AboutSection);

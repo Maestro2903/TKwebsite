@@ -6,7 +6,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils/cn';
 
 const glassButtonVariants = cva(
-  'glass-button relative isolate cursor-pointer rounded-full transition-all',
+  'glass-button relative isolate cursor-pointer rounded-full transition-[transform,opacity,box-shadow]',
   {
     variants: {
       size: {

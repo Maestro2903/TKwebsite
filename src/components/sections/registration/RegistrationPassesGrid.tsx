@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PassCard from '@/components/ui/PassCard';
 import { REGISTRATION_PASSES } from '@/data/passes';
 import type { RegistrationPass } from '@/data/passes';
 
 interface RegistrationPassesGridProps {
   onRegisterClick?: (pass: RegistrationPass) => void;
+  /** Invite-unlock: when true, Day Pass shows ₹500; otherwise ₹600 */
+  dayPassUnlocked?: boolean;
 }
 
-export default function RegistrationPassesGrid({ onRegisterClick }: RegistrationPassesGridProps) {
-  const [passes, setPasses] = useState<RegistrationPass[]>(REGISTRATION_PASSES);
+export default function RegistrationPassesGrid({ onRegisterClick, dayPassUnlocked }: RegistrationPassesGridProps) {
+  const [backendPassTypes, setBackendPassTypes] = useState<Record<string, { id: string; price?: number; pricePerPerson?: number }> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,26 +20,7 @@ export default function RegistrationPassesGrid({ onRegisterClick }: Registration
         const data = await response.json();
 
         if (data.success && data.passTypes) {
-          const updatedPasses = REGISTRATION_PASSES.map(pass => {
-            // Find matching pass type from backend using passType property
-            const backendPass = Object.values(data.passTypes).find(
-              (bp: any) => bp.id === pass.passType
-            ) as any;
-
-            if (backendPass) {
-              return {
-                ...pass,
-                amount: backendPass.price || backendPass.pricePerPerson || pass.amount,
-                price: backendPass.price
-                  ? `₹${backendPass.price}`
-                  : backendPass.pricePerPerson
-                    ? `₹${backendPass.pricePerPerson} / person`
-                    : pass.price
-              };
-            }
-            return pass;
-          });
-          setPasses(updatedPasses);
+          setBackendPassTypes(data.passTypes);
         }
       } catch (error) {
         console.error('Failed to fetch pass prices:', error);
@@ -49,6 +32,36 @@ export default function RegistrationPassesGrid({ onRegisterClick }: Registration
     fetchPrices();
   }, []);
 
+  const passes = useMemo(() => {
+    return REGISTRATION_PASSES.map(pass => {
+      const backendPass = backendPassTypes
+        ? (Object.values(backendPassTypes).find((bp: any) => bp.id === pass.passType) as any)
+        : null;
+
+      if (pass.passType === 'day_pass') {
+        const pricePerDay = dayPassUnlocked ? 500 : 600;
+        return {
+          ...pass,
+          amount: pricePerDay,
+          price: `₹${pricePerDay}`,
+        };
+      }
+
+      if (backendPass) {
+        return {
+          ...pass,
+          amount: backendPass.price ?? backendPass.pricePerPerson ?? pass.amount,
+          price: backendPass.price
+            ? `₹${backendPass.price}`
+            : backendPass.pricePerPerson
+              ? `₹${backendPass.pricePerPerson} / person`
+              : pass.price,
+        };
+      }
+      return pass;
+    });
+  }, [backendPassTypes, dayPassUnlocked]);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-20">
@@ -58,9 +71,14 @@ export default function RegistrationPassesGrid({ onRegisterClick }: Registration
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 mt-20 px-4 sm:px-0" role="list" aria-label="Pass selection">
+    <div
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-20 px-4 sm:px-0"
+      style={{ gap: 'var(--site--gutter)' }}
+      role="list"
+      aria-label="Pass selection"
+    >
       {passes.map((pass) => (
-        <div key={pass.id} className="flex justify-center" role="listitem">
+        <div key={pass.id} className="min-w-0" role="listitem">
           <PassCard pass={pass} onRegister={onRegisterClick} />
         </div>
       ))}

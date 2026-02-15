@@ -3,9 +3,10 @@
 import { useAuth } from '@/features/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import { AwardBadge } from '@/components/decorative/AwardBadge';
+import { auth } from '@/lib/firebase/clientApp';
+import { REFERRAL_STORAGE_KEY } from '@/hooks/useReferralCapture';
 
 export default function ProfilePage() {
     const { user, userData, loading: authLoading, updateUserProfile } = useAuth();
@@ -34,6 +35,30 @@ export default function ProfilePage() {
         setIsLoading(true);
         try {
             await updateUserProfile(formData);
+
+            // Apply referral if present (silently ignore errors)
+            const referralCode = typeof localStorage !== 'undefined' ? localStorage.getItem(REFERRAL_STORAGE_KEY) : null;
+            if (referralCode && user) {
+                try {
+                    const token = await auth.currentUser?.getIdToken(true);
+                    if (token) {
+                        const res = await fetch('/api/referral/apply', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${token}`,
+                            },
+                            body: JSON.stringify({ referralCode }),
+                        });
+                        if (res.ok) {
+                            localStorage.removeItem(REFERRAL_STORAGE_KEY);
+                        }
+                    }
+                } catch {
+                    // Silently ignore - profile is saved, don't block navigation
+                }
+            }
+
             router.push('/register/pass');
         } catch (error) {
             console.error('Profile update error:', error);
@@ -45,7 +70,6 @@ export default function ProfilePage() {
     if (authLoading) {
         return (
             <>
-                <Navigation />
                 <main className="page_main page_main--registration registration-loading">
                     <div className="registration-loading__spinner">
                         <div className="reg-spinner" />
@@ -60,7 +84,6 @@ export default function ProfilePage() {
     if (!user) {
         return (
             <>
-                <Navigation />
                 <main className="page_main page_main--registration registration-loading">
                     <div className="registration-loading__spinner">
                         <div className="reg-spinner" />
@@ -76,7 +99,6 @@ export default function ProfilePage() {
     if (userData) {
         return (
             <>
-                <Navigation />
                 <main className="page_main page_main--registration registration-loading">
                     <div className="registration-loading__spinner">
                         <div className="reg-spinner" />
@@ -91,7 +113,6 @@ export default function ProfilePage() {
     // Profile setup form
     return (
         <>
-            <Navigation />
             <main id="main" className="page_main page_main--registration">
                 {/* Hero */}
                 <section className="registration-hero-v2">

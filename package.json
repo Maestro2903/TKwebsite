@@ -11,6 +11,7 @@
     "db:clear": "node scripts/db/clear-database.js",
     "db:debug": "node scripts/db/debug-collections.js",
     "db:seed-events": "node scripts/db/seed-events.js",
+    "db:seed-mock-summit-invites": "node scripts/db/seed-mock-summit-invites.js",
     "users:list": "node scripts/users/list-users.js",
     "users:find": "node scripts/users/find-user.js",
     "users:dump": "node scripts/users/dump-users.js",

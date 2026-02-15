@@ -3,7 +3,6 @@
 import { useAuth } from '@/features/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Navigation from '@/components/layout/Navigation';
 import { AwardBadge } from '@/components/decorative/AwardBadge';
 
 export default function LoginPage() {
@@ -36,7 +35,6 @@ export default function LoginPage() {
   if (loading) {
     return (
       <>
-        <Navigation />
         <main className="page_main page_main--registration registration-loading">
           <div className="registration-loading__spinner">
             <div className="reg-spinner" />
@@ -50,7 +48,6 @@ export default function LoginPage() {
   if (user) {
     return (
       <>
-        <Navigation />
         <main className="page_main page_main--registration registration-loading">
           <div className="registration-loading__spinner">
             <div className="reg-spinner" />
@@ -64,7 +61,6 @@ export default function LoginPage() {
   // Login page - Premium Split-Screen Auth Layout
   return (
     <>
-      <Navigation />
       <div className="auth-page">
         {/* Split Screen Layout */}
         <div className="auth-container">
