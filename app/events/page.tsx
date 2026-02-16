@@ -37,7 +37,7 @@ export default function EventsPage() {
         <EventsHero />
 
         <section className="events-filter-section">
-          <EventCategorySwitch value={category} onChange={setCategory} />
+          <EventCategorySwitch value={category} onChangeAction={setCategory} />
         </section>
 
         <div className="events-content-shell mt-5">

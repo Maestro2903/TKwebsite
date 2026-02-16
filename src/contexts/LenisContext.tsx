@@ -34,7 +34,6 @@ export function LenisProvider({ children }: LenisProviderProps) {
       wheelMultiplier: 0.8,
       touchMultiplier: 1.5,
       infinite: false,
-      smoothTouch: true,
       syncTouch: true,
     });
 

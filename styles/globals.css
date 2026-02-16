@@ -1,7 +1,7 @@
 /* Zeit Media Clone - Pixel Perfect Styles */
 /* ALL @import statements MUST come first */
 @import "tailwindcss";
-/* Fonts now loaded locally from reset.css (InterDisplay) */
+/* Fonts now loaded locally from reset.css (InterDisplay). JetBrains Mono loaded via layout.tsx link. */
 @import './reset.css';
 @import './components.css';
 @import './proshows-premium.css';
@@ -7703,6 +7703,155 @@ video {
 .order-summary-card__security svg {
   width: 14px;
   height: 14px;
+}
+
+/* =================================================================
+   REGISTRATION PASS CARD (PassCard.tsx - register/pass & sana-arena)
+   Gradient header per pass type + optional shimmer
+   ================================================================== */
+
+.pass-card .pass-card-header {
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e3a5f 25%,
+    #2563eb 50%,
+    #3b82f6 75%,
+    #60a5fa 100%
+  );
+  background-size: 200% 200%;
+}
+
+.pass-card[data-pass-type="day_pass"] .pass-card-header {
+  background: linear-gradient(
+    135deg,
+    #0c1929 0%,
+    #1e40af 40%,
+    #3b82f6 70%,
+    #60a5fa 100%
+  );
+}
+
+.pass-card[data-pass-type="group_events"] .pass-card-header {
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1d4ed8 40%,
+    #2563eb 70%,
+    #93c5fd 100%
+  );
+}
+
+.pass-card[data-pass-type="proshow"] .pass-card-header {
+  background: linear-gradient(
+    135deg,
+    #0a1628 0%,
+    #1e3a8a 40%,
+    #3b82f6 70%,
+    #7dd3fc 100%
+  );
+}
+
+.pass-card[data-pass-type="sana_concert"] .pass-card-header {
+  background: linear-gradient(
+    135deg,
+    #0c1929 0%,
+    #1e40af 30%,
+    #6366f1 60%,
+    #a5b4fc 100%
+  );
+}
+
+/* Shimmer overlay on header */
+.pass-card .pass-card-header__shimmer {
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: pass-card-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes pass-card-shimmer {
+  0%, 100% { background-position: 200% 0; }
+  50% { background-position: -200% 0; }
+}
+
+/* =================================================================
+   PASS CARD TICKET (PassCardTicket.tsx - ticket-style redesign)
+   Gradient header per pass type; no hover on card or button
+   ================================================================== */
+.pass-card-ticket__header {
+  background-repeat: no-repeat;
+  background-size: 200% 200%;
+  animation: pass-card-ticket-bg 14s ease-in-out infinite;
+}
+
+.pass-card-ticket[data-pass-type="day_pass"] .pass-card-ticket__header {
+  background-color: #ffecd2;
+  background-image:
+    radial-gradient(ellipse at 20% 80%, rgba(255, 200, 130, 0.95) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(255, 160, 100, 0.9) 0%, transparent 50%),
+    linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ffecd2 100%);
+}
+
+.pass-card-ticket[data-pass-type="group_events"] .pass-card-ticket__header {
+  background-color: #e0f7fa;
+  background-image:
+    radial-gradient(ellipse at 20% 80%, rgba(160, 210, 255, 0.95) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(140, 180, 255, 0.9) 0%, transparent 50%),
+    linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 50%, #e0f7fa 100%);
+}
+
+.pass-card-ticket[data-pass-type="proshow"] .pass-card-ticket__header {
+  background-color: #fce4ec;
+  background-image:
+    radial-gradient(ellipse at 20% 80%, rgba(255, 180, 220, 0.95) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(220, 160, 255, 0.9) 0%, transparent 50%),
+    linear-gradient(135deg, #fce4ec 0%, #f8bbd9 50%, #e1bee7 100%);
+}
+
+.pass-card-ticket[data-pass-type="sana_concert"] .pass-card-ticket__header {
+  background-color: #c8f5e8;
+  background-image:
+    radial-gradient(ellipse at 20% 80%, rgba(180, 255, 220, 0.9) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(255, 220, 180, 0.9) 0%, transparent 50%),
+    linear-gradient(135deg, #c8f5e8 0%, #e0f7c8 33%, #f5f0d0 66%, #e0d8f5 100%);
+}
+
+@keyframes pass-card-ticket-bg {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Pass card short title: DAY, GROUP, PROSHOW, ALL ACCESS – bold display font, ~50% larger */
+.pass-card-ticket__short-title {
+  font-family: var(--font-anton), Anton, 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  text-transform: uppercase;
+  /* ~50% larger than default: 4.5rem → 6.75rem responsive */
+  font-size: clamp(3.75rem, 8vw + 2rem, 6.75rem);
+}
+
+@media (min-width: 640px) {
+  .pass-card-ticket__short-title {
+    font-size: clamp(4.5rem, 6vw + 2.5rem, 7rem);
+  }
+}
+
+@media (min-width: 768px) {
+  .pass-card-ticket__short-title {
+    font-size: clamp(5.5rem, 5vw + 3rem, 7.5rem);
+  }
+}
+
+/* JetBrains Mono for pass card labels (loaded via layout.tsx next/font) */
+.font-mono-tk {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
 /* =================================================================

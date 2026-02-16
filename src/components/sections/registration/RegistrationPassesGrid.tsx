@@ -72,13 +72,13 @@ export default function RegistrationPassesGrid({ onRegisterClick, dayPassUnlocke
 
   return (
     <div
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-20 px-4 sm:px-0"
+      className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-20 px-4 sm:px-0 items-stretch"
       style={{ gap: 'var(--site--gutter)' }}
       role="list"
       aria-label="Pass selection"
     >
       {passes.map((pass) => (
-        <div key={pass.id} className="min-w-0" role="listitem">
+        <div key={pass.id} className="min-w-0 flex flex-col flex-1 min-h-0" role="listitem">
           <PassCard pass={pass} onRegister={onRegisterClick} />
         </div>
       ))}

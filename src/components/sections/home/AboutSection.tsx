@@ -126,9 +126,9 @@ export default function AboutSection() {
             </p>
             <p>
               This year’s theme,{" "}
-              <Tooltip content="A celebration of bold energy, fearless expression, and the ever-evolving culture of today’s generation. ’Kondattam’ means celebration in Tamil.">
+              <Tooltip content="A celebration of bold energy, fearless expression, and the ever-evolving culture of today’s generation.">
                 <span className="cursor-pointer font-semibold text-[#06B6D4] transition-colors hover:text-[#22D3EE]">
-                  GenZ Kondattam
+                  GenZ Vibes
                 </span>
               </Tooltip>
               , brings{" "}

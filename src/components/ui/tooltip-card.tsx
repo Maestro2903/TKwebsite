@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export const Tooltip = ({
@@ -19,8 +19,8 @@ export const Tooltip = ({
     x: 0,
     y: 0,
   });
-  const contentRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLSpanElement>(null);
+  const containerRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     if (isVisible && contentRef.current) {
@@ -145,7 +145,7 @@ export const Tooltip = ({
   }, [isVisible, height, mouse.x, mouse.y]);
 
   return (
-    <div
+    <span
       ref={containerRef}
       className={cn("relative inline-block", containerClassName)}
       onMouseEnter={handleMouseEnter}
@@ -158,7 +158,7 @@ export const Tooltip = ({
       {children}
       <AnimatePresence>
         {isVisible && (
-          <motion.div
+          <motion.span
             key={String(isVisible)}
             initial={{ height: 0, opacity: 1 }}
             animate={{ height, opacity: 1 }}
@@ -174,15 +174,15 @@ export const Tooltip = ({
               left: position.x,
             }}
           >
-            <div
+            <span
               ref={contentRef}
-              className="p-2 text-sm text-neutral-600 md:p-4 dark:text-neutral-400"
+              className="block p-2 text-sm text-neutral-600 md:p-4 dark:text-neutral-400"
             >
               {content}
-            </div>
-          </motion.div>
+            </span>
+          </motion.span>
         )}
       </AnimatePresence>
-    </div>
+    </span>
   );
 };

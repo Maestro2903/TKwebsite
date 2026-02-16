@@ -51,6 +51,7 @@ export default function HighlightsCarousel({ images }: HighlightsCarouselProps) 
             }
 
             // Wait for images to load before initializing
+            if (!listRef.current) return;
             const images = listRef.current.querySelectorAll('img');
             const imagePromises = Array.from(images).map((img) => {
                 if (img.complete) return Promise.resolve();

@@ -7,12 +7,12 @@ export type EventCategory = 'non-technical' | 'technical';
 
 interface EventCategorySwitchProps {
   value: EventCategory;
-  onChange: (value: EventCategory) => void;
+  onChangeAction: (value: EventCategory) => void;
 }
 
 export default function EventCategorySwitch({
   value,
-  onChange,
+  onChangeAction,
 }: EventCategorySwitchProps) {
   const tabListRef = useRef<HTMLDivElement>(null);
 
@@ -20,15 +20,15 @@ export default function EventCategorySwitch({
     (e: React.KeyboardEvent) => {
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        onChange('non-technical');
+        onChangeAction('non-technical');
         tabListRef.current?.querySelector<HTMLButtonElement>('#tab-non-technical')?.focus();
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
-        onChange('technical');
+        onChangeAction('technical');
         tabListRef.current?.querySelector<HTMLButtonElement>('#tab-technical')?.focus();
       }
     },
-    [onChange]
+    [onChangeAction]
   );
 
   return (
@@ -65,7 +65,7 @@ export default function EventCategorySwitch({
                 : 'bg-transparent text-[var(--editorial-gray-muted,#999)] hover:text-[var(--editorial-white,#FFF)]'
             )}
             data-selected={value === 'non-technical' ? true : undefined}
-            onClick={() => onChange('non-technical')}
+            onClick={() => onChangeAction('non-technical')}
             tabIndex={value === 'non-technical' ? 0 : -1}
           >
             Non-Technical
@@ -90,7 +90,7 @@ export default function EventCategorySwitch({
                 : 'bg-transparent text-[var(--editorial-gray-muted,#999)] hover:text-[var(--editorial-white,#FFF)]'
             )}
             data-selected={value === 'technical' ? true : undefined}
-            onClick={() => onChange('technical')}
+            onClick={() => onChangeAction('technical')}
             tabIndex={value === 'technical' ? 0 : -1}
           >
             Technical

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useMemo, memo } from 'react';
-import Image from 'next/image';
+
 import { GlassButton } from '@/components/ui/glass-button';
 
 interface HeroSectionProps {
@@ -120,10 +120,7 @@ function HeroSection({ onShowReelClick }: HeroSectionProps) {
 
     return (
         <section ref={sectionRef} className="u-section u-min-height-screen u-zindex-3">
-            <div
-                data-wf--spacer--section-space="main"
-                className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
-            />
+
 
             <div className="home_hero_contain u-container">
                 {/* Video Background - bunny-bg */}
@@ -155,20 +152,23 @@ function HeroSection({ onShowReelClick }: HeroSectionProps) {
 
                     {/* Hero center logo overlay - Takshashila 2026 with Register CTA */}
                     <div className="hero_center_logo">
-                        <div className="hero_center_logo__inner">
-                            <Image
-                                src="/images/tk-26-logo.png"
-                                alt="Takshashila 2026 logo"
-                                width={1200}
-                                height={600}
-                                priority
-                                className="hero_center_logo__img hero_center_logo__img--text"
-                            />
-                            <div className="hero_center_logo__cta">
+                        <div className="hero_center_logo__inner w-full max-w-[900px] mx-auto px-4 flex flex-col items-center text-center">
+                            {/* Title */}
+                            <h1 className="text-white font-semibold tracking-[-0.02em] leading-tight" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
+                                CIT TAKSHASHILA
+                            </h1>
+
+                            {/* Paragraph */}
+                            <p className="mt-6 mb-8 max-w-[600px] text-white/70 text-lg leading-[1.6]">
+                                Innovation Meets Culture. A grand annual spectacle of engineering brilliance and cultural vibrancy at Chennai Institute of Technology.
+                            </p>
+
+                            {/* CTA */}
+                            <div className="hero_center_logo__cta mt-8 group w-full max-w-none sm:max-w-[260px]">
                                 <GlassButton
                                     href="/register"
                                     size="lg"
-                                    className="hero_center_logo__cta-badge"
+                                    className="hero_center_logo__cta-badge border-white/15 hover:-translate-y-0.5 transition-transform duration-300 w-full"
                                 >
                                     REGISTER NOW
                                 </GlassButton>
