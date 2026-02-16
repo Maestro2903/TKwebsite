@@ -4,7 +4,7 @@ import "@/styles/globals.css";
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { ClientLayout } from "@/components/layout/ClientLayout";
 import { LenisProvider } from "@/contexts/LenisContext";
-import Navigation from "@/components/layout/Navigation";
+import { Navbar } from "@/components/layout/Navbar";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -64,8 +64,10 @@ export const metadata: Metadata = {
 function AppContent({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Navigation />
-      {children}
+      <Navbar />
+      <div id="main-content" tabIndex={-1} className="outline-none">
+        {children}
+      </div>
     </>
   );
 }

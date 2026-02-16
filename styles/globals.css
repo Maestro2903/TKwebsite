@@ -27,9 +27,9 @@
   --swatch--light-100: white;
   --swatch--dark-900: black;
   --_theme---background: var(--swatch--dark-900);
-  --nav-height: 45px; /* 30% smaller than original 64px */
+  --nav-height: 32px; /* Half height; page overrides: events 42px, register 18px */
   /* Common padding for all navbar items (links + buttons) - consistent across devices */
-  --nav-item-padding-y: 0.5rem;
+  --nav-item-padding-y: 0.25rem;
   --nav-item-padding-x: 1.25rem;
   /* Equal spacing between all navbar items */
   --nav-item-gap: 1.5rem;
@@ -186,6 +186,11 @@ body {
   
   .marquee-advanced__scroll {
     animation: none !important;
+  }
+
+  /* Navbar: keep always visible, no scroll-hide transform */
+  .nav_wrap[data-scrolling-direction="down"]:not([data-scrolling-top="true"]) {
+    transform: none !important;
   }
 }
 
@@ -502,6 +507,7 @@ html {
   position: fixed;
   inset: 0% 0% auto;
   width: 100%;
+  min-height: var(--nav-height);
   color: #fff;
   background-color: transparent;
   background: transparent;
@@ -509,10 +515,16 @@ html {
   -webkit-backdrop-filter: none;
   border-bottom: 1px solid transparent;
   transition:
-    background-color 0.3s ease,
-    border-bottom-color 0.3s ease;
+    background-color 0.35s cubic-bezier(0.625, 0.05, 0, 1),
+    border-bottom-color 0.35s cubic-bezier(0.625, 0.05, 0, 1),
+    transform 0.35s cubic-bezier(0.625, 0.05, 0, 1);
   /* Prevent logo cut-off by notch/safe area on mobile */
   padding-top: max(env(safe-area-inset-top, 0px), 0.25rem);
+}
+
+/* Hide navbar on scroll down, show on scroll up (preserves layout, no CLS) */
+.nav_wrap[data-scrolling-direction="down"]:not([data-scrolling-top="true"]) {
+  transform: translateY(-100%);
 }
 
 /* Navbar becomes black when scrolling */
@@ -558,7 +570,7 @@ html {
 
 /* Events page: align sticky category bar below actual nav height (no overlap) */
 .page_main--events {
-  --nav-height: 85px;
+  --nav-height: 42px;
 }
 
 /* All pages except home: solid black navbar (always black, no scroll effect) */
@@ -570,10 +582,10 @@ html {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-/* Nav Container with padding - 30% smaller */
+/* Nav Container - compact (half height) */
 .nav_contain.u-container {
-  padding-top: 0.7rem;
-  padding-bottom: 0.7rem;
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: var(--site--gutter, 1.5rem);
@@ -610,7 +622,7 @@ html {
 .nav_mobile_logo .u-svg {
   width: 100%;
   height: auto;
-  max-width: 132px; /* 20% smaller than 165px */
+  max-width: 66px; /* Half height */
 }
 
 /* Desktop Navigation Right Section */
@@ -682,6 +694,25 @@ html {
 .nav_desktop_link.w--current .nav_desktop_link_text {
   opacity: 1;
   font-weight: var(--_typography---font--primary-semibold, 600);
+}
+
+/* Desktop link underline animation on hover */
+.nav_desktop_link::after {
+  content: '';
+  position: absolute;
+  left: var(--nav-item-padding-x);
+  right: var(--nav-item-padding-x);
+  bottom: var(--nav-item-padding-y);
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.625, 0.05, 0, 1);
+}
+.nav_desktop_link:hover::after,
+.nav_desktop_link.w--current::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 /* Menu Toggle Button Container - same gap as nav links */
@@ -971,7 +1002,7 @@ html {
   }
 }
 
-/* Mobile Navigation Styles - 30% smaller */
+/* Mobile Navigation Styles - half height */
 @media screen and (max-width: 1024px) {
   .nav_contain.u-container {
     display: flex;
@@ -980,11 +1011,11 @@ html {
     justify-content: space-between;
     width: 100%;
     max-width: 100%;
-    padding-top: 0.6rem;
-    padding-bottom: 0.6rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
     padding-left: var(--site--gutter, 1.5rem);
     padding-right: var(--site--gutter, 1.5rem);
-    min-height: 39px;
+    min-height: 20px;
     box-sizing: border-box;
   }
 
@@ -992,8 +1023,8 @@ html {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    min-height: 32px; /* 20% smaller than 40px */
+    gap: 0.375rem;
+    min-height: 16px;
   }
 
   .nav_mobile_logo {
@@ -1054,7 +1085,7 @@ html {
   }
 
   .nav_mobile_logo .u-svg {
-    max-width: 96px; /* 20% smaller than 120px */
+    max-width: 48px; /* Half height */
     height: auto;
     display: block;
   }
@@ -1062,11 +1093,11 @@ html {
 
 @media screen and (max-width: 479px) {
   .nav_contain.u-container {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
     padding-left: 1rem;
     padding-right: 1rem;
-    min-height: 36px;
+    min-height: 18px;
   }
 
   .nav_mobile_logo_wrap {
@@ -1074,7 +1105,7 @@ html {
   }
 
   .nav_mobile_logo .u-svg {
-    max-width: 80px; /* 20% smaller than 100px */
+    max-width: 40px; /* Half height */
   }
 
   .nav_desktop_right {
@@ -1094,12 +1125,12 @@ html {
   }
 }
 
-/* Fluid sizing and spacing for nav elements */
+/* Fluid sizing and spacing for nav elements - half height */
 :root {
-  --nav-padding-y: clamp(0.5rem, 2vw, 0.7rem);
-  --nav-padding-x: clamp(1rem, 3vw, 2rem);
-  --nav-item-gap: clamp(0.75rem, 2vw, 1.5rem);
-  --nav-logo-size: clamp(80px, 12vw, 132px);
+  --nav-padding-y: clamp(0.25rem, 1vw, 0.35rem);
+  --nav-padding-x: clamp(0.5rem, 2vw, 1rem);
+  --nav-item-gap: clamp(0.375rem, 1vw, 0.75rem);
+  --nav-logo-size: clamp(40px, 6vw, 66px);
 }
 
 .nav_contain.u-container {
@@ -3574,7 +3605,7 @@ video {
 
 @media screen and (max-width: 767px) {
   .page_main--events {
-    padding-top: calc(var(--nav-height, 85px) + env(safe-area-inset-top, 0px));
+    padding-top: calc(var(--nav-height, 42px) + env(safe-area-inset-top, 0px));
     /* Reserve space so last event card can scroll above sticky CTA */
     padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   }
@@ -3590,7 +3621,7 @@ video {
 
 @media screen and (max-width: 479px) {
   .page_main--events {
-    padding-top: calc(var(--nav-height, 85px) + env(safe-area-inset-top, 0px));
+    padding-top: calc(var(--nav-height, 42px) + env(safe-area-inset-top, 0px));
   }
   .page_main--events
     .u-section-spacer.w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 {
@@ -4090,7 +4121,7 @@ video {
 /* Sticky day nav — Saarang layout, our theme */
 .shows-schedule__day-nav {
   position: sticky;
-  top: var(--nav-height, 64px);
+  top: var(--nav-height, 32px);
   z-index: 10;
   background-color: var(--swatch--dark-900, #000);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -6073,7 +6104,7 @@ video {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - var(--nav-height, 80px));
+  min-height: calc(100vh - var(--nav-height, 40px));
   width: 100%;
   padding: 2rem;
 }
@@ -7179,12 +7210,12 @@ video {
 
 /* Register page: compact nav and reduced top spacing */
 [data-page="register"] {
-  --nav-height: 36px; /* 30% smaller than 52px */
+  --nav-height: 18px; /* Half height */
 }
 
 [data-page="register"] .nav_contain.u-container {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
 /* Registration Page Hero */
@@ -7203,7 +7234,7 @@ video {
   justify-content: center;
   text-align: center;
   padding: var(--site--gutter, 1.5rem);
-  padding-top: calc(var(--nav-height, 64px) + 1.25rem);
+  padding-top: calc(var(--nav-height, 32px) + 1.25rem);
   position: relative;
 }
 
@@ -7234,7 +7265,7 @@ video {
 /* --- Profile page Y2K overrides --- */
 .page_main--profile .registration-hero-v2 {
   min-height: 18vh;
-  padding-top: calc(var(--nav-height, 64px) + 0.75rem);
+  padding-top: calc(var(--nav-height, 32px) + 0.75rem);
   padding-bottom: 0;
   background: transparent;
   position: relative;
@@ -7372,7 +7403,7 @@ video {
     grid-column: 5;
     align-self: start;
     position: sticky;
-    top: calc(var(--nav-height, 64px) + 24px);
+    top: calc(var(--nav-height, 32px) + 24px);
   }
 }
 
@@ -8055,7 +8086,7 @@ video {
     -4px 0 24px rgba(243, 227, 172, 0.06);
   padding: 1.5rem;
   position: sticky;
-  top: calc(var(--nav-height, 64px) + 1rem);
+  top: calc(var(--nav-height, 32px) + 1rem);
 }
 
 @media screen and (min-width: 992px) {
