@@ -7826,29 +7826,6 @@ video {
   50% { background-position: 100% 50%; }
 }
 
-/* Pass card short title: DAY, GROUP, PROSHOW, ALL ACCESS – bold display font, ~50% larger */
-.pass-card-ticket__short-title {
-  font-family: var(--font-anton), Anton, 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  line-height: 0.95;
-  text-transform: uppercase;
-  /* ~50% larger than default: 4.5rem → 6.75rem responsive */
-  font-size: clamp(3.75rem, 8vw + 2rem, 6.75rem);
-}
-
-@media (min-width: 640px) {
-  .pass-card-ticket__short-title {
-    font-size: clamp(4.5rem, 6vw + 2.5rem, 7rem);
-  }
-}
-
-@media (min-width: 768px) {
-  .pass-card-ticket__short-title {
-    font-size: clamp(5.5rem, 5vw + 3rem, 7.5rem);
-  }
-}
-
 /* JetBrains Mono for pass card labels (loaded via layout.tsx next/font) */
 .font-mono-tk {
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;

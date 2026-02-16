@@ -153,15 +153,9 @@ function HeroSection({ onShowReelClick }: HeroSectionProps) {
                     {/* Hero center logo overlay - Takshashila 2026 with Register CTA */}
                     <div className="hero_center_logo">
                         <div className="hero_center_logo__inner w-full max-w-[900px] mx-auto px-4 flex flex-col items-center text-center">
-                            {/* Title */}
-                            <h1 className="text-white font-semibold tracking-[-0.02em] leading-tight" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
-                                CIT TAKSHASHILA
-                            </h1>
 
-                            {/* Paragraph */}
-                            <p className="mt-6 mb-8 max-w-[600px] text-white/70 text-lg leading-[1.6]">
-                                Innovation Meets Culture. A grand annual spectacle of engineering brilliance and cultural vibrancy at Chennai Institute of Technology.
-                            </p>
+
+
 
                             {/* CTA */}
                             <div className="hero_center_logo__cta mt-8 group w-full max-w-none sm:max-w-[260px]">

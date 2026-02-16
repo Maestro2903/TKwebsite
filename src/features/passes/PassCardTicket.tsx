@@ -113,7 +113,7 @@ export default function PassCardTicket({ pass, onRegister }: PassCardTicketProps
             className="absolute w-[140%] max-w-[260px] h-[55%] border border-[#1a1a1a]/40 rounded-full -rotate-[12deg]"
             aria-hidden="true"
           />
-          <h2 className="pass-card-ticket__short-title relative z-10 text-[#1a1a1a]">
+          <h2 className="relative z-10 font-bold text-5xl sm:text-6xl md:text-7xl leading-none tracking-tight text-[#1a1a1a]">
             {shortTitle}
           </h2>
         </div>

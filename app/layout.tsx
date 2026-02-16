@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Bebas_Neue, DM_Sans, Syne, Inter, JetBrains_Mono, Anton } from "next/font/google";
+import { Space_Grotesk, Bebas_Neue, DM_Sans, Syne, Inter, JetBrains_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { ClientLayout } from "@/components/layout/ClientLayout";
@@ -44,13 +44,6 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "600"],
 });
 
-const anton = Anton({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-anton",
-  display: "swap",
-});
-
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -83,7 +76,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${bebasNeue.variable} ${dmSans.variable} ${syne.variable} ${inter.variable} ${jetbrainsMono.variable} ${anton.variable}`}>
+    <html lang="en" className={`${spaceGrotesk.variable} ${bebasNeue.variable} ${dmSans.variable} ${syne.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <body className={dmSans.className}>
         <LenisProvider>
           <ClientLayout>

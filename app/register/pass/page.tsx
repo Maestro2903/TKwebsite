@@ -102,7 +102,10 @@ export default function PassSelectionPage() {
                 if (!res.ok || cancelled) return;
                 const data = await res.json();
                 if (data.referralCode) {
-                    const base = typeof window !== 'undefined' ? window.location.origin : 'https://takshashila26.vercel.app';
+                    const base =
+                        typeof window !== 'undefined'
+                            ? window.location.origin
+                            : (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'https://takshashila26.vercel.app')?.replace(/\/$/, '');
                     setReferralLink(`${base}?ref=${data.referralCode}`);
                 }
             } catch {
