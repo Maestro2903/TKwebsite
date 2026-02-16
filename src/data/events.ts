@@ -12,17 +12,17 @@ export type EventItem = {
   image: string;
 };
 
-const PLACEHOLDER_TECH = '/images/event/tech/tech%20quest.jpg';
+const PLACEHOLDER_TECH = '/images/event/tech/tech%20quest.webp';
 
 /** Tech poster paths (from public/images/event/tech) */
 const TECH = {
-  deadlock: '/images/event/tech/deadlock.jpeg',
-  astrotrack: '/images/event/tech/astrotrack.jpeg',
-  chainOfLies: '/images/event/tech/chain-of-lies.jpeg',
-  promptPixel: '/images/event/tech/prompt-pixel.jpeg',
-  exchangeEffect: '/images/event/tech/exchange-effect.jpeg',
-  upsideDownCtf: '/images/event/tech/upside-down-ctf.jpeg',
-  final: '/images/event/tech/final.png',
+  deadlock: '/images/event/tech/deadlock.webp',
+  astrotrack: '/images/event/tech/astrotrack.webp',
+  chainOfLies: '/images/event/tech/chain-of-lies.webp',
+  promptPixel: '/images/event/tech/prompt-pixel.webp',
+  exchangeEffect: '/images/event/tech/exchange-effect.webp',
+  upsideDownCtf: '/images/event/tech/upside-down-ctf.webp',
+  final: '/images/event/tech/final.webp',
 } as const;
 
 export const NON_TECHNICAL_EVENTS: EventItem[] = [
@@ -33,7 +33,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'A high-energy group dance battle where rhythm, coordination, and stage presence come together to tell a powerful story.',
     fullDescription:
       'Own the stage, lock into the beat, and pull the crowd into your story. Every move should spark a reaction—sharp counts, smooth transitions, and powerful formations that keep the audience hooked. Feel the rhythm, play with the energy, and dance with the crowd, not just for them.',
-    image: '/images/event/nontech/CHOREO%20SHOWCASE.webp',
+    image: '/assets/events/choreo-showcase.webp',
   },
   {
     id: 'battle-of-bands',
@@ -42,7 +42,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Inter-college bands face off in a live musical showdown to prove their originality, chemistry, and crowd-commanding sound.',
     fullDescription:
       'Battle of Bands is where sound turns into spectacle, and the stage comes alive with pure musical energy. As inter-college bands clash in a high-voltage live showdown, every beat, riff, and rhythm matters. With originality, coordination, and stage presence on the line, will your band rise above the roar and own the spotlight?',
-    image: '/images/event/nontech/BATTLE%20OF%20BANDS.webp',
+    image: '/assets/events/battle-of-bands.webp',
   },
   {
     id: 'cypher',
@@ -60,28 +60,28 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'A mic, a beat, and pure fire—showcase your rap skills, flow, and crowd control in this high-voltage performance battle.',
     fullDescription:
       'Step up to the mic—ready to own it? Drop your bars, feel the beat, and take charge of the stage with unstoppable energy. Can you match the rhythm, hype the crowd, and keep the fire alive till the last drop? No holding back, no second chances—this is your moment. Grab it. Feel it. Rule it.',
-    image: '/images/event/nontech/RAP-A-THON.webp',
+    image: '/assets/events/rap-a-thon.webp',
   },
   {
     id: 'dual-dance',
     name: 'DUAL DANCE',
     description:
       'Two dancers. One vibe. Zero mercy. A power-packed performance driven by sync, chemistry, and stage dominance.',
-    image: '/images/event/nontech/DUAL%20DANCE.webp',
+    image: '/assets/events/dual-dance.webp',
   },
   {
     id: 'solo-singing',
     name: 'SOLO SINGING',
     description:
       'Capture hearts with your voice as emotion, control, and melody blend into a soul-stirring solo performance.',
-    image: '/images/event/nontech/loadthelyrics01.jpg',
+    image: '/assets/events/solo-singing.webp',
   },
   {
     id: 'paint-the-town',
     name: 'PAINT THE TOWN',
     description:
       'Transform a blank wall into a vibrant masterpiece using colors, creativity, and speed against the clock.',
-    image: '/images/event/nontech/canvaspainting03.jpg',
+    image: '/assets/events/paint-the-town.webp',
   },
   {
     id: 'gaming-event',
@@ -97,7 +97,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Crack clues, connect evidence, and race against time in this thrilling mystery-solving challenge inspired by classic detective logic.',
     fullDescription:
       'Think you can outthink the clock and the case? Break down the clues, connect the facts, and make smart decisions under pressure, guided by the calm precision of Hercule Poirot. Will your logic lead you to the truth in time?',
-    image: '/images/event/nontech/CASE%20FILES.webp',
+    image: '/assets/events/case-files.webp',
   },
   {
     id: 'treasure-hunt',
@@ -115,7 +115,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Turn a simple idea into a powerful short film using creativity, emotion, and cinematic storytelling.',
     fullDescription:
       'Every frame is your playground, and every cut is a flex. Twist a simple idea into a short film bursting with creativity, emotions, and cinematic style. Play with visuals, set the vibe, and make every second on screen count. Ready to roll the camera and steal the spotlight?',
-    image: '/images/event/nontech/FILMFINATICS.webp',
+    image: '/assets/events/film-finatics.webp',
   },
   {
     id: 'designers-onboard',
@@ -133,7 +133,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Step into the battleground where strategy, skill, and nerve decide who survives to the very end.',
     fullDescription:
       'Lock in, drop hot, and fight for survival in the BGMI battleground. Every decision counts as you outplay opponents, clutch under pressure, and push your way toward the final zone. Stay alert, trust your squad, and see if you have what it takes to outlast everyone else.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/assets/events/connections.webp',
   },
   {
     id: 'channel-surfing',
@@ -142,7 +142,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Blink and you\'ll miss it—catch the clue and answer before the channel changes.',
     fullDescription:
       'Flip through a whirlwind of channels, spot the clues in seconds, and call it out before the screen changes again. From iconic scenes to surprise flashes, your reflexes and pop culture radar will be pushed to the limit. Stay sharp. Hesitate, and the answer disappears.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
   },
   {
     id: 'frame-spot',
@@ -151,7 +151,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Direct your model and capture a frame where style and attitude come alive.',
     fullDescription:
       'Look closer, chase the details, and connect moments that seem miles apart but belong to the same story. The answers aren\'t handed to you—they\'re hidden in plain sight, waiting for sharp eyes and sharper minds. Can you piece it together before the picture slips away?',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
   },
 ];
 

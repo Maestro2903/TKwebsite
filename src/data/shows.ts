@@ -24,18 +24,18 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
       {
         id: 'day1-cida',
         title: 'CIDA — CIT Icon of Digital Awards',
-        imageUrl: '/images/proshows/cida.png',
+        imageUrl: '/images/proshows/cida.webp',
       },
       {
         id: 'day1-music-dance',
         title: "CIT's Music and Dance Team Performance",
-        imageUrl: '/images/proshows/dance-and-music.jpeg',
+        imageUrl: '/images/proshows/dance-and-music.webp',
       },
       {
         id: 'day1-jeeva',
         title: 'Actor Jeeva',
         subtitle: 'Walk-in Guest',
-        imageUrl: '/images/proshows/jeeva.png',
+        imageUrl: '/images/proshows/jeeva.webp',
       },
     ],
   },
@@ -46,7 +46,7 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
       {
         id: 'day2-sana',
         title: 'SaNa Concert',
-        imageUrl: '/images/proshows/sana.png',
+        imageUrl: '/images/proshows/sana.webp',
       },
     ],
   },

@@ -155,7 +155,7 @@ function HeroSection({ onShowReelClick }: HeroSectionProps) {
                         <div className="flex-1 min-h-0" aria-hidden="true" />
                         <div className="hero_center_logo__inner w-full max-w-[900px] mx-auto px-4 flex flex-col items-center text-center shrink-0">
                             <img
-                                src="/assets/images/tk26-logo.png"
+                                src="/assets/images/tk26-logo.webp"
                                 alt="Takshashila 2026"
                                 className="hero_center_logo__img"
                             />

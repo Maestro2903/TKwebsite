@@ -9,11 +9,11 @@ interface Font1TextProps {
 
 export default function Font1Text({ text, className = '', height = 60 }: Font1TextProps) {
     // Map characters to image paths
-    // Images are in /assets/font1/ and named A1.png, B1.png, etc.
+    // Images are in /assets/font1/ and named A1.webp, B1.webp, etc.
     const getCharImage = (char: string) => {
         const uppercaseChar = char.toUpperCase();
         if (uppercaseChar >= 'A' && uppercaseChar <= 'Z') {
-            return `/assets/font1/${uppercaseChar}1.png`;
+            return `/assets/font1/${uppercaseChar}1.webp`;
         }
         return null;
     };

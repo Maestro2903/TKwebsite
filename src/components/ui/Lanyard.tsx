@@ -17,7 +17,7 @@ import * as THREE from 'three';
 
 // Assets served from /public/assets/lanyard/
 const cardGLB = '/assets/lanyard/card.glb';
-const lanyardTexture = '/assets/lanyard/lanyard.png';
+const lanyardTexture = '/assets/lanyard/lanyard.webp';
 
 import './Lanyard.css';
 
