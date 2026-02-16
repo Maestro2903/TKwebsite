@@ -150,15 +150,18 @@ function HeroSection({ onShowReelClick }: HeroSectionProps) {
                         ))}
                     </video>
 
-                    {/* Hero center logo overlay - Takshashila 2026 with Register CTA */}
-                    <div className="hero_center_logo">
-                        <div className="hero_center_logo__inner w-full max-w-[900px] mx-auto px-4 flex flex-col items-center text-center">
-
-
-
-
-                            {/* CTA */}
-                            <div className="hero_center_logo__cta mt-8 group w-full max-w-none sm:max-w-[260px]">
+                    {/* Hero center logo overlay - TK 26 logo in middle, Register CTA at bottom */}
+                    <div className="hero_center_logo flex flex-col justify-between">
+                        <div className="flex-1 min-h-0" aria-hidden="true" />
+                        <div className="hero_center_logo__inner w-full max-w-[900px] mx-auto px-4 flex flex-col items-center text-center shrink-0">
+                            <img
+                                src="/assets/images/tk26-logo.png"
+                                alt="Takshashila 2026"
+                                className="hero_center_logo__img"
+                            />
+                        </div>
+                        <div className="shrink-0 pb-10 sm:pb-12 md:pb-16 flex justify-center pointer-events-auto">
+                            <div className="hero_center_logo__cta group w-full max-w-none sm:max-w-[260px] px-4">
                                 <GlassButton
                                     href="/register"
                                     size="lg"
