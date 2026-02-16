@@ -28,11 +28,11 @@
   --swatch--dark-900: black;
   --_theme---background: var(--swatch--dark-900);
   --nav-height: 32px; /* Half height; page overrides: events 42px, register 18px */
-  /* Common padding for all navbar items (links + buttons) - consistent across devices */
+  /* Common padding for all navbar items - compact for half-height nav */
   --nav-item-padding-y: 0.25rem;
-  --nav-item-padding-x: 1.25rem;
+  --nav-item-padding-x: 0.625rem;
   /* Equal spacing between all navbar items */
-  --nav-item-gap: 1.5rem;
+  --nav-item-gap: 0.75rem;
 
   /* Editorial events page palette */
   --editorial-black: #000000;
@@ -582,7 +582,7 @@ html {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-/* Nav Container - compact (half height) */
+/* Nav Container - compact for half-height navbar */
 .nav_contain.u-container {
   padding-top: 0.35rem;
   padding-bottom: 0.35rem;
@@ -622,7 +622,7 @@ html {
 .nav_mobile_logo .u-svg {
   width: 100%;
   height: auto;
-  max-width: 66px; /* Half height */
+  max-width: 86px;
 }
 
 /* Desktop Navigation Right Section */
@@ -1002,7 +1002,7 @@ html {
   }
 }
 
-/* Mobile Navigation Styles - half height */
+/* Mobile Navigation Styles - 30% smaller */
 @media screen and (max-width: 1024px) {
   .nav_contain.u-container {
     display: flex;
@@ -1011,11 +1011,11 @@ html {
     justify-content: space-between;
     width: 100%;
     max-width: 100%;
-    padding-top: 0.3rem;
-    padding-bottom: 0.3rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
     padding-left: var(--site--gutter, 1.5rem);
     padding-right: var(--site--gutter, 1.5rem);
-    min-height: 20px;
+    min-height: 39px;
     box-sizing: border-box;
   }
 
@@ -1023,8 +1023,8 @@ html {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: 0.375rem;
-    min-height: 16px;
+    gap: 0.75rem;
+    min-height: 32px; /* 20% smaller than 40px */
   }
 
   .nav_mobile_logo {
@@ -1085,7 +1085,7 @@ html {
   }
 
   .nav_mobile_logo .u-svg {
-    max-width: 48px; /* Half height */
+    max-width: 62px;
     height: auto;
     display: block;
   }
@@ -1105,7 +1105,7 @@ html {
   }
 
   .nav_mobile_logo .u-svg {
-    max-width: 40px; /* Half height */
+    max-width: 52px;
   }
 
   .nav_desktop_right {
@@ -1125,12 +1125,12 @@ html {
   }
 }
 
-/* Fluid sizing and spacing for nav elements - half height */
+/* Fluid sizing and spacing for nav elements */
 :root {
   --nav-padding-y: clamp(0.25rem, 1vw, 0.35rem);
   --nav-padding-x: clamp(0.5rem, 2vw, 1rem);
   --nav-item-gap: clamp(0.375rem, 1vw, 0.75rem);
-  --nav-logo-size: clamp(40px, 6vw, 66px);
+  --nav-logo-size: clamp(52px, 7.8vw, 86px);
 }
 
 .nav_contain.u-container {
@@ -3605,7 +3605,7 @@ video {
 
 @media screen and (max-width: 767px) {
   .page_main--events {
-    padding-top: calc(var(--nav-height, 42px) + env(safe-area-inset-top, 0px));
+    padding-top: calc(var(--nav-height, 85px) + env(safe-area-inset-top, 0px));
     /* Reserve space so last event card can scroll above sticky CTA */
     padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   }
@@ -3621,7 +3621,7 @@ video {
 
 @media screen and (max-width: 479px) {
   .page_main--events {
-    padding-top: calc(var(--nav-height, 42px) + env(safe-area-inset-top, 0px));
+    padding-top: calc(var(--nav-height, 85px) + env(safe-area-inset-top, 0px));
   }
   .page_main--events
     .u-section-spacer.w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 {
@@ -4121,7 +4121,7 @@ video {
 /* Sticky day nav — Saarang layout, our theme */
 .shows-schedule__day-nav {
   position: sticky;
-  top: var(--nav-height, 32px);
+  top: var(--nav-height, 64px);
   z-index: 10;
   background-color: var(--swatch--dark-900, #000);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -6104,7 +6104,7 @@ video {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - var(--nav-height, 40px));
+  min-height: calc(100vh - var(--nav-height, 80px));
   width: 100%;
   padding: 2rem;
 }
@@ -7210,7 +7210,7 @@ video {
 
 /* Register page: compact nav and reduced top spacing */
 [data-page="register"] {
-  --nav-height: 18px; /* Half height */
+  --nav-height: 18px;
 }
 
 [data-page="register"] .nav_contain.u-container {
@@ -7234,7 +7234,7 @@ video {
   justify-content: center;
   text-align: center;
   padding: var(--site--gutter, 1.5rem);
-  padding-top: calc(var(--nav-height, 32px) + 1.25rem);
+  padding-top: calc(var(--nav-height, 64px) + 1.25rem);
   position: relative;
 }
 
@@ -7265,7 +7265,7 @@ video {
 /* --- Profile page Y2K overrides --- */
 .page_main--profile .registration-hero-v2 {
   min-height: 18vh;
-  padding-top: calc(var(--nav-height, 32px) + 0.75rem);
+  padding-top: calc(var(--nav-height, 64px) + 0.75rem);
   padding-bottom: 0;
   background: transparent;
   position: relative;
@@ -7403,7 +7403,7 @@ video {
     grid-column: 5;
     align-self: start;
     position: sticky;
-    top: calc(var(--nav-height, 32px) + 24px);
+    top: calc(var(--nav-height, 64px) + 24px);
   }
 }
 
@@ -8086,7 +8086,7 @@ video {
     -4px 0 24px rgba(243, 227, 172, 0.06);
   padding: 1.5rem;
   position: sticky;
-  top: calc(var(--nav-height, 32px) + 1rem);
+  top: calc(var(--nav-height, 64px) + 1rem);
 }
 
 @media screen and (min-width: 992px) {
