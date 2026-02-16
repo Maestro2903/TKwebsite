@@ -1,6 +1,6 @@
 'use client';
 
-
+import { RadialGradientBg } from "@/components/ui/tailwind-css-background-snippet";
 
 export default function Footer() {
   return (
@@ -10,10 +10,8 @@ export default function Footer() {
       {/* Decorative Divider */}
       <div className="w-full border-t border-white/[0.08] mb-16" />
 
-      {/* Background */}
-      <div
-        className="absolute inset-0 -z-10 h-full w-full bg-black"
-      />
+      {/* Background - blue radial gradient from snippet */}
+      <RadialGradientBg variant="blue" />
 
       {/* Main content */}
       <div className="mx-auto max-w-[900px] px-4 sm:px-6 lg:px-8">
