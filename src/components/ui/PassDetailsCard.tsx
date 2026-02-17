@@ -79,8 +79,9 @@ export default function PassDetailsCard({
           </DetailSection>
         )}
 
-        {/* Selected Days */}
-        <DetailSection title="Selected Days">
+
+        {/* Selected Days - Hidden as per user request */}
+        {/* <DetailSection title="Selected Days">
           {selectedDays.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {selectedDays.map((day) => {
@@ -108,10 +109,10 @@ export default function PassDetailsCard({
           ) : (
             <p className="text-xs text-neutral-500 italic">No specific days selected</p>
           )}
-        </DetailSection>
+        </DetailSection> */}
 
-        {/* Selected Events */}
-        <DetailSection title="Registered Events">
+        {/* Registered Events - Hidden as per user request */}
+        {/* <DetailSection title="Registered Events">
           {selectedEvents.length > 0 ? (
             <div className="space-y-1.5">
               {selectedEvents.map((event) => (
@@ -127,7 +128,8 @@ export default function PassDetailsCard({
           ) : (
             <p className="text-xs text-neutral-500 italic">No events registered yet</p>
           )}
-        </DetailSection>
+        </DetailSection> */}
+
 
         {/* Event Access */}
         {eventAccess && (
@@ -159,9 +161,8 @@ export default function PassDetailsCard({
                   className="flex items-center gap-2 text-xs text-neutral-400"
                 >
                   <div
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      member.isLeader ? 'bg-amber-400' : 'bg-neutral-600'
-                    }`}
+                    className={`w-1.5 h-1.5 rounded-full ${member.isLeader ? 'bg-amber-400' : 'bg-neutral-600'
+                      }`}
                   />
                   <span className={member.isLeader ? 'text-amber-300 font-medium' : ''}>
                     {member.name}
@@ -234,9 +235,8 @@ function AccessBadge({ label, color }: { label: string; color: string }) {
 
   return (
     <span
-      className={`px-3 py-1 border rounded-full text-xs font-medium ${
-        colorMap[color] ?? colorMap.blue
-      }`}
+      className={`px-3 py-1 border rounded-full text-xs font-medium ${colorMap[color] ?? colorMap.blue
+        }`}
     >
       {label}
     </span>

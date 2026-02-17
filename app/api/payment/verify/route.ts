@@ -130,14 +130,14 @@ export async function POST(req: NextRequest) {
         const eventDocs = await Promise.all(
           selectedEvents.map((eventId: string) => db.collection('events').doc(eventId).get())
         );
-        
+
         const events = eventDocs
           .filter(doc => doc.exists)
           .map(doc => doc.data());
-        
+
         hasTechEvents = events.some(e => e?.category === 'technical');
         hasNonTechEvents = events.some(e => e?.category === 'non_technical');
-        
+
         console.log(`[Verify] Event access computed: tech=${hasTechEvents}, nonTech=${hasNonTechEvents}`);
       } catch (eventError) {
         console.error('[Verify] Error fetching events:', eventError);
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
         .where('paymentId', '==', orderId)
         .limit(1);
       const existingPassSnapshot = await transaction.get(existingPassQuery);
-      
+
       if (!existingPassSnapshot.empty) {
         // Pass already exists - return it
         const existingPass = existingPassSnapshot.docs[0];
@@ -164,21 +164,71 @@ export async function POST(req: NextRequest) {
           qrCode: existingPass.data().qrCode
         };
       }
-      
+
       console.log('[Verify] No existing pass found, creating new pass in transaction...');
-      
-      // 2. Create pass document inside transaction
+
+      // 2. Fetch user data for QR code
+      const userDocRef = db.collection('users').doc(paymentData.userId as string);
+      const userDoc = await transaction.get(userDocRef);
+      const userData = userDoc.exists ? userDoc.data() : null;
+
+      // 3. Create pass document inside transaction
       const passRef = db.collection('passes').doc();
-      
-      // Create signed QR payload
-      const qrData = createQRPayload(
-        passRef.id,
-        paymentData.userId as string,
-        paymentData.passType as string
-      );
-      
-      const qrCodeUrl: string = await QRCode.toDataURL(qrData);
-      
+
+      // Import encryption utility
+      const { encryptQRData } = await import('@/lib/crypto/qrEncryption');
+
+      // Prepare QR data based on pass type
+      let qrData: any;
+
+      if (paymentData.passType === 'group_events' && paymentData.teamId) {
+        // For group events, fetch team data first
+        const teamDocRef = db.collection('teams').doc(paymentData.teamId);
+        const teamDoc = await transaction.get(teamDocRef);
+        const teamData = teamDoc.exists ? teamDoc.data() : null;
+
+        if (teamData) {
+          // Group event - include all team member names
+          qrData = {
+            id: passRef.id,
+            passType: paymentData.passType,
+            teamName: teamData.teamName || '',
+            members: (teamData.members || []).map((m: any) => ({
+              name: m.name,
+              isLeader: m.isLeader
+            })),
+            events: selectedEvents,
+            days: paymentData.selectedDays || []
+          };
+        } else {
+          // Fallback if team not found
+          qrData = {
+            id: passRef.id,
+            name: userData?.name || 'Unknown',
+            passType: paymentData.passType,
+            events: selectedEvents,
+            days: paymentData.selectedDays || []
+          };
+        }
+      } else {
+        // Individual pass - include user name
+        qrData = {
+          id: passRef.id,
+          name: userData?.name || 'Unknown',
+          passType: paymentData.passType,
+          events: selectedEvents,
+          days: paymentData.selectedDays || []
+        };
+      }
+
+      // Encrypt QR data
+      const encryptedData = encryptQRData(qrData);
+      const qrCodeUrl: string = await QRCode.toDataURL(encryptedData, {
+        errorCorrectionLevel: 'H', // High error correction for better scanning
+        width: 400
+      });
+
+
       // Prepare base pass data
       const passData: any = {
         userId: paymentData.userId,
@@ -238,7 +288,7 @@ export async function POST(req: NextRequest) {
       // Create pass inside transaction
       transaction.set(passRef, passData);
       console.log(`[Verify] Scheduled pass creation in transaction: ${passRef.id}`);
-      
+
       return { created: true, passId: passRef.id, qrCode: qrCodeUrl };
     });
 
