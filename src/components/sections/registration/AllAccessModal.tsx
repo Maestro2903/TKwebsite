@@ -1,12 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { auth } from '@/lib/firebase/clientApp';
 import { useAuth } from '@/features/auth/AuthContext';
 import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import { X } from 'lucide-react';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
+import { getAllConflicts, type EventWithTiming } from '@/lib/utils/eventConflicts';
 
 // Fixed price for all-access pass
 const ALL_ACCESS_PRICE = 2000;
@@ -64,6 +65,19 @@ export default function AllAccessModal({
     // Lock global body scroll (and Lenis) when modal is open
     useLockBodyScroll(isOpen);
 
+    // Calculate conflicting events based on current selection
+    const conflictingEventIds = useMemo(() => {
+        if (selectedEventIds.length === 0) {
+            return new Set<string>();
+        }
+        // Flatten all events from all days
+        const allEvents = Object.values(eventsByDay).flat() as EventWithTiming[];
+        const selectedEvents = allEvents.filter(e =>
+            selectedEventIds.includes(e.id)
+        );
+        return getAllConflicts(selectedEvents, allEvents);
+    }, [selectedEventIds, eventsByDay]);
+
     // Fetch events for all 3 days
     useEffect(() => {
         if (!isOpen) return;
@@ -80,7 +94,7 @@ export default function AllAccessModal({
                 );
 
                 const results = await Promise.all(eventPromises);
-                
+
                 // Group events by day
                 const grouped: Record<string, any[]> = {};
                 results.forEach(({ dayId, events }) => {
@@ -289,49 +303,76 @@ export default function AllAccessModal({
                                                         <div className="h-[1px] flex-1 bg-neutral-800"></div>
                                                     </div>
                                                     <div className="space-y-3">
-                                                        {events.map((event) => (
-                                                            <button
-                                                                key={event.id}
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    setSelectedEventIds(prev =>
-                                                                        prev.includes(event.id)
-                                                                            ? prev.filter(id => id !== event.id)
-                                                                            : [...prev, event.id]
-                                                                    );
-                                                                }}
-                                                                className={`w-full p-4 border transition-all duration-300 flex items-start gap-4 group/event ${selectedEventIds.includes(event.id)
+                                                        {events.map((event) => {
+                                                            const isSelected = selectedEventIds.includes(event.id);
+                                                            const isConflicting = conflictingEventIds.has(event.id) && !isSelected;
+                                                            const isDisabled = isConflicting;
+
+                                                            return (
+                                                                <button
+                                                                    key={event.id}
+                                                                    type="button"
+                                                                    disabled={isDisabled}
+                                                                    onClick={() => {
+                                                                        if (isDisabled) return;
+                                                                        setSelectedEventIds(prev =>
+                                                                            prev.includes(event.id)
+                                                                                ? prev.filter(id => id !== event.id)
+                                                                                : [...prev, event.id]
+                                                                        );
+                                                                    }}
+                                                                    className={`w-full p-4 border transition-all duration-300 flex items-start gap-4 group/event relative ${isSelected
                                                                         ? 'border-blue-500 bg-blue-500/10'
-                                                                        : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
-                                                                    }`}
-                                                            >
-                                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 mt-1 ${selectedEventIds.includes(event.id)
+                                                                        : isDisabled
+                                                                            ? 'border-neutral-800 bg-[#0a0a0a] opacity-40 cursor-not-allowed'
+                                                                            : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
+                                                                        }`}
+                                                                >
+                                                                    {/* Time Conflict Badge */}
+                                                                    {isConflicting && (
+                                                                        <div className="absolute top-2 right-2 px-2 py-1 bg-red-900/20 border border-red-900/50">
+                                                                            <span className="text-[8px] text-red-400 font-mono uppercase tracking-wider">
+                                                                                ⏰ TIME CONFLICT
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+
+                                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 mt-1 ${isSelected
                                                                         ? 'border-blue-500 bg-blue-500/20'
                                                                         : 'border-neutral-600 bg-neutral-900'
-                                                                    }`}>
-                                                                    <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${selectedEventIds.includes(event.id) ? 'bg-blue-500' : 'bg-transparent'
-                                                                        }`} />
-                                                                </div>
-                                                                <div className="flex-1 text-left">
-                                                                    <p className="text-white font-orbitron text-sm tracking-wide uppercase">
-                                                                        {event.name}
-                                                                    </p>
-                                                                    <div className="flex gap-2 mt-1 flex-wrap">
-                                                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                                                            {event.category === 'technical' ? 'TECH' : 'NON-TECH'}
-                                                                        </span>
-                                                                        <span className="text-[10px] text-neutral-700">•</span>
-                                                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                                                            {event.type.toUpperCase()}
-                                                                        </span>
-                                                                        <span className="text-[10px] text-neutral-700">•</span>
-                                                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                                                            {event.venue}
-                                                                        </span>
+                                                                        }`}>
+                                                                        <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${isSelected ? 'bg-blue-500' : 'bg-transparent'
+                                                                            }`} />
                                                                     </div>
-                                                                </div>
-                                                            </button>
-                                                        ))}
+                                                                    <div className="flex-1 text-left">
+                                                                        <p className={`font-orbitron text-sm tracking-wide uppercase ${isConflicting ? 'text-neutral-500' : 'text-white'}`}>
+                                                                            {event.name}
+                                                                        </p>
+                                                                        <div className="flex gap-2 mt-1 flex-wrap">
+                                                                            <span className="text-[10px] text-neutral-500 font-mono">
+                                                                                {event.category === 'technical' ? 'TECH' : 'NON-TECH'}
+                                                                            </span>
+                                                                            <span className="text-[10px] text-neutral-700">•</span>
+                                                                            <span className="text-[10px] text-neutral-500 font-mono">
+                                                                                {event.type.toUpperCase()}
+                                                                            </span>
+                                                                            <span className="text-[10px] text-neutral-700">•</span>
+                                                                            <span className="text-[10px] text-neutral-500 font-mono">
+                                                                                {event.venue}
+                                                                            </span>
+                                                                            {(event.startTime || event.endTime) && (
+                                                                                <>
+                                                                                    <span className="text-[10px] text-neutral-700">•</span>
+                                                                                    <span className="text-[10px] text-neutral-500 font-mono">
+                                                                                        {event.startTime}{event.endTime ? ` - ${event.endTime}` : ' onwards'}
+                                                                                    </span>
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </button>
+                                                            );
+                                                        })}
                                                     </div>
                                                 </div>
                                             );
@@ -350,72 +391,72 @@ export default function AllAccessModal({
                         )}
 
                         {/* Step 2: Review & Pay */}
-                    {step === 'review' && (
-                        <div className="space-y-6">
-                            <div>
-                                <h3 className="text-sm font-orbitron text-white uppercase tracking-wider mb-4">Registration Summary</h3>
+                        {step === 'review' && (
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className="text-sm font-orbitron text-white uppercase tracking-wider mb-4">Registration Summary</h3>
 
-                                <div className="border border-neutral-800 bg-[#0a0a0a] divide-y divide-neutral-800">
-                                    <div className="p-3 flex justify-between items-center">
-                                        <span className="text-[10px] text-neutral-500 font-orbitron uppercase">User ID</span>
-                                        <div className="text-right">
-                                            <div className="text-sm text-white font-mono">
-                                                {userData?.name || user?.displayName || user?.email || 'User'}
+                                    <div className="border border-neutral-800 bg-[#0a0a0a] divide-y divide-neutral-800">
+                                        <div className="p-3 flex justify-between items-center">
+                                            <span className="text-[10px] text-neutral-500 font-orbitron uppercase">User ID</span>
+                                            <div className="text-right">
+                                                <div className="text-sm text-white font-mono">
+                                                    {userData?.name || user?.displayName || user?.email || 'User'}
+                                                </div>
+                                                <div className="text-[10px] text-neutral-600 font-mono">
+                                                    {userData?.phone ?? '-'}
+                                                </div>
                                             </div>
-                                            <div className="text-[10px] text-neutral-600 font-mono">
-                                                {userData?.phone ?? '-'}
+                                        </div>
+                                        <div className="p-3">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Pass Type</span>
+                                                <span className="text-[10px] text-neutral-400 font-mono">ALL-ACCESS (3 DAYS)</span>
+                                            </div>
+                                        </div>
+                                        <div className="p-3">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Selected Events</span>
+                                                <span className="text-[10px] text-neutral-500 font-mono">{selectedEventIds.length} Event{selectedEventIds.length > 1 ? 's' : ''}</span>
+                                            </div>
+                                            <div className="space-y-1 pl-2 border-l border-neutral-800 max-h-40 overflow-y-auto">
+                                                {selectedEventIds.map((eventId) => {
+                                                    // Find event in any day
+                                                    let event: any = null;
+                                                    for (const dayEvents of Object.values(eventsByDay)) {
+                                                        event = dayEvents.find((e: any) => e.id === eventId);
+                                                        if (event) break;
+                                                    }
+                                                    return event ? (
+                                                        <div key={eventId} className="text-xs font-mono text-neutral-400">
+                                                            {event.name}
+                                                        </div>
+                                                    ) : null;
+                                                })}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="p-3">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Pass Type</span>
-                                            <span className="text-[10px] text-neutral-400 font-mono">ALL-ACCESS (3 DAYS)</span>
+                                </div>
+
+                                {/* Pricing Display */}
+                                <div className="p-4 bg-[#151515] border border-neutral-700 relative overflow-hidden">
+                                    {/* Diagonal lines bg */}
+                                    <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 10px)' }}></div>
+
+                                    <div className="relative z-10 flex justify-between items-end">
+                                        <div>
+                                            <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
+                                            <div className="text-xs text-neutral-400 font-mono">
+                                                ALL-ACCESS PASS (BEST VALUE)
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="p-3">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Selected Events</span>
-                                            <span className="text-[10px] text-neutral-500 font-mono">{selectedEventIds.length} Event{selectedEventIds.length > 1 ? 's' : ''}</span>
-                                        </div>
-                                        <div className="space-y-1 pl-2 border-l border-neutral-800 max-h-40 overflow-y-auto">
-                                            {selectedEventIds.map((eventId) => {
-                                                // Find event in any day
-                                                let event: any = null;
-                                                for (const dayEvents of Object.values(eventsByDay)) {
-                                                    event = dayEvents.find((e: any) => e.id === eventId);
-                                                    if (event) break;
-                                                }
-                                                return event ? (
-                                                    <div key={eventId} className="text-xs font-mono text-neutral-400">
-                                                        {event.name}
-                                                    </div>
-                                                ) : null;
-                                            })}
+                                        <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
+                                            ₹{ALL_ACCESS_PRICE}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Pricing Display */}
-                            <div className="p-4 bg-[#151515] border border-neutral-700 relative overflow-hidden">
-                                {/* Diagonal lines bg */}
-                                <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 10px)' }}></div>
-
-                                <div className="relative z-10 flex justify-between items-end">
-                                    <div>
-                                        <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
-                                        <div className="text-xs text-neutral-400 font-mono">
-                                            ALL-ACCESS PASS (BEST VALUE)
-                                        </div>
-                                    </div>
-                                    <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
-                                        ₹{ALL_ACCESS_PRICE}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                        )}
 
                     </div>
                 </div>

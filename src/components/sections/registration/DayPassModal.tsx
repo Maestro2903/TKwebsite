@@ -1,12 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { auth } from '@/lib/firebase/clientApp';
 import { useAuth } from '@/features/auth/AuthContext';
 import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import { X } from 'lucide-react';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
+import { getAllConflicts, type EventWithTiming } from '@/lib/utils/eventConflicts';
 
 const MOCK_SUMMIT_EVENT_ID = 'mock-global-summit';
 const MOCK_SUMMIT_DATE = '2026-02-27';
@@ -54,6 +55,19 @@ export default function DayPassModal({
 
     // Lock global body scroll (and Lenis) when modal is open
     useLockBodyScroll(isOpen);
+
+    // Calculate conflicting events based on current selection
+    const conflictingEventIds = useMemo(() => {
+        if (selectedEventIds.length === 0 || availableEvents.length === 0) {
+            return new Set<string>();
+        }
+
+        const selectedEvents = availableEvents.filter(e =>
+            selectedEventIds.includes(e.id)
+        ) as EventWithTiming[];
+
+        return getAllConflicts(selectedEvents, availableEvents as EventWithTiming[]);
+    }, [selectedEventIds, availableEvents]);
 
     // Reset form when modal opens
     useEffect(() => {
@@ -320,14 +334,14 @@ export default function DayPassModal({
                                             type="button"
                                             onClick={() => toggleDay(day.id)}
                                             className={`w-full p-4 border transition-all duration-300 flex items-center justify-between group/day ${selectedDays.includes(day.id)
-                                                    ? 'border-blue-500 bg-blue-500/10'
-                                                    : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
+                                                ? 'border-blue-500 bg-blue-500/10'
+                                                : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
                                                 }`}
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${selectedDays.includes(day.id)
-                                                        ? 'border-blue-500 bg-blue-500/20'
-                                                        : 'border-neutral-600 bg-neutral-900'
+                                                    ? 'border-blue-500 bg-blue-500/20'
+                                                    : 'border-neutral-600 bg-neutral-900'
                                                     }`}>
                                                     <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${selectedDays.includes(day.id) ? 'bg-blue-500' : 'bg-transparent'
                                                         }`} />
@@ -390,68 +404,91 @@ export default function DayPassModal({
                                             const isMockSummit = event.id === MOCK_SUMMIT_EVENT_ID;
                                             const isMockSummitDate = event.date === MOCK_SUMMIT_DATE;
                                             const mockSummitSelected = selectedEventIds.includes(MOCK_SUMMIT_EVENT_ID);
-                                            const isDisabled = isMockSummitDate && !isMockSummit && mockSummitSelected;
                                             const isSelected = selectedEventIds.includes(event.id);
+
+                                            // Check if this event conflicts with selected events
+                                            const isConflicting = conflictingEventIds.has(event.id) && !isSelected;
+
+                                            // Combine all disabled conditions
+                                            const isDisabled = isConflicting || (isMockSummitDate && !isMockSummit && mockSummitSelected);
                                             return (
-                                            <button
-                                                key={event.id}
-                                                type="button"
-                                                disabled={isDisabled}
-                                                onClick={() => {
-                                                    if (isDisabled) return;
-                                                    if (isMockSummit) {
-                                                        setSelectedEventIds(prev =>
-                                                            prev.includes(event.id)
-                                                                ? prev.filter(id => id !== event.id)
-                                                                : [...prev.filter(id => {
-                                                                    const ev = availableEvents.find(e => e.id === id);
-                                                                    return ev?.date !== MOCK_SUMMIT_DATE;
-                                                                }), event.id]
-                                                        );
-                                                    } else if (mockSummitSelected && isMockSummitDate) {
-                                                        return;
-                                                    } else {
-                                                        setSelectedEventIds(prev =>
-                                                            prev.includes(event.id)
-                                                                ? prev.filter(id => id !== event.id)
-                                                                : [...prev, event.id]
-                                                        );
-                                                    }
-                                                }}
-                                                className={`w-full p-4 border transition-all duration-300 flex items-start gap-4 group/event ${isSelected
+                                                <button
+                                                    key={event.id}
+                                                    type="button"
+                                                    disabled={isDisabled}
+                                                    onClick={() => {
+                                                        if (isDisabled) return;
+                                                        if (isMockSummit) {
+                                                            setSelectedEventIds(prev =>
+                                                                prev.includes(event.id)
+                                                                    ? prev.filter(id => id !== event.id)
+                                                                    : [...prev.filter(id => {
+                                                                        const ev = availableEvents.find(e => e.id === id);
+                                                                        return ev?.date !== MOCK_SUMMIT_DATE;
+                                                                    }), event.id]
+                                                            );
+                                                        } else if (mockSummitSelected && isMockSummitDate) {
+                                                            return;
+                                                        } else {
+                                                            setSelectedEventIds(prev =>
+                                                                prev.includes(event.id)
+                                                                    ? prev.filter(id => id !== event.id)
+                                                                    : [...prev, event.id]
+                                                            );
+                                                        }
+                                                    }}
+                                                    className={`w-full p-4 border transition-all duration-300 flex items-start gap-4 group/event relative ${isSelected
                                                         ? 'border-blue-500 bg-blue-500/10'
                                                         : isDisabled
-                                                        ? 'border-neutral-800 bg-[#0a0a0a] opacity-50 cursor-not-allowed'
-                                                        : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
-                                                    }`}
-                                            >
-                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 mt-1 ${selectedEventIds.includes(event.id)
+                                                            ? 'border-neutral-800 bg-[#0a0a0a] opacity-40 cursor-not-allowed'
+                                                            : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
+                                                        }`}
+                                                >
+                                                    {/* Time Conflict Badge */}
+                                                    {isConflicting && (
+                                                        <div className="absolute top-2 right-2 px-2 py-1 bg-red-900/20 border border-red-900/50">
+                                                            <span className="text-[8px] text-red-400 font-mono uppercase tracking-wider">
+                                                                ⏰ TIME CONFLICT
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 mt-1 ${selectedEventIds.includes(event.id)
                                                         ? 'border-blue-500 bg-blue-500/20'
                                                         : 'border-neutral-600 bg-neutral-900'
-                                                    }`}>
-                                                    <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${selectedEventIds.includes(event.id) ? 'bg-blue-500' : 'bg-transparent'
-                                                        }`} />
-                                                </div>
-                                                <div className="flex-1 text-left">
-                                                    <p className="text-white font-orbitron text-sm tracking-wide uppercase">
-                                                        {event.name}
-                                                    </p>
-                                                    <div className="flex gap-2 mt-1 flex-wrap">
-                                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                                            {event.category === 'technical' ? 'TECH' : 'NON-TECH'}
-                                                        </span>
-                                                        <span className="text-[10px] text-neutral-700">•</span>
-                                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                                            {event.type.toUpperCase()}
-                                                        </span>
-                                                        <span className="text-[10px] text-neutral-700">•</span>
-                                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                                            {event.venue}
-                                                        </span>
+                                                        }`}>
+                                                        <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${selectedEventIds.includes(event.id) ? 'bg-blue-500' : 'bg-transparent'
+                                                            }`} />
                                                     </div>
-                                                </div>
-                                            </button>
-                                        );
+                                                    <div className="flex-1 text-left">
+                                                        <p className={`font-orbitron text-sm tracking-wide uppercase ${isConflicting ? 'text-neutral-500' : 'text-white'}`}>
+                                                            {event.name}
+                                                        </p>
+                                                        <div className="flex gap-2 mt-1 flex-wrap">
+                                                            <span className="text-[10px] text-neutral-500 font-mono">
+                                                                {event.category === 'technical' ? 'TECH' : 'NON-TECH'}
+                                                            </span>
+                                                            <span className="text-[10px] text-neutral-700">•</span>
+                                                            <span className="text-[10px] text-neutral-500 font-mono">
+                                                                {event.type.toUpperCase()}
+                                                            </span>
+                                                            <span className="text-[10px] text-neutral-700">•</span>
+                                                            <span className="text-[10px] text-neutral-500 font-mono">
+                                                                {event.venue}
+                                                            </span>
+                                                            {/* Show timing if available */}
+                                                            {(event.startTime || event.endTime) && (
+                                                                <>
+                                                                    <span className="text-[10px] text-neutral-700">•</span>
+                                                                    <span className="text-[10px] text-neutral-500 font-mono">
+                                                                        {event.startTime}{event.endTime ? ` - ${event.endTime}` : ' onwards'}
+                                                                    </span>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            );
                                         })}
                                     </div>
                                 )}
@@ -467,82 +504,82 @@ export default function DayPassModal({
                         )}
 
                         {/* Step 3: Review & Pay */}
-                    {step === 'review' && (
-                        <div className="space-y-6">
-                            <div>
-                                <h3 className="text-sm font-orbitron text-white uppercase tracking-wider mb-4">Registration Summary</h3>
+                        {step === 'review' && (
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className="text-sm font-orbitron text-white uppercase tracking-wider mb-4">Registration Summary</h3>
 
-                                <div className="border border-neutral-800 bg-[#0a0a0a] divide-y divide-neutral-800">
-                                    <div className="p-3 flex justify-between items-center">
-                                        <span className="text-[10px] text-neutral-500 font-orbitron uppercase">User ID</span>
-                                        <div className="text-right">
-                                            <div className="text-sm text-white font-mono">
-                                                {userData?.name || user?.displayName || user?.email || 'User'}
+                                    <div className="border border-neutral-800 bg-[#0a0a0a] divide-y divide-neutral-800">
+                                        <div className="p-3 flex justify-between items-center">
+                                            <span className="text-[10px] text-neutral-500 font-orbitron uppercase">User ID</span>
+                                            <div className="text-right">
+                                                <div className="text-sm text-white font-mono">
+                                                    {userData?.name || user?.displayName || user?.email || 'User'}
+                                                </div>
+                                                <div className="text-[10px] text-neutral-600 font-mono">
+                                                    {userData?.phone ?? '-'}
+                                                </div>
                                             </div>
-                                            <div className="text-[10px] text-neutral-600 font-mono">
-                                                {userData?.phone ?? '-'}
+                                        </div>
+                                        <div className="p-3">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Selected Days</span>
+                                                <span className="text-[10px] text-neutral-500 font-mono">{selectedDays.length} Day{selectedDays.length > 1 ? 's' : ''}</span>
+                                            </div>
+                                            <div className="space-y-1 pl-2 border-l border-neutral-800">
+                                                {selectedDays.map((dayId) => {
+                                                    const day = DAY_OPTIONS.find((d) => d.id === dayId);
+                                                    return (
+                                                        <div key={dayId} className="flex justify-between text-xs font-mono">
+                                                            <span className="text-neutral-400">{day?.label}</span>
+                                                            <span className="text-neutral-500">₹{pricePerDay}</span>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="p-3">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Selected Days</span>
-                                            <span className="text-[10px] text-neutral-500 font-mono">{selectedDays.length} Day{selectedDays.length > 1 ? 's' : ''}</span>
+                                </div>
+
+                                {/* Mock Global Summit Invite Code - required when event is selected */}
+                                {hasMockSummitSelected && (
+                                    <div className="p-4 bg-[#151515] border border-neutral-800 space-y-2">
+                                        <label htmlFor="mock-summit-invite" className="block text-[10px] text-neutral-500 font-orbitron uppercase">
+                                            Mock Global Summit Invite Code *
+                                        </label>
+                                        <input
+                                            id="mock-summit-invite"
+                                            type="text"
+                                            value={mockSummitInviteCode}
+                                            onChange={(e) => setMockSummitInviteCode(e.target.value)}
+                                            placeholder="Enter invite code"
+                                            className="w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-700 text-white font-mono text-sm placeholder:text-neutral-600 focus:outline-none focus:border-blue-500"
+                                        />
+                                        <p className="text-[10px] text-neutral-500 font-mono">
+                                            This event requires a valid invite code.
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Pricing Display */}
+                                <div className="p-4 bg-[#151515] border border-neutral-700 relative overflow-hidden">
+                                    {/* Diagonal lines bg */}
+                                    <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 10px)' }}></div>
+
+                                    <div className="relative z-10 flex justify-between items-end">
+                                        <div>
+                                            <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
+                                            <div className="text-xs text-neutral-400 font-mono">
+                                                {totalDays} DAY{totalDays > 1 ? 'S' : ''} × ₹{pricePerDay}
+                                            </div>
                                         </div>
-                                        <div className="space-y-1 pl-2 border-l border-neutral-800">
-                                            {selectedDays.map((dayId) => {
-                                                const day = DAY_OPTIONS.find((d) => d.id === dayId);
-                                                return (
-                                                    <div key={dayId} className="flex justify-between text-xs font-mono">
-                                                        <span className="text-neutral-400">{day?.label}</span>
-                                                        <span className="text-neutral-500">₹{pricePerDay}</span>
-                                                    </div>
-                                                );
-                                            })}
+                                        <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
+                                            ₹{totalAmount}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Mock Global Summit Invite Code - required when event is selected */}
-                            {hasMockSummitSelected && (
-                                <div className="p-4 bg-[#151515] border border-neutral-800 space-y-2">
-                                    <label htmlFor="mock-summit-invite" className="block text-[10px] text-neutral-500 font-orbitron uppercase">
-                                        Mock Global Summit Invite Code *
-                                    </label>
-                                    <input
-                                        id="mock-summit-invite"
-                                        type="text"
-                                        value={mockSummitInviteCode}
-                                        onChange={(e) => setMockSummitInviteCode(e.target.value)}
-                                        placeholder="Enter invite code"
-                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-700 text-white font-mono text-sm placeholder:text-neutral-600 focus:outline-none focus:border-blue-500"
-                                    />
-                                    <p className="text-[10px] text-neutral-500 font-mono">
-                                        This event requires a valid invite code.
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Pricing Display */}
-                            <div className="p-4 bg-[#151515] border border-neutral-700 relative overflow-hidden">
-                                {/* Diagonal lines bg */}
-                                <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 10px)' }}></div>
-
-                                <div className="relative z-10 flex justify-between items-end">
-                                    <div>
-                                        <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
-                                        <div className="text-xs text-neutral-400 font-mono">
-                                            {totalDays} DAY{totalDays > 1 ? 'S' : ''} × ₹{pricePerDay}
-                                        </div>
-                                    </div>
-                                    <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
-                                        ₹{totalAmount}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                        )}
 
                     </div>
                 </div>
