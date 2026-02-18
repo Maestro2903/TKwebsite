@@ -22,7 +22,7 @@ function loadEnv() {
     path.resolve(__dirname, '../../.env'),
     path.resolve(__dirname, '../../.env.local')
   ];
-  
+
   for (const envPath of envFiles) {
     if (fs.existsSync(envPath)) {
       console.log(`📄 Loading environment from: ${path.basename(envPath)}`);
@@ -40,7 +40,7 @@ function loadEnv() {
       return; // Stop after loading first found file
     }
   }
-  
+
   console.warn('⚠️  No .env or .env.local file found');
 }
 
@@ -59,18 +59,18 @@ if (serviceAccountKey) {
   }
 } else {
   console.log('🔐 Using individual Firebase credentials from environment...\n');
-  
+
   // Validate required environment variables
   const requiredVars = {
     'NEXT_PUBLIC_FIREBASE_PROJECT_ID': process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
     'FIREBASE_ADMIN_CLIENT_EMAIL': process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
     'FIREBASE_ADMIN_PRIVATE_KEY': process.env.FIREBASE_ADMIN_PRIVATE_KEY
   };
-  
+
   const missingVars = Object.entries(requiredVars)
     .filter(([_, value]) => !value)
     .map(([key]) => key);
-  
+
   if (missingVars.length > 0) {
     console.error('❌ Missing required environment variables:');
     missingVars.forEach(varName => console.error(`   - ${varName}`));
@@ -79,7 +79,7 @@ if (serviceAccountKey) {
     console.error('  Option 2: All three variables above\n');
     process.exit(1);
   }
-  
+
   try {
     admin.initializeApp({
       credential: admin.credential.cert({
@@ -108,10 +108,12 @@ const events = [
     date: '2026-02-26',
     venue: 'Partha',
     prizePool: 35000,
-    allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
+    allowedPassTypes: ['group_events', 'day_pass', 'proshow', 'sana_concert'],
     isActive: true,
     description: 'A high-energy group dance battle where rhythm, coordination, and stage presence come together to tell a powerful story.',
     image: '/images/event/nontech/CHOREO%20SHOWCASE.webp',
+    minMembers: 1,
+    maxMembers: 8,
   },
   {
     id: 'rap-a-thon',
@@ -156,14 +158,15 @@ const events = [
     id: 'frame-spot',
     name: 'FRAME SPOT',
     category: 'non_technical',
-    type: 'individual',
+    type: 'group',
     date: '2026-02-26',
     venue: 'Partha',
     prizePool: 10000,
-    allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
+    allowedPassTypes: ['group_events', 'day_pass', 'proshow', 'sana_concert'],
     isActive: true,
     description: 'Direct your model and capture a frame where style and attitude come alive.',
     image: '/images/event/nontech/REELTOREAL.jpg',
+    minMembers: 2,
   },
 
   // ========== NON-TECHNICAL EVENTS - DAY 2 (27 FEB) ==========
@@ -175,10 +178,12 @@ const events = [
     date: '2026-02-27',
     venue: 'Partha',
     prizePool: 50000,
-    allowedPassTypes: ['day_pass', 'sana_concert'],
+    allowedPassTypes: ['group_events', 'day_pass', 'sana_concert'],
     isActive: true,
     description: 'Inter-college bands face off in a live musical showdown to prove their originality, chemistry, and crowd-commanding sound.',
     image: '/images/event/nontech/BATTLE%20OF%20BANDS.webp',
+    minMembers: 3,
+    maxMembers: 8,
   },
   {
     id: 'cypher',
@@ -197,14 +202,16 @@ const events = [
     id: 'case-files',
     name: 'CASE FILES',
     category: 'non_technical',
-    type: 'individual',
+    type: 'group',
     date: '2026-02-27',
     venue: 'CSE Seminar Hall',
     prizePool: 20000,
-    allowedPassTypes: ['day_pass', 'sana_concert'],
+    allowedPassTypes: ['group_events', 'day_pass', 'sana_concert'],
     isActive: true,
     description: 'Crack clues, connect evidence, and race against time in this thrilling mystery-solving challenge inspired by classic detective logic.',
     image: '/images/event/nontech/CASE%20FILES.webp',
+    minMembers: 3,
+    maxMembers: 5,
   },
 
   // ========== NON-TECHNICAL EVENTS - DAY 3 (28 FEB) ==========
@@ -216,10 +223,11 @@ const events = [
     date: '2026-02-28',
     venue: 'Partha',
     prizePool: 25000,
-    allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
+    allowedPassTypes: ['group_events', 'day_pass', 'proshow', 'sana_concert'],
     isActive: true,
     description: 'Two dancers. One vibe. Zero mercy. A power-packed performance driven by sync, chemistry, and stage dominance.',
     image: '/duo dance - final.webp',
+    minMembers: 2,
   },
   {
     id: 'canvas-painting',
@@ -238,14 +246,16 @@ const events = [
     id: 'filmfinatics',
     name: 'FILM FINATICS',
     category: 'non_technical',
-    type: 'individual',
+    type: 'group',
     date: '2026-02-28',
     venue: 'Media Studio',
     prizePool: 30000,
-    allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
+    allowedPassTypes: ['group_events', 'day_pass', 'proshow', 'sana_concert'],
     isActive: true,
     description: 'Turn a simple idea into a powerful short film using creativity, emotion, and cinematic storytelling.',
     image: '/images/event/nontech/FILMFINATICS.webp',
+    minMembers: 1,
+    maxMembers: 20,
   },
   {
     id: 'channel-surfing',
@@ -371,6 +381,8 @@ const events = [
     isActive: true,
     description: 'Follow the clues, beat the challenges, and outsmart the unknown in an adventure packed with twists and excitement.',
     image: '/images/event/nontech/TREASURE%20HUNT.webp',
+    minMembers: 4,
+    maxMembers: 6,
   },
   {
     id: 'foss-treasure-hunt',
@@ -504,7 +516,7 @@ async function seedEvents() {
     for (const event of events) {
       try {
         console.log(`📝 Seeding: ${event.name} (${event.id})`);
-        
+
         await eventsRef.doc(event.id).set({
           ...event,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),

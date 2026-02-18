@@ -10,6 +10,8 @@ export type EventItem = {
   /** Optional full paragraph shown on the event card; falls back to description when not set */
   fullDescription?: string;
   image: string;
+  minMembers?: number;
+  maxMembers?: number;
 };
 
 const PLACEHOLDER_TECH = '/images/event/tech/tech%20quest.webp';
@@ -34,6 +36,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     fullDescription:
       'Own the stage, lock into the beat, and pull the crowd into your story. Every move should spark a reaction—sharp counts, smooth transitions, and powerful formations that keep the audience hooked. Feel the rhythm, play with the energy, and dance with the crowd, not just for them.',
     image: '/assets/events/choreo-showcase.webp',
+    minMembers: 1,
+    maxMembers: 8,
   },
   {
     id: 'battle-of-bands',
@@ -43,6 +47,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     fullDescription:
       'Battle of Bands is where sound turns into spectacle, and the stage comes alive with pure musical energy. As inter-college bands clash in a high-voltage live showdown, every beat, riff, and rhythm matters. With originality, coordination, and stage presence on the line, will your band rise above the roar and own the spotlight?',
     image: '/BattleOfBands.webp',
+    minMembers: 3,
+    maxMembers: 8,
   },
   {
     id: 'cypher',
@@ -68,6 +74,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     description:
       'Two dancers. One vibe. Zero mercy. A power-packed performance driven by sync, chemistry, and stage dominance.',
     image: '/duo dance - final.webp',
+    minMembers: 2,
   },
   {
     id: 'solo-singing',
@@ -107,6 +114,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     fullDescription:
       'Think you can outthink the clock and the case? Break down the clues, connect the facts, and make smart decisions under pressure, guided by the calm precision of Hercule Poirot. Will your logic lead you to the truth in time?',
     image: '/casefiles.webp',
+    minMembers: 3,
+    maxMembers: 5,
   },
   {
     id: 'treasure-hunt',
@@ -116,6 +125,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     fullDescription:
       'A trail of clues, a rush of excitement, and surprises waiting at every turn. What starts as a simple hunt soon pushes teams to rely on sharp eyes and smart moves. With each challenge unlocked, the mystery deepens—because the real thrill lies in not knowing what comes next.',
     image: '/images/event/nontech/TREASURE%20HUNT.webp',
+    minMembers: 4,
+    maxMembers: 6,
   },
   {
     id: 'filmfinatics',
@@ -125,6 +136,8 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     fullDescription:
       'Every frame is your playground, and every cut is a flex. Twist a simple idea into a short film bursting with creativity, emotions, and cinematic style. Play with visuals, set the vibe, and make every second on screen count. Ready to roll the camera and steal the spotlight?',
     image: '/FilmFinatics.webp',
+    minMembers: 1,
+    maxMembers: 20,
   },
   {
     id: 'designers-onboard',
@@ -152,6 +165,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     fullDescription:
       'Look closer, chase the details, and connect moments that seem miles apart but belong to the same story. The answers aren\'t handed to you—they\'re hidden in plain sight, waiting for sharp eyes and sharper minds. Can you piece it together before the picture slips away?',
     image: '/images/event/nontech/REELTOREAL.webp',
+    minMembers: 2,
   },
 ];
 

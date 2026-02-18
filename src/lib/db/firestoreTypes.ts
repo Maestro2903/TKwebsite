@@ -16,6 +16,8 @@ export interface Event {
   date: string; // ISO format: "2026-02-26"
   venue: string;
   prizePool?: number;
+  minMembers?: number;
+  maxMembers?: number;
   allowedPassTypes: PassType[];
   isActive: boolean;
   description?: string;

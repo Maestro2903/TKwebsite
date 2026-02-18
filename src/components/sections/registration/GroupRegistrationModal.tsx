@@ -143,6 +143,8 @@ export default function GroupRegistrationModal({
         []
     );
 
+    const selectedEvent = groupEvents.find(e => e.id === selectedEventId);
+
     // Validate current step
     const validateStep = useCallback(() => {
         if (step === 'leader') {
@@ -158,6 +160,19 @@ export default function GroupRegistrationModal({
             }
         }
         if (step === 'members') {
+            const min = selectedEvent?.minMembers || 1;
+            const max = selectedEvent?.maxMembers;
+
+            if (totalMembers < min) {
+                setError(`This event requires at least ${min} members (including leader). Please add ${min - totalMembers} more.`);
+                return false;
+            }
+
+            if (max && totalMembers > max) {
+                setError(`This event allows maximum ${max} members (including leader). Please remove ${totalMembers - max} members.`);
+                return false;
+            }
+
             for (const member of members) {
                 if (!member.name.trim()) {
                     setError('Please enter name for all team members');
@@ -175,7 +190,7 @@ export default function GroupRegistrationModal({
         }
         setError(null);
         return true;
-    }, [step, teamName, leaderPhone, leaderCollege, selectedEventId, members]);
+    }, [step, teamName, leaderPhone, leaderCollege, selectedEventId, members, totalMembers, groupEvents]);
 
     // Handle step navigation
     const goToNextStep = useCallback(() => {
@@ -428,13 +443,13 @@ export default function GroupRegistrationModal({
                                                 type="button"
                                                 onClick={() => setSelectedEventId(event.id)}
                                                 className={`w-full p-4 border transition-all duration-300 flex items-start gap-4 ${selectedEventId === event.id
-                                                        ? 'border-blue-500 bg-blue-500/10'
-                                                        : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
+                                                    ? 'border-blue-500 bg-blue-500/10'
+                                                    : 'border-neutral-800 bg-[#0a0a0a] hover:border-neutral-600'
                                                     }`}
                                             >
                                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 mt-1 ${selectedEventId === event.id
-                                                        ? 'border-blue-500 bg-blue-500/20'
-                                                        : 'border-neutral-600 bg-neutral-900'
+                                                    ? 'border-blue-500 bg-blue-500/20'
+                                                    : 'border-neutral-600 bg-neutral-900'
                                                     }`}>
                                                     <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${selectedEventId === event.id ? 'bg-blue-500' : 'bg-transparent'
                                                         }`} />
@@ -464,6 +479,17 @@ export default function GroupRegistrationModal({
                                                                 </span>
                                                             </>
                                                         )}
+                                                        {(event.minMembers || event.maxMembers) && (
+                                                            <>
+                                                                <span className="text-[10px] text-neutral-700">•</span>
+                                                                <span className="text-[10px] text-amber-400 font-mono">
+                                                                    {event.minMembers && `MIN: ${event.minMembers}`}
+                                                                    {event.minMembers && event.maxMembers && ' - '}
+                                                                    {event.maxMembers && `MAX: ${event.maxMembers}`}
+                                                                    {' PAX'}
+                                                                </span>
+                                                            </>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </button>
@@ -474,145 +500,146 @@ export default function GroupRegistrationModal({
                         )}
 
                         {/* Step 3: Add Team Members */}
-                    {step === 'members' && (
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
-                                <div>
-                                    <h3 className="text-sm font-orbitron text-white uppercase tracking-wider">Unit Members</h3>
-                                    <p className="text-[10px] text-neutral-500 font-mono mt-1">
-                                        COUNT: {members.length} // MAX: UNLIMITED
-                                    </p>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={addMember}
-                                    className="px-3 py-1.5 border border-neutral-700 bg-neutral-800/50 text-neutral-300 text-xs font-orbitron hover:bg-neutral-700 transition flex items-center gap-2"
-                                >
-                                    <span>+</span> ADD UNIT
-                                </button>
-                            </div>
-
-                            {members.length === 0 ? (
-                                <div className="py-12 border border-dashed border-neutral-800 bg-[#0a0a0a] text-center flex flex-col items-center justify-center">
-                                    <div className="w-8 h-8 mb-3 opacity-20 border border-white rounded-full flex items-center justify-center">
-                                        <span className="text-xl">+</span>
+                        {step === 'members' && (
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
+                                    <div>
+                                        <h3 className="text-sm font-orbitron text-white uppercase tracking-wider">Unit Members</h3>
+                                        <p className="text-[10px] text-neutral-500 font-mono mt-1">
+                                            TOTAL: {totalMembers} (LEADER + {members.length}) // MAX: {selectedEvent?.maxMembers || 'UNLIMITED'}
+                                        </p>
                                     </div>
-                                    <p className="text-neutral-500 text-xs font-mono uppercase">No units assigned</p>
-                                    <p className="text-neutral-700 text-[10px] mt-1 font-mono">
-                                        Initialize additional members or proceed solo
-                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={addMember}
+                                        disabled={selectedEvent?.maxMembers ? totalMembers >= selectedEvent.maxMembers : false}
+                                        className="px-3 py-1.5 border border-neutral-700 bg-neutral-800/50 text-neutral-300 text-xs font-orbitron hover:bg-neutral-700 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <span>+</span> ADD UNIT
+                                    </button>
                                 </div>
-                            ) : (
-                                <ScrollArea className="h-[40vh] w-full border border-neutral-800 bg-[#0a0a0a]">
-                                    <div className="p-4 space-y-4">
-                                        {members.map((member, index) => (
-                                            <div key={member.id} className="p-4 border border-neutral-800 bg-[#151515] relative group/item">
-                                                <div className="absolute top-0 left-0 w-[2px] h-full bg-neutral-800 group-hover/item:bg-neutral-600 transition-colors" />
 
-                                                <div className="flex items-center justify-between mb-3">
-                                                    <span className="text-[10px] font-orbitron text-neutral-500 uppercase tracking-widest">
-                                                        Unit 0{index + 1}
-                                                    </span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeMember(member.id)}
-                                                        className="text-neutral-600 hover:text-red-400 transition-colors"
-                                                        aria-label="Remove member"
-                                                    >
-                                                        <X size={12} />
-                                                    </button>
-                                                </div>
+                                {members.length === 0 ? (
+                                    <div className="py-12 border border-dashed border-neutral-800 bg-[#0a0a0a] text-center flex flex-col items-center justify-center">
+                                        <div className="w-8 h-8 mb-3 opacity-20 border border-white rounded-full flex items-center justify-center">
+                                            <span className="text-xl">+</span>
+                                        </div>
+                                        <p className="text-neutral-500 text-xs font-mono uppercase">No units assigned</p>
+                                        <p className="text-neutral-700 text-[10px] mt-1 font-mono">
+                                            Initialize additional members or proceed solo
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <ScrollArea className="h-[40vh] w-full border border-neutral-800 bg-[#0a0a0a]">
+                                        <div className="p-4 space-y-4">
+                                            {members.map((member, index) => (
+                                                <div key={member.id} className="p-4 border border-neutral-800 bg-[#151515] relative group/item">
+                                                    <div className="absolute top-0 left-0 w-[2px] h-full bg-neutral-800 group-hover/item:bg-neutral-600 transition-colors" />
 
-                                                <div className="grid gap-2">
-                                                    <input
-                                                        type="text"
-                                                        value={member.name}
-                                                        onChange={(e) => updateMember(member.id, 'name', e.target.value)}
-                                                        placeholder="FULL NAME"
-                                                        className="w-full bg-transparent border-b border-neutral-800 py-1 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
-                                                    />
-                                                    <div className="grid grid-cols-2 gap-4">
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <span className="text-[10px] font-orbitron text-neutral-500 uppercase tracking-widest">
+                                                            Unit 0{index + 1}
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeMember(member.id)}
+                                                            className="text-neutral-600 hover:text-red-400 transition-colors"
+                                                            aria-label="Remove member"
+                                                        >
+                                                            <X size={12} />
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="grid gap-2">
                                                         <input
-                                                            type="tel"
-                                                            value={member.phone}
-                                                            onChange={(e) => updateMember(member.id, 'phone', e.target.value)}
-                                                            placeholder="PHONE"
+                                                            type="text"
+                                                            value={member.name}
+                                                            onChange={(e) => updateMember(member.id, 'name', e.target.value)}
+                                                            placeholder="FULL NAME"
                                                             className="w-full bg-transparent border-b border-neutral-800 py-1 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
                                                         />
-                                                        <input
-                                                            type="email"
-                                                            value={member.email}
-                                                            onChange={(e) => updateMember(member.id, 'email', e.target.value)}
-                                                            placeholder="EMAIL"
-                                                            className="w-full bg-transparent border-b border-neutral-800 py-1 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
-                                                        />
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <input
+                                                                type="tel"
+                                                                value={member.phone}
+                                                                onChange={(e) => updateMember(member.id, 'phone', e.target.value)}
+                                                                placeholder="PHONE"
+                                                                className="w-full bg-transparent border-b border-neutral-800 py-1 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
+                                                            />
+                                                            <input
+                                                                type="email"
+                                                                value={member.email}
+                                                                onChange={(e) => updateMember(member.id, 'email', e.target.value)}
+                                                                placeholder="EMAIL"
+                                                                className="w-full bg-transparent border-b border-neutral-800 py-1 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </ScrollArea>
-                            )}
-                        </div>
-                    )}
+                                            ))}
+                                        </div>
+                                    </ScrollArea>
+                                )}
+                            </div>
+                        )}
 
                         {/* Step 3: Review & Pay */}
-                    {step === 'review' && (
-                        <div className="space-y-6">
-                            <div>
-                                <h3 className="text-sm font-orbitron text-white uppercase tracking-wider mb-4">Registration Summary</h3>
+                        {step === 'review' && (
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className="text-sm font-orbitron text-white uppercase tracking-wider mb-4">Registration Summary</h3>
 
-                                <div className="border border-neutral-800 bg-[#0a0a0a] divide-y divide-neutral-800">
-                                    <div className="p-3 flex justify-between items-center">
-                                        <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Team Designation</span>
-                                        <span className="text-sm text-white font-mono">{teamName}</span>
-                                    </div>
-                                    <div className="p-3 flex justify-between items-center">
-                                        <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Leader ID</span>
-                                        <div className="text-right">
-                                            <div className="text-sm text-white font-mono">
-                                                {userData?.name || user?.displayName || user?.email || 'User'}
-                                            </div>
-                                            <div className="text-[10px] text-neutral-600 font-mono">{leaderPhone}</div>
+                                    <div className="border border-neutral-800 bg-[#0a0a0a] divide-y divide-neutral-800">
+                                        <div className="p-3 flex justify-between items-center">
+                                            <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Team Designation</span>
+                                            <span className="text-sm text-white font-mono">{teamName}</span>
                                         </div>
-                                    </div>
-                                    {members.length > 0 && (
-                                        <div className="p-3">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Additional Units</span>
-                                                <span className="text-[10px] text-neutral-500 font-mono">{members.length} Count</span>
-                                            </div>
-                                            <div className="space-y-1 pl-2 border-l border-neutral-800">
-                                                {members.map((m, i) => (
-                                                    <div key={m.id} className="flex justify-between text-xs font-mono">
-                                                        <span className="text-neutral-400">{i + 1}. {m.name}</span>
-                                                    </div>
-                                                ))}
+                                        <div className="p-3 flex justify-between items-center">
+                                            <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Leader ID</span>
+                                            <div className="text-right">
+                                                <div className="text-sm text-white font-mono">
+                                                    {userData?.name || user?.displayName || user?.email || 'User'}
+                                                </div>
+                                                <div className="text-[10px] text-neutral-600 font-mono">{leaderPhone}</div>
                                             </div>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Pricing Display */}
-                            <div className="p-4 bg-[#151515] border border-neutral-700 relative overflow-hidden">
-                                {/* Diagonal lines bg */}
-                                <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 10px)' }}></div>
-
-                                <div className="relative z-10 flex justify-between items-end">
-                                    <div>
-                                        <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
-                                        <div className="text-xs text-neutral-400 font-mono">
-                                            {totalMembers} PAX × ₹{pricePerPerson}
-                                        </div>
-                                    </div>
-                                    <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
-                                        ₹{totalAmount}
+                                        {members.length > 0 && (
+                                            <div className="p-3">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Additional Units</span>
+                                                    <span className="text-[10px] text-neutral-500 font-mono">{members.length} Count</span>
+                                                </div>
+                                                <div className="space-y-1 pl-2 border-l border-neutral-800">
+                                                    {members.map((m, i) => (
+                                                        <div key={m.id} className="flex justify-between text-xs font-mono">
+                                                            <span className="text-neutral-400">{i + 1}. {m.name}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
+
+                                {/* Pricing Display */}
+                                <div className="p-4 bg-[#151515] border border-neutral-700 relative overflow-hidden">
+                                    {/* Diagonal lines bg */}
+                                    <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 10px)' }}></div>
+
+                                    <div className="relative z-10 flex justify-between items-end">
+                                        <div>
+                                            <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
+                                            <div className="text-xs text-neutral-400 font-mono">
+                                                {totalMembers} PAX × ₹{pricePerPerson}
+                                            </div>
+                                        </div>
+                                        <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">
+                                            ₹{totalAmount}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
                     </div>
                 </div>

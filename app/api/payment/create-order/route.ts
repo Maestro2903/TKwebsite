@@ -89,8 +89,8 @@ export async function POST(req: NextRequest) {
     // Check if events are active
     const inactiveEvents = events.filter((e: any) => !e.isActive);
     if (inactiveEvents.length > 0) {
-      return NextResponse.json({ 
-        error: `These events are not currently active: ${inactiveEvents.map((e: any) => e.name).join(', ')}` 
+      return NextResponse.json({
+        error: `These events are not currently active: ${inactiveEvents.map((e: any) => e.name).join(', ')}`
       }, { status: 400 });
     }
 
@@ -98,8 +98,8 @@ export async function POST(req: NextRequest) {
     if (passType === 'day_pass' && selectedDays && selectedDays.length > 0) {
       const invalidEvents = events.filter((e: any) => !selectedDays.includes(e.date));
       if (invalidEvents.length > 0) {
-        return NextResponse.json({ 
-          error: `Events must match selected days. Invalid events: ${invalidEvents.map((e: any) => e.name).join(', ')}` 
+        return NextResponse.json({
+          error: `Events must match selected days. Invalid events: ${invalidEvents.map((e: any) => e.name).join(', ')}`
         }, { status: 400 });
       }
     }
@@ -112,14 +112,27 @@ export async function POST(req: NextRequest) {
       if (event.type !== 'group') {
         return NextResponse.json({ error: 'Selected event must be a group event' }, { status: 400 });
       }
+
+      // Team size validation
+      const teamSize = body.teamMemberCount ?? 1;
+      if (event.minMembers && teamSize < event.minMembers) {
+        return NextResponse.json({
+          error: `Team size too small for ${event.name}. Minimum required: ${event.minMembers} (including leader)`
+        }, { status: 400 });
+      }
+      if (event.maxMembers && teamSize > event.maxMembers) {
+        return NextResponse.json({
+          error: `Team size too large for ${event.name}. Maximum allowed: ${event.maxMembers} (including leader)`
+        }, { status: 400 });
+      }
     }
 
     if (passType === 'proshow') {
       const proshowDays = ['2026-02-26', '2026-02-28']; // Day 1 and Day 3
       const invalidEvents = events.filter((e: any) => !proshowDays.includes(e.date));
       if (invalidEvents.length > 0) {
-        return NextResponse.json({ 
-          error: `Proshow pass can only select Day 1 and Day 3 events. Invalid: ${invalidEvents.map((e: any) => e.name).join(', ')}` 
+        return NextResponse.json({
+          error: `Proshow pass can only select Day 1 and Day 3 events. Invalid: ${invalidEvents.map((e: any) => e.name).join(', ')}`
         }, { status: 400 });
       }
     }
@@ -128,8 +141,8 @@ export async function POST(req: NextRequest) {
     if (passType !== 'test_pass') {
       const deniedEvents = events.filter((e: any) => !e.allowedPassTypes || !e.allowedPassTypes.includes(passType));
       if (deniedEvents.length > 0) {
-        return NextResponse.json({ 
-          error: `These events are not available for ${passType}: ${deniedEvents.map((e: any) => e.name).join(', ')}` 
+        return NextResponse.json({
+          error: `These events are not available for ${passType}: ${deniedEvents.map((e: any) => e.name).join(', ')}`
         }, { status: 400 });
       }
     }
