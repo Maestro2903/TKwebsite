@@ -67,13 +67,11 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
       {
         id: 'day3-surprise-andrea',
         title: 'ANDREA',
-        subtitle: 'Surprise Guest',
         imageUrl: '/andrea.webp',
       },
       {
         id: 'day3-surprise-atharva',
         title: 'ATHARVA',
-        subtitle: 'Surprise Guest',
         imageUrl: '/atharva.webp',
       },
     ],
