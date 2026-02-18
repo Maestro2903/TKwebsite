@@ -42,7 +42,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Inter-college bands face off in a live musical showdown to prove their originality, chemistry, and crowd-commanding sound.',
     fullDescription:
       'Battle of Bands is where sound turns into spectacle, and the stage comes alive with pure musical energy. As inter-college bands clash in a high-voltage live showdown, every beat, riff, and rhythm matters. With originality, coordination, and stage presence on the line, will your band rise above the roar and own the spotlight?',
-    image: '/assets/events/battle-of-bands.webp',
+    image: '/BattleOfBands.webp',
   },
   {
     id: 'cypher',
@@ -88,7 +88,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'GAMING EVENT',
     description:
       'Step into intense virtual battles where strategy, reflexes, and skill decide who rules the game.',
-    image: '/images/event/nontech/DESIGNERS%20ONBOARD.webp',
+    image: '/gaming event.webp',
   },
   {
     id: 'case-files',
@@ -97,7 +97,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Crack clues, connect evidence, and race against time in this thrilling mystery-solving challenge inspired by classic detective logic.',
     fullDescription:
       'Think you can outthink the clock and the case? Break down the clues, connect the facts, and make smart decisions under pressure, guided by the calm precision of Hercule Poirot. Will your logic lead you to the truth in time?',
-    image: '/assets/events/case-files.webp',
+    image: '/casefiles.webp',
   },
   {
     id: 'treasure-hunt',
@@ -115,7 +115,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Turn a simple idea into a powerful short film using creativity, emotion, and cinematic storytelling.',
     fullDescription:
       'Every frame is your playground, and every cut is a flex. Twist a simple idea into a short film bursting with creativity, emotions, and cinematic style. Play with visuals, set the vibe, and make every second on screen count. Ready to roll the camera and steal the spotlight?',
-    image: '/assets/events/film-finatics.webp',
+    image: '/FilmFinatics.webp',
   },
   {
     id: 'designers-onboard',
@@ -124,16 +124,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Design lives under pressure as you transform surprise themes into striking digital visuals before time runs out.',
     fullDescription:
       'A surprise theme, a ticking clock, and creativity under pressure. Design live, think fast, and turn bold ideas into eye-catching digital visuals using your skills and tools. Can you adapt, create, and stand out before time runs out?',
-    image: '/images/event/nontech/DESIGNERS%20ONBOARD.webp',
-  },
-  {
-    id: 'connections',
-    name: 'CONNECTIONS',
-    description:
-      'Step into the battleground where strategy, skill, and nerve decide who survives to the very end.',
-    fullDescription:
-      'Lock in, drop hot, and fight for survival in the BGMI battleground. Every decision counts as you outplay opponents, clutch under pressure, and push your way toward the final zone. Stay alert, trust your squad, and see if you have what it takes to outlast everyone else.',
-    image: '/assets/events/connections.webp',
+    image: '/designersonboard.webp',
   },
   {
     id: 'channel-surfing',

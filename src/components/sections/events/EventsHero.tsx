@@ -9,7 +9,7 @@ export function EventsHero() {
   return (
     <section className="events-hero">
       <img
-        src="/assets/images/proshows-hero-bg.webp"
+        src="/RCTKFINAL.webp"
         alt="Events"
         className="events-hero__background"
       />

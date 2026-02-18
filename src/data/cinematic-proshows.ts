@@ -29,7 +29,7 @@ export type CinematicProshowData = {
  */
 export const CINEMATIC_HERO: CinematicHeroData = {
   title: 'Proshows',
-  backgroundImage: '/assets/images/proshows-hero-bg.webp',
+  backgroundImage: '/RCTKFINAL.webp',
 };
 
 /**

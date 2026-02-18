@@ -46,7 +46,7 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
       {
         id: 'day2-sana',
         title: 'SaNa Concert',
-        imageUrl: '/images/proshows/sana.webp',
+        imageUrl: '/sana 2 copy.webp',
       },
     ],
   },
