@@ -28,12 +28,22 @@ export default function SanaArenaPage() {
     const router = useRouter();
     const heroAudioRef = useRef<HTMLAudioElement | null>(null);
     const [isHeroPlaying, setIsHeroPlaying] = useState(false);
+    const [arenaOpen, setArenaOpen] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
 
     // Get the SANA pass (2000 rs all-access pass)
     const sanaPass = REGISTRATION_PASSES.find(pass => pass.passType === 'sana_concert');
 
     const handlePassRegister = () => {
         router.push('/register/pass');
+    };
+
+    const handleCloseArena = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setArenaOpen(false);
+            setIsClosing(false);
+        }, 600); // Match the CSS transition duration
     };
 
     // Hero background audio
@@ -120,11 +130,82 @@ export default function SanaArenaPage() {
                         )}
                     </div>
 
-                    {/* Music Play/Pause Button - floating bottom-right, above sticky CTA on mobile */}
+                    {/* Enter the Arena Button - bottom center */}
+                    <button
+                        type="button"
+                        onClick={() => setArenaOpen(true)}
+                        className="arena-btn absolute bottom-20 left-1/2 -translate-x-1/2 z-20 touch-manipulation group"
+                    >
+                        {/* 1. Musical Notes floating from left and right */}
+                        <span className="arena-btn__notes-container">
+                            {/* Notes from left - continuous stream */}
+                            <span className="arena-btn__notes arena-btn__notes--left">
+                                <span className="arena-btn__note" style={{animationDelay: '0s'}}>♪</span>
+                                <span className="arena-btn__note" style={{animationDelay: '0.5s'}}>♫</span>
+                                <span className="arena-btn__note" style={{animationDelay: '1s'}}>♩</span>
+                                <span className="arena-btn__note" style={{animationDelay: '1.5s'}}>♬</span>
+                                <span className="arena-btn__note" style={{animationDelay: '2s'}}>𝅘𝅥𝅮</span>
+                                <span className="arena-btn__note" style={{animationDelay: '2.5s'}}>♪</span>
+                                <span className="arena-btn__note" style={{animationDelay: '3s'}}>♫</span>
+                                <span className="arena-btn__note" style={{animationDelay: '3.5s'}}>♩</span>
+                                <span className="arena-btn__note" style={{animationDelay: '4s'}}>♬</span>
+                                <span className="arena-btn__note" style={{animationDelay: '4.5s'}}>♪</span>
+                                <span className="arena-btn__note" style={{animationDelay: '5s'}}>♫</span>
+                                <span className="arena-btn__note" style={{animationDelay: '5.5s'}}>𝅘𝅥𝅮</span>
+                                <span className="arena-btn__note" style={{animationDelay: '6s'}}>♩</span>
+                                <span className="arena-btn__note" style={{animationDelay: '6.5s'}}>♬</span>
+                                <span className="arena-btn__note" style={{animationDelay: '7s'}}>♪</span>
+                                <span className="arena-btn__note" style={{animationDelay: '7.5s'}}>♫</span>
+                                <span className="arena-btn__note" style={{animationDelay: '8s'}}>♩</span>
+                                <span className="arena-btn__note" style={{animationDelay: '8.5s'}}>♬</span>
+                                <span className="arena-btn__note" style={{animationDelay: '9s'}}>𝅘𝅥𝅮</span>
+                                <span className="arena-btn__note" style={{animationDelay: '9.5s'}}>♪</span>
+                                <span className="arena-btn__note" style={{animationDelay: '10s'}}>♫</span>
+                                <span className="arena-btn__note" style={{animationDelay: '10.5s'}}>♩</span>
+                                <span className="arena-btn__note" style={{animationDelay: '11s'}}>♬</span>
+                                <span className="arena-btn__note" style={{animationDelay: '11.5s'}}>♪</span>
+                            </span>
+                            {/* Notes from right - continuous stream */}
+                            <span className="arena-btn__notes arena-btn__notes--right">
+                                <span className="arena-btn__note" style={{animationDelay: '0.25s'}}>♫</span>
+                                <span className="arena-btn__note" style={{animationDelay: '0.75s'}}>♩</span>
+                                <span className="arena-btn__note" style={{animationDelay: '1.25s'}}>♪</span>
+                                <span className="arena-btn__note" style={{animationDelay: '1.75s'}}>♬</span>
+                                <span className="arena-btn__note" style={{animationDelay: '2.25s'}}>𝅘𝅥𝅯</span>
+                                <span className="arena-btn__note" style={{animationDelay: '2.75s'}}>♫</span>
+                                <span className="arena-btn__note" style={{animationDelay: '3.25s'}}>♪</span>
+                                <span className="arena-btn__note" style={{animationDelay: '3.75s'}}>♩</span>
+                                <span className="arena-btn__note" style={{animationDelay: '4.25s'}}>♬</span>
+                                <span className="arena-btn__note" style={{animationDelay: '4.75s'}}>♫</span>
+                                <span className="arena-btn__note" style={{animationDelay: '5.25s'}}>♪</span>
+                                <span className="arena-btn__note" style={{animationDelay: '5.75s'}}>𝅘𝅥𝅯</span>
+                                <span className="arena-btn__note" style={{animationDelay: '6.25s'}}>♩</span>
+                                <span className="arena-btn__note" style={{animationDelay: '6.75s'}}>♬</span>
+                                <span className="arena-btn__note" style={{animationDelay: '7.25s'}}>♫</span>
+                                <span className="arena-btn__note" style={{animationDelay: '7.75s'}}>♪</span>
+                                <span className="arena-btn__note" style={{animationDelay: '8.25s'}}>♩</span>
+                                <span className="arena-btn__note" style={{animationDelay: '8.75s'}}>♬</span>
+                                <span className="arena-btn__note" style={{animationDelay: '9.25s'}}>𝅘𝅥𝅯</span>
+                                <span className="arena-btn__note" style={{animationDelay: '9.75s'}}>♫</span>
+                                <span className="arena-btn__note" style={{animationDelay: '10.25s'}}>♪</span>
+                                <span className="arena-btn__note" style={{animationDelay: '10.75s'}}>♩</span>
+                                <span className="arena-btn__note" style={{animationDelay: '11.25s'}}>♬</span>
+                                <span className="arena-btn__note" style={{animationDelay: '11.75s'}}>♫</span>
+                            </span>
+                        </span>
+
+                        {/* 2. Glass Reflection Overlay */}
+                        <span className="arena-btn__glass" />
+
+                        {/* 3. Text Content */}
+                        <span className="arena-btn__text">Enter the Arena</span>
+                    </button>
+
+                    {/* Music Play/Pause Button - floating bottom-right */}
                     <button
                         type="button"
                         onClick={toggleHeroPlay}
-                        className="fixed bottom-20 right-4 left-[auto] md:bottom-8 md:right-8 z-50 w-12 h-12 min-w-[48px] min-h-[48px] sm:w-14 sm:h-14 rounded-full bg-white/20 hover:bg-white/30 active:scale-95 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all hover:scale-105 touch-manipulation"
+                        className="fixed bottom-20 right-4 left-auto md:bottom-8 md:right-8 z-50 w-12 h-12 min-w-12 min-h-12 sm:w-14 sm:h-14 rounded-full bg-white/20 hover:bg-white/30 active:scale-95 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all hover:scale-105 touch-manipulation"
                         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}
                         aria-label={isHeroPlaying ? 'Pause music' : 'Play music'}
                     >
@@ -140,8 +221,35 @@ export default function SanaArenaPage() {
                     </button>
                 </section>
 
-                {/* Music portfolio list + hover background - overflow-visible so vinyl is not cut off */}
-                <section className="relative w-full bg-black overflow-visible" style={{ minHeight: '100vh' }}>
+            </main>
+
+            {/* Fullscreen Arena Overlay */}
+            {arenaOpen && (
+                <div
+                    className={`arena-overlay ${isClosing ? 'arena-closing' : 'arena-opening'}`}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 9999,
+                        background: '#000',
+                        animation: isClosing 
+                            ? 'arenaFadeOut 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards' 
+                            : 'arenaFadeIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+                    }}
+                >
+                    {/* Close button */}
+                    <button
+                        type="button"
+                        onClick={handleCloseArena}
+                        className="absolute top-5 right-5 z-[10000] w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95"
+                        aria-label="Close arena"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+
                     <MusicPortfolio
                         PROJECTS_DATA={SANTHOSH_ALBUMS}
                         CONFIG={{
@@ -157,8 +265,8 @@ export default function SanaArenaPage() {
                         }}
                         LOCATION={{ display: false }}
                     />
-                </section>
-            </main>
+                </div>
+            )}
 
             <Footer />
             <StickyRegisterCTA />

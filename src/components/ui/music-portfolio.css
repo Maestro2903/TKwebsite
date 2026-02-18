@@ -31,24 +31,25 @@
   padding: clamp(3rem, 6vw, 8rem) clamp(2rem, 5vw, 4rem);
   display: flex;
   align-items: center;
+  justify-content: center;
   min-height: 100vh;
 }
 
 /* Project List */
 .project-list {
   list-style: none;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
-  width: 48%;
-  max-width: 700px;
+  width: 100%;
+  max-width: 900px;
 }
 
 .project-item {
   display: grid;
-  grid-template-columns: 1.5fr 2fr 0.7fr 1.2fr 0.5fr;
-  gap: 1rem 2.5rem;
+  grid-template-columns: 1.8rem 2.5fr 0.8fr 1.5fr 0.6fr;
+  gap: 0.35rem 1.8rem;
   align-items: baseline;
-  padding: 1.2rem 0;
+  padding: 0.35rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
   transition: opacity 0.3s ease, color 0.3s ease;
@@ -71,14 +72,13 @@
     max-width: none;
   }
   
-  .music-artwork-container {
-    right: 50%;
-    transform: translateX(50%) translateY(-50%);
+  .background-image {
+    filter: brightness(0.4) saturate(1.1);
   }
   
   .project-item {
-    grid-template-columns: 1fr 1.2fr 0.5fr;
-    gap: 0.5rem 1rem;
+    grid-template-columns: 1.3rem 2fr 0.8fr;
+    gap: 0.35rem 1rem;
   }
   
   .project-data.label,
@@ -88,19 +88,17 @@
 }
 
 @media (max-width: 640px) {
-  .music-artwork-container {
-    right: 50%;
-    transform: translateX(50%) translateY(-50%) scale(0.8);
+  .background-image {
+    filter: blur(2px) brightness(0.3) saturate(1.1);
   }
   
   .project-item {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.25rem 0.75rem;
-    padding: 1rem 0;
+    grid-template-columns: 1.3rem 2fr 0.8fr;
+    gap: 0.35rem 1rem;
+    padding: 0.35rem 0;
   }
   
   .project-data.year {
-    grid-column: 2;
     text-align: right;
   }
 }
@@ -108,24 +106,53 @@
 /* Project Data */
 .project-data {
   font-family: var(--font-primary, monospace);
-  font-size: clamp(0.85rem, 1.6vw, 1.05rem);
+  font-size: clamp(0.8rem, 1.5vw, 0.95rem);
   letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: opacity 0.2s ease;
+  transition: background-size 0.1s ease, color 0.1s ease, opacity 0.15s ease;
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent)) no-repeat left center;
+  background-size: 0% 100%;
+  padding: 0.04em 0.25em;
+  margin: -0.04em -0.25em;
+  width: fit-content;
 }
 
-.project-data.artist {
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: clamp(0.9rem, 1.7vw, 1.1rem);
+/* Yellow highlighter on active row */
+.project-item.active .project-data {
+  background-size: 100% 100%;
+  color: #000;
+  transition: background-size 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.15s ease;
+}
+
+/* Stagger the highlight left to right */
+.project-item.active .project-data.number { transition-delay: 0s; }
+.project-item.active .project-data.album { transition-delay: 0.04s; }
+.project-item.active .project-data.category { transition-delay: 0.08s; }
+.project-item.active .project-data.label { transition-delay: 0.12s; }
+.project-item.active .project-data.year { transition-delay: 0.16s; }
+
+/* Remove delay on un-hover for snappy exit */
+.project-item:not(.active) .project-data {
+  transition-delay: 0s;
+}
+
+.project-data.number {
+  font-size: clamp(0.7rem, 1.1vw, 0.8rem);
+  opacity: 0.5;
+  font-weight: 600;
+}
+
+.project-item.active .project-data.number {
+  opacity: 1;
 }
 
 .project-data.album {
-  font-weight: 500;
-  font-size: clamp(0.85rem, 1.6vw, 1.05rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
 }
 
 .project-data.category,
@@ -134,34 +161,55 @@
   opacity: 0.7;
 }
 
+.project-item.active .project-data.category,
+.project-item.active .project-data.label {
+  opacity: 1;
+}
+
 .project-data.year {
   font-size: 0.85em;
   opacity: 0.6;
 }
 
-/* Music Artwork Container - positioned on right, minimal offset so vinyl is visible */
-.music-artwork-container {
-  position: absolute;
-  right: clamp(1rem, 2vw, 2rem);
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1;
-  pointer-events: auto;
-  overflow: visible;
-}
-
-.portfolio-container.has-active ~ .music-artwork-container {
+.project-item.active .project-data.year {
   opacity: 1;
 }
 
-/* Dark overlay when image is shown - lighter gradient for right-side layout */
+/* Background Image - fullscreen album art behind portfolio on hover */
+.background-image {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 0;
+  filter: brightness(0.55) saturate(1.15);
+  transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-origin: center center;
+}
+
+/* Dark gradient overlay when background image is active */
 .portfolio-container.has-active::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: transparent;
-  z-index: -1;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.5) 40%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  z-index: 1;
   pointer-events: none;
+}
+
+.portfolio-container.has-active {
+  z-index: 2;
 }
 
 /* Corner Elements */
