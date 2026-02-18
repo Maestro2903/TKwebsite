@@ -9,18 +9,18 @@ import PassCard from '@/components/ui/PassCard';
 import { REGISTRATION_PASSES } from '@/data/passes';
 
 const SANTHOSH_ALBUMS = [
-  { id: 1, artist: 'SANTHOSH NARAYANAN', album: 'Irudhi Suttru', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2016', image: '/assets/images/albumcover/1.webp' },
-  { id: 2, artist: 'SANTHOSH NARAYANAN', album: 'Jagame Thandhiram', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/2.webp' },
-  { id: 3, artist: 'SANTHOSH NARAYANAN', album: 'Kaala', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2018', image: '/assets/images/albumcover/3.webp' },
-  { id: 4, artist: 'SANTHOSH NARAYANAN', album: 'Kabali', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2016', image: '/assets/images/albumcover/4.webp' },
-  { id: 5, artist: 'SANTHOSH NARAYANAN', album: 'Kalki 2898 Ad', category: 'SOUNDTRACK', label: 'TAMIL', year: '2024', image: '/assets/images/albumcover/5.webp' },
-  { id: 6, artist: 'SANTHOSH NARAYANAN', album: 'Karnan', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/6.webp' },
-  { id: 7, artist: 'SANTHOSH NARAYANAN', album: 'Madras', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2014', image: '/assets/images/albumcover/7.webp' },
-  { id: 8, artist: 'SANTHOSH NARAYANAN', album: 'Mahaan', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2022', image: '/assets/images/albumcover/8.webp' },
-  { id: 9, artist: 'SANTHOSH NARAYANAN', album: 'Pizza', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2012', image: '/assets/images/albumcover/9.webp' },
-  { id: 10, artist: 'SANTHOSH NARAYANAN', album: 'Retro', category: 'ALBUM', label: 'TAMIL', year: '2024', image: '/assets/images/albumcover/10.webp' },
-  { id: 11, artist: 'SANTHOSH NARAYANAN', album: 'Sarpatta Parambarai', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/11.webp' },
-  { id: 12, artist: 'SANTHOSH NARAYANAN', album: 'VadaChennai', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2018', image: '/assets/images/albumcover/12.webp' },
+  { id: 1, artist: 'SANTHOSH NARAYANAN', album: 'Irudhi Suttru', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2016', image: '/assets/images/albumcover/1.png' },
+  { id: 2, artist: 'SANTHOSH NARAYANAN', album: 'Jagame Thandhiram', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/2.png' },
+  { id: 3, artist: 'SANTHOSH NARAYANAN', album: 'Kaala', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2018', image: '/assets/images/albumcover/3.png' },
+  { id: 4, artist: 'SANTHOSH NARAYANAN', album: 'Kabali', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2016', image: '/assets/images/albumcover/4.png' },
+  { id: 5, artist: 'SANTHOSH NARAYANAN', album: 'Kalki 2898 Ad', category: 'SOUNDTRACK', label: 'TAMIL', year: '2024', image: '/assets/images/albumcover/5.png' },
+  { id: 6, artist: 'SANTHOSH NARAYANAN', album: 'Karnan', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/6.png' },
+  { id: 7, artist: 'SANTHOSH NARAYANAN', album: 'Madras', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2014', image: '/assets/images/albumcover/7.png' },
+  { id: 8, artist: 'SANTHOSH NARAYANAN', album: 'Mahaan', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2022', image: '/assets/images/albumcover/8.png' },
+  { id: 9, artist: 'SANTHOSH NARAYANAN', album: 'Pizza', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2012', image: '/assets/images/albumcover/9.png' },
+  { id: 10, artist: 'SANTHOSH NARAYANAN', album: 'Retro', category: 'ALBUM', label: 'TAMIL', year: '2024', image: '/assets/images/albumcover/10.png' },
+  { id: 11, artist: 'SANTHOSH NARAYANAN', album: 'Sarpatta Parambarai', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/11.png' },
+  { id: 12, artist: 'SANTHOSH NARAYANAN', album: 'VadaChennai', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2018', image: '/assets/images/albumcover/12.png' },
 ];
 
 export default function SanaArenaPage() {
