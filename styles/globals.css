@@ -5,6 +5,10 @@
 @import './reset.css';
 @import './components.css';
 @import './proshows-premium.css';
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
   --site--viewport-max: 90;
@@ -41,6 +45,40 @@
   --editorial-gray-muted: #cccccc;
   --editorial-gray-dark: #333333;
   --editorial-blue: #0047ff;
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  --color-accent: rgb(255, 223, 0);
+  --font-primary: "PP Supply Mono", monospace;
 }
 
 /* Editorial typography - Space Grotesk */
@@ -3333,6 +3371,7 @@ video {
 
 /* Mobile-only: Centered minimal hamburger menu without icons */
 @media screen and (max-width: 1024px) {
+
   /* Hide arrow icons on mobile - create minimal centered layout */
   .nav_menu_icon {
     display: none !important;
@@ -9686,6 +9725,363 @@ video {
 
 .Horizontal__char {
     display: inline-block;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-color-accent: var(----color-accent);
+  --font-primary: var(----font-primary);
+  @keyframes blink {
+  50% {
+    opacity: 0;
+    }
+  }
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  --color-accent: rgb(255, 223, 0);
+  --font-primary: "PP Supply Mono", monospace;
+}
+
+/* Arena Overlay Animations */
+@keyframes arenaFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes arenaFadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.05) translateY(-15px);
+  }
+}
+
+/* ==========================================
+   Enter the Arena - Glassmorphic Aurora Button
+   ========================================== */
+.arena-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 56px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.2px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.4s ease,
+              box-shadow 0.4s ease;
+  box-shadow:
+    0 6px 30px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  z-index: 1;
+  outline: none;
+}
+
+/* Outer capsule border */
+.arena-btn::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  pointer-events: none;
+  z-index: 5;
+  transition: border-color 0.4s ease;
+}
+
+/* Glass reflection overlay (top arc) */
+.arena-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 45%;
+  border-radius: 9999px 9999px 50% 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* ===== MUSICAL NOTES - flowing from both sides ===== */
+.arena-btn__notes-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 9999px;
+  opacity: 1;
+  pointer-events: none;
+}
+
+/* Notes flowing from left side toward center with wave motion */
+.arena-btn__notes--left {
+  position: absolute;
+  top: 50%;
+  left: -200px;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 60px;
+  animation: notesFlowToCenterWave 18s linear infinite;
+}
+
+/* Notes flowing from right side toward center with wave motion */
+.arena-btn__notes--right {
+  position: absolute;
+  top: 50%;
+  right: -200px;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 60px;
+  animation: notesFlowToCenterWaveRight 18s linear infinite;
+}
+
+/* Individual note styling */
+.arena-btn__note {
+  font-size: 28px;
+  color: rgba(245, 215, 110, 0.85);
+  text-shadow: 
+    0 0 14px rgba(245, 215, 110, 0.7),
+    0 0 28px rgba(245, 215, 110, 0.4);
+  will-change: opacity, transform;
+  animation: noteFadeToCenter 18s ease-in-out infinite;
+}
+
+/* Animation keyframes for notes flowing from left with wave motion */
+@keyframes notesFlowToCenterWave {
+  0% {
+    transform: translateX(0) translateY(-50%);
+  }
+  12.5% {
+    transform: translateX(calc((50vw + 200px) * 0.125)) translateY(calc(-50% - 35px));
+  }
+  25% {
+    transform: translateX(calc((50vw + 200px) * 0.25)) translateY(-50%);
+  }
+  37.5% {
+    transform: translateX(calc((50vw + 200px) * 0.375)) translateY(calc(-50% + 35px));
+  }
+  50% {
+    transform: translateX(calc((50vw + 200px) * 0.5)) translateY(-50%);
+  }
+  62.5% {
+    transform: translateX(calc((50vw + 200px) * 0.625)) translateY(calc(-50% - 35px));
+  }
+  75% {
+    transform: translateX(calc((50vw + 200px) * 0.75)) translateY(-50%);
+  }
+  87.5% {
+    transform: translateX(calc((50vw + 200px) * 0.875)) translateY(calc(-50% + 35px));
+  }
+  100% {
+    transform: translateX(calc(50vw + 200px)) translateY(-50%);
+  }
+}
+
+/* Animation keyframes for notes flowing from right with wave motion */
+@keyframes notesFlowToCenterWaveRight {
+  0% {
+    transform: translateX(0) translateY(-50%);
+  }
+  12.5% {
+    transform: translateX(calc((50vw + 200px) * -0.125)) translateY(calc(-50% + 35px));
+  }
+  25% {
+    transform: translateX(calc((50vw + 200px) * -0.25)) translateY(-50%);
+  }
+  37.5% {
+    transform: translateX(calc((50vw + 200px) * -0.375)) translateY(calc(-50% - 35px));
+  }
+  50% {
+    transform: translateX(calc((50vw + 200px) * -0.5)) translateY(-50%);
+  }
+  62.5% {
+    transform: translateX(calc((50vw + 200px) * -0.625)) translateY(calc(-50% + 35px));
+  }
+  75% {
+    transform: translateX(calc((50vw + 200px) * -0.75)) translateY(-50%);
+  }
+  87.5% {
+    transform: translateX(calc((50vw + 200px) * -0.875)) translateY(calc(-50% - 35px));
+  }
+  100% {
+    transform: translateX(calc(-50vw - 200px)) translateY(-50%);
+  }
+}
+
+/* Fade effect - notes fade in, stay visible, then fade out as they reach center */
+@keyframes noteFadeToCenter {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  10% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+
+/* ===== GLASS OVERLAY ===== */
+.arena-btn__glass {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+
+
+/* ===== TEXT ===== */
+.arena-btn__text {
+  position: relative;
+  z-index: 6;
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              text-shadow 0.4s ease;
+}
+
+/* ===== HOVER STATE ===== */
+.arena-btn:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 6px 30px rgba(0, 0, 0, 0.45),
+    0 0 40px rgba(168, 85, 247, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.arena-btn:hover::after {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Text zoom on hover */
+.arena-btn:hover .arena-btn__text {
+  transform: scale(1.08);
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.45);
+}
+
+/* Active press */
+.arena-btn:active {
+  transform: scale(0.97);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    @apply bg-background text-foreground;
+  }
 }
 
 /* Highlights Carousel Styles - GSAP Draggable Infinite Slider */

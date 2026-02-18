@@ -1,6 +1,3 @@
-"use client";
-
-import './music-portfolio.css';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
@@ -9,13 +6,13 @@ import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 gsap.registerPlugin(ScrambleTextPlugin);
 
 // Time Display Component
-const TimeDisplay = ({CONFIG={}}: {CONFIG?: any}) => {
+const TimeDisplay = ({CONFIG={}}) => {
   const [time, setTime] = useState({ hours: '', minutes: '', dayPeriod: '' });
 
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      const options: Intl.DateTimeFormatOptions = {
+      const options = {
         timeZone: CONFIG.timeZone,
         hour12: true,
         hour: "numeric",
@@ -35,7 +32,7 @@ const TimeDisplay = ({CONFIG={}}: {CONFIG?: any}) => {
     updateTime();
     const interval = setInterval(updateTime, CONFIG.timeUpdateInterval);
     return () => clearInterval(interval);
-  }, [CONFIG.timeZone, CONFIG.timeUpdateInterval]);
+  }, []);
 
   return (
     <time className="corner-item bottom-right" id="current-time">
@@ -45,9 +42,10 @@ const TimeDisplay = ({CONFIG={}}: {CONFIG?: any}) => {
 };
 
 // Project Item Component
-const ProjectItem = ({ project, index, onMouseEnter, onMouseLeave, isActive, isIdle }: any) => {
+const ProjectItem = ({ project, index, onMouseEnter, onMouseLeave, isActive, isIdle }) => {
   const itemRef = useRef(null);
   const textRefs = {
+    artist: useRef(null),
     album: useRef(null),
     category: useRef(null),
     label: useRef(null),
@@ -76,7 +74,7 @@ const ProjectItem = ({ project, index, onMouseEnter, onMouseLeave, isActive, isI
       Object.entries(textRefs).forEach(([key, ref]) => {
         if (ref.current) {
           gsap.killTweensOf(ref.current);
-          (ref.current as any).textContent = project[key];
+          ref.current.textContent = project[key];
         }
       });
     }
@@ -90,8 +88,8 @@ const ProjectItem = ({ project, index, onMouseEnter, onMouseLeave, isActive, isI
       onMouseLeave={onMouseLeave}
       data-image={project.image}
     >
-      <span className="project-data number hover-text">
-        {String(index + 1).padStart(2, '0')}
+      <span ref={textRefs.artist} className="project-data artist hover-text">
+        {project.artist}
       </span>
       <span ref={textRefs.album} className="project-data album hover-text">
         {project.album}
@@ -110,48 +108,28 @@ const ProjectItem = ({ project, index, onMouseEnter, onMouseLeave, isActive, isI
 };
 
 // Main Portfolio Component
-const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={}, SOCIAL_LINKS={}}: any) => {
+const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={}, SOCIAL_LINKS={}}) => {
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [backgroundImage, setBackgroundImage] = useState('');
   const [isIdle, setIsIdle] = useState(true);
   
-  const backgroundRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLElement>(null);
-  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const idleAnimationRef = useRef<gsap.core.Timeline | null>(null);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  const projectItemsRef = useRef<any[]>([]);
-  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
-  const audioElementsRef = useRef<Map<number, HTMLAudioElement>>(new Map());
+  const backgroundRef = useRef(null);
+  const containerRef = useRef(null);
+  const idleTimerRef = useRef(null);
+  const idleAnimationRef = useRef(null);
+  const debounceRef = useRef(null);
+  const projectItemsRef = useRef([]);
 
-  // Preload images and audio
+  // Preload images
   useEffect(() => {
-    PROJECTS_DATA.forEach((project: any, index: number) => {
-      // Preload image
+    PROJECTS_DATA.forEach(project => {
       if (project.image) {
         const img = new Image();
         //img.crossOrigin = "anonymous";
         img.src = project.image;
       }
-      
-      // Create and preload audio
-      if (project.album) {
-        const audio = new Audio();
-        audio.preload = 'auto';
-        audio.volume = 0.5; // Set volume to 50%
-        audio.src = `/assets/audio/${project.album}.mp3`;
-        audioElementsRef.current.set(index, audio);
-      }
     });
-
-    // Cleanup audio elements on unmount
-    return () => {
-      audioElementsRef.current.forEach(audio => {
-        audio.pause();
-        audio.src = '';
-      });
-      audioElementsRef.current.clear();
-    };
-  }, [PROJECTS_DATA]);
+  }, []);
 
   // Start idle animation
   const startIdleAnimation = useCallback(() => {
@@ -182,7 +160,7 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
     });
     
     idleAnimationRef.current = timeline;
-  }, [PROJECTS_DATA.length]);
+  }, []);
 
   // Stop idle animation
   const stopIdleAnimation = useCallback(() => {
@@ -210,7 +188,7 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
         startIdleAnimation();
       }
     }, CONFIG.idleDelay);
-  }, [activeIndex, startIdleAnimation, CONFIG.idleDelay]);
+  }, [activeIndex, startIdleAnimation]);
 
   // Stop idle timer
   const stopIdleTimer = useCallback(() => {
@@ -220,32 +198,8 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
     }
   }, []);
 
-  // Stop currently playing audio
-  const stopCurrentAudio = useCallback(() => {
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current.currentTime = 0;
-      currentAudioRef.current = null;
-    }
-  }, []);
-
-  // Play audio for a project
-  const playProjectAudio = useCallback((index: number) => {
-    stopCurrentAudio();
-    
-    const audio = audioElementsRef.current.get(index);
-    if (audio) {
-      audio.currentTime = 0;
-      audio.play().catch((error) => {
-        // Silently handle autoplay restrictions
-        console.log('Audio playback failed:', error);
-      });
-      currentAudioRef.current = audio;
-    }
-  }, [stopCurrentAudio]);
-
   // Handle mouse enter on project
-  const handleProjectMouseEnter = useCallback((index: number, imageUrl: string) => {
+  const handleProjectMouseEnter = useCallback((index, imageUrl) => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
@@ -258,24 +212,22 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
     
     setActiveIndex(index);
     
-    // Play audio for this project
-    playProjectAudio(index);
-    
     if (imageUrl && backgroundRef.current) {
+      // Show background with animation
       const bg = backgroundRef.current;
       bg.style.transition = "none";
-      bg.style.transform = "scale(1.25)";
+      bg.style.transform = "translate(-50%, -50%) scale(1.2)";
       bg.style.backgroundImage = `url(${imageUrl})`;
       bg.style.opacity = "1";
       
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          bg.style.transition = "opacity 0.4s ease, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
-          bg.style.transform = "scale(1.0)";
+          bg.style.transition = "opacity 0.6s ease, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+          bg.style.transform = "translate(-50%, -50%) scale(1.0)";
         });
       });
     }
-  }, [activeIndex, stopIdleAnimation, stopIdleTimer, playProjectAudio, PROJECTS_DATA]);
+  }, [activeIndex, stopIdleAnimation, stopIdleTimer]);
 
   // Handle mouse leave on project
   const handleProjectMouseLeave = useCallback(() => {
@@ -292,15 +244,12 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
     
     setActiveIndex(-1);
     
-    // Stop audio playback
-    stopCurrentAudio();
-    
     if (backgroundRef.current) {
       backgroundRef.current.style.opacity = "0";
     }
     
     startIdleTimer();
-  }, [startIdleTimer, stopCurrentAudio]);
+  }, [startIdleTimer]);
 
   // Initial idle animation
   useEffect(() => {
@@ -313,7 +262,9 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
 
   return (
     <>
-      <div className="relative w-full min-h-screen bg-black text-white">
+      <div 
+        className="container"
+      >
         <main 
           ref={containerRef}
           className={`portfolio-container ${activeIndex !== -1 ? 'has-active' : ''}`}
@@ -321,7 +272,7 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
         >
           <h1 className="sr-only">Music Portfolio</h1>
           <ul className="project-list" role="list">
-            {PROJECTS_DATA.map((project: any, index: number) => (
+            {PROJECTS_DATA.map((project, index) => (
               <ProjectItem
                 key={project.id}
                 project={project}
@@ -330,13 +281,12 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
                 onMouseLeave={handleProjectMouseLeave}
                 isActive={activeIndex === index}
                 isIdle={isIdle}
-                ref={(el: any) => projectItemsRef.current[index] = el}
+                ref={el => projectItemsRef.current[index] = el}
               />
             ))}
           </ul>
         </main>
 
-        {/* Background Image - shows album art on hover */}
         <div 
           ref={backgroundRef}
           className="background-image" 
@@ -349,7 +299,14 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
           <div className="corner-item top-left">
             <div className="corner-square" aria-hidden="true"></div>
           </div>
-          <div className="corner-item bottom-left">12.971651° N, 80.043018° E</div>
+          <nav className="corner-item top-right">
+            <a href="https://open.spotify.com/user/226ilulo57zutgtiwjsjqnqsy?si=0004e7bc669a406e">
+              Spotify
+            </a> |
+            <a href="mailto:hi@filip.fyi">Email</a> |
+            <a href="https://x.com/filipz" target="_blank" rel="noopener">X</a>
+          </nav>
+          <div className="corner-item bottom-left">43.9250° N, 19.5530° E</div>
           <TimeDisplay CONFIG={CONFIG} />
         </aside>
       </div>
