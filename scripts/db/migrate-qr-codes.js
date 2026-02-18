@@ -99,7 +99,7 @@ const PASS_TYPE_EVENTS = {
     'day_pass': [
         'choreo-showcase', 'rap-a-thon', 'solo-singing', 'frame-spot',
         'battle-of-bands', 'cypher', 'case-files',
-        'dual-dance', 'paint-the-town', 'filmfinatics', 'channel-surfing',
+        'duo-dance', 'paint-the-town', 'filmfinatics', 'channel-surfing',
         'upside-down-ctf', 'mlops-workshop',
         'deadlock', 'crack-the-code', 'mock-global-summit',
         'prompt-pixel', 'model-mastery',
@@ -108,7 +108,7 @@ const PASS_TYPE_EVENTS = {
     ],
     'proshow': [
         'choreo-showcase', 'rap-a-thon', 'solo-singing', 'frame-spot',
-        'dual-dance', 'paint-the-town', 'filmfinatics', 'channel-surfing',
+        'duo-dance', 'paint-the-town', 'filmfinatics', 'channel-surfing',
         'upside-down-ctf', 'mlops-workshop',
         'prompt-pixel', 'model-mastery',
         'the-90-minute-ceo', 'astrotrack', 'designers-onboard'
@@ -116,7 +116,7 @@ const PASS_TYPE_EVENTS = {
     'sana_concert': [
         'choreo-showcase', 'rap-a-thon', 'solo-singing', 'frame-spot',
         'battle-of-bands', 'cypher', 'case-files',
-        'dual-dance', 'paint-the-town', 'filmfinatics', 'channel-surfing',
+        'duo-dance', 'paint-the-town', 'filmfinatics', 'channel-surfing',
         'upside-down-ctf', 'mlops-workshop',
         'deadlock', 'crack-the-code', 'mock-global-summit',
         'prompt-pixel', 'model-mastery',
@@ -130,7 +130,7 @@ const PASS_TYPE_EVENTS = {
     'test_pass': [
         'choreo-showcase', 'rap-a-thon', 'solo-singing', 'frame-spot',
         'battle-of-bands', 'cypher', 'case-files',
-        'dual-dance', 'paint-the-town', 'filmfinatics', 'channel-surfing',
+        'duo-dance', 'paint-the-town', 'filmfinatics', 'channel-surfing',
         'upside-down-ctf', 'mlops-workshop',
         'deadlock', 'crack-the-code', 'mock-global-summit',
         'prompt-pixel', 'model-mastery',

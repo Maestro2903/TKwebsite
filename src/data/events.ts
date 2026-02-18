@@ -63,11 +63,11 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     image: '/assets/events/rap-a-thon.webp',
   },
   {
-    id: 'dual-dance',
-    name: 'DUAL DANCE',
+    id: 'duo-dance',
+    name: 'DUO DANCE',
     description:
       'Two dancers. One vibe. Zero mercy. A power-packed performance driven by sync, chemistry, and stage dominance.',
-    image: '/assets/events/dual-dance.webp',
+    image: '/duo dance - final.webp',
   },
   {
     id: 'solo-singing',

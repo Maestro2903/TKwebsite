@@ -209,8 +209,8 @@ const events = [
 
   // ========== NON-TECHNICAL EVENTS - DAY 3 (28 FEB) ==========
   {
-    id: 'dual-dance',
-    name: 'DUAL DANCE',
+    id: 'duo-dance',
+    name: 'DUO DANCE',
     category: 'non_technical',
     type: 'group',
     date: '2026-02-28',
@@ -219,7 +219,7 @@ const events = [
     allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
     isActive: true,
     description: 'Two dancers. One vibe. Zero mercy. A power-packed performance driven by sync, chemistry, and stage dominance.',
-    image: '/images/event/nontech/DUAL%20DANCE.webp',
+    image: '/duo dance - final.webp',
   },
   {
     id: 'canvas-painting',

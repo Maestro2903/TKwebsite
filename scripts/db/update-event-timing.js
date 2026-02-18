@@ -140,7 +140,7 @@ const eventTimingData = {
         venue: 'PARTHA',
         day: 2
     },
-    'dual-dance': {
+    'duo-dance': {
         startTime: '10:00 AM',
         endTime: '1:00 PM',
         venue: 'KAVERI',
