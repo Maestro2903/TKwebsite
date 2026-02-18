@@ -61,12 +61,12 @@ export function useNavbarScroll(navRef: React.RefObject<HTMLElement | null>) {
     if (lenis) {
       const scrollHandler = () => {
         if (rafId !== null) cancelAnimationFrame(rafId);
-        const y = lenis.scroll;
         rafId = window.requestAnimationFrame(() => {
-          updateNav(y);
+          updateNav(lenis.scroll);
           rafId = null;
         });
       };
+      updateNav(lenis.scroll);
       const unsub = lenis.on('scroll', scrollHandler);
       return () => {
         if (typeof unsub === 'function') unsub();

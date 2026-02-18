@@ -33,7 +33,10 @@ export function CinematicProshowsLayout() {
   return (
     <div className="relative bg-black text-white">
       {/* Full-bleed Hero - KEPT UNCHANGED */}
-      <CinematicHero backgroundImage={CINEMATIC_HERO.backgroundImage} />
+      <CinematicHero
+            backgroundImage={CINEMATIC_HERO.backgroundImage}
+            mobileBackgroundImage={CINEMATIC_HERO.mobileBackgroundImage}
+          />
 
       {/* Main Content - Redesigned Dark Theme */}
       <main className="proshows-main-content">

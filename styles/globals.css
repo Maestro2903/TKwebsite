@@ -559,13 +559,20 @@ html {
   mix-blend-mode: normal !important;
 }
 
-/* Events page: match FabricGridBackground (#0a0a0a) and grid tone */
-.nav_wrap.nav_wrap--events {
-  background-color: #0a0a0a !important;
-  background: #0a0a0a !important;
+/* Events page: transparent in hero, fill on scroll */
+.nav_wrap.nav_wrap--events,
+.nav_wrap.nav_wrap--events[data-scrolling-started="false"] {
+  background-color: transparent !important;
+  background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border-bottom: 1px solid rgba(51, 51, 51, 0.8) !important;
+  border-bottom: 1px solid transparent !important;
+}
+
+.nav_wrap.nav_wrap--events[data-scrolling-started="true"] {
+  background-color: #000 !important;
+  background: #000 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 /* Events page: align sticky category bar below actual nav height (no overlap) */

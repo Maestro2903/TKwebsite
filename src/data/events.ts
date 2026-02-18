@@ -77,11 +77,20 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     image: '/assets/events/solo-singing.webp',
   },
   {
-    id: 'paint-the-town',
-    name: 'PAINT THE TOWN',
+    id: 'load-the-lyrics',
+    name: 'LOAD THE LYRICS',
     description:
-      'Transform a blank wall into a vibrant masterpiece using colors, creativity, and speed against the clock.',
-    image: '/assets/events/paint-the-town.webp',
+      "When the lyrics disappear, only memory survives. Stay on beat, think fast, and don't miss a word. One mistake could cost you the game.",
+    fullDescription:
+      "Identify and complete missing lyrics based on the audio provided. Rely on your listening ability, memory, and understanding of the song. One mistake could cost you the game.",
+    image: '/load the lyrics.webp',
+  },
+  {
+    id: 'paint-the-town',
+    name: 'CANVAS PAINTING',
+    description:
+      'Splash, blend, and layer your thoughts into a canvas that breathes color and life. Every stroke builds a mood, every shade shapes a story.',
+    image: '/CanvasPainting.webp',
   },
   {
     id: 'gaming-event',
@@ -214,7 +223,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     id: 'mock-global-summit',
     name: 'MOCK GLOBAL SUMMIT: VENEZUELA–GREENLAND CRISIS',
     description:
-      'A Mock Global Summit event focusing on the Venezuela-Greenland Crisis, with the agenda topic being US-Greenland. The event is for individual participation with a target registration count of 60.',
+      'Discussing the geopolitical tensions over the world after the takeover of Venezuela.',
     image: PLACEHOLDER_TECH,
   },
   {

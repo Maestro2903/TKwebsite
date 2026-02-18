@@ -12,6 +12,7 @@ import { PROSHOWS_SCHEDULE } from '@/data/shows';
 export type CinematicHeroData = {
   title: string;
   backgroundImage: string;
+  mobileBackgroundImage?: string;
 };
 
 export type CinematicProshowData = {
@@ -29,7 +30,8 @@ export type CinematicProshowData = {
  */
 export const CINEMATIC_HERO: CinematicHeroData = {
   title: 'Proshows',
-  backgroundImage: '/RCTKFINAL.webp',
+  backgroundImage: '/proshows-hero.webp',
+  mobileBackgroundImage: '/proshows-hero-mobile.webp',
 };
 
 /**
