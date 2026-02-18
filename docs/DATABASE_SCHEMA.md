@@ -32,6 +32,11 @@ This document covers:
 | `isOrganizer` | `boolean`                                | No       | Organizer flag (server‑managed, default `false`) |
 | `createdAt` | `Timestamp`                                | Yes      | Creation time (server timestamp)            |
 | `updatedAt` | `Timestamp \| Date`                        | No       | Last update time                             |
+| `referralCode` | `string`                                | No       | Invite-unlock: unique code for referral links (TKX{first4UID}{random3}) |
+| `invitedUsers` | `string[]`                               | No       | Invite-unlock: UIDs of users who signed up via this user's referral |
+| `inviteCount` | `number`                                 | No       | Invite-unlock: count of valid invites       |
+| `dayPassUnlocked` | `boolean`                             | No       | Invite-unlock: true when inviteCount >= 5   |
+| `inviteUnlockedAt` | `Timestamp \| Date`                    | No       | Invite-unlock: when day pass was unlocked   |
 
 #### Read/Write Permissions
 
@@ -64,6 +69,9 @@ This document covers:
 | `teamId`           | `string \| null`                 | No       | Related `teams/{teamId}` for group_events               |
 | `teamMemberCount`  | `number \| null`                 | No       | Member count for group events                           |
 | `selectedDays`     | `string[] \| null`               | No       | Selected days for `day_pass`                            |
+| `selectedEvents`   | `string[]`                       | No       | Event IDs selected for the pass                         |
+| `mockSummitSelected` | `boolean`                     | No       | True when Mock Global Summit event was selected         |
+| `mockSummitInviteCode` | `string`                     | No       | Invite code used for Mock Global Summit (if applicable) |
 
 #### Read/Write Permissions
 
@@ -188,6 +196,49 @@ This document covers:
 
 - **Read:** `request.auth.uid == resource.data.uid`
 - **Create/Update/Delete:** Denied (server‑only). New flows use `payments` + `passes` + `teams`.
+
+---
+
+### 2.6 `mockSummitInvites` – Mock Global Summit Invite Codes
+
+- **Collection path:** `mockSummitInvites/{code}`
+- **Document ID:** `code` = invite code string
+- **Purpose:** Invite-gated access for the Mock Global Summit event. Server validates codes during payment.
+- **Access:** Server‑only via Admin SDK; clients cannot read or write.
+
+#### Schema
+
+| Field       | Type       | Required | Description                                  |
+|-------------|------------|----------|----------------------------------------------|
+| `code`      | `string`   | Yes      | Invite code (equals document ID)             |
+| `maxUsage`  | `number`   | Yes      | Maximum allowed uses                         |
+| `usedCount` | `number`   | Yes      | Current uses (atomically incremented)        |
+| `expiresAt` | `Timestamp`| Yes      | Expiration time                              |
+| `active`    | `boolean`  | Yes      | Whether code is active                       |
+| `createdBy` | `string`   | Yes      | Admin/creator UID                            |
+| `createdAt` | `Timestamp`| Yes      | Creation time                                |
+
+#### Read/Write Permissions
+
+- **Read/Write:** Denied (server‑only). All access via Admin SDK in payment create-order API.
+
+#### Creating Invite Codes
+
+Use the seed script to create initial codes:
+
+```bash
+node scripts/db/seed-mock-summit-invites.js
+```
+
+Or create documents manually in Firebase Console. Required fields:
+
+- `code` (string, used as document ID)
+- `maxUsage` (number)
+- `usedCount` (number, start at 0)
+- `expiresAt` (Timestamp)
+- `active` (boolean, true)
+- `createdBy` (string)
+- `createdAt` (Timestamp)
 
 ---
 
@@ -377,6 +428,14 @@ passesRef.where('paymentId', '==', orderId);
 ```
 
 Uses single‑field index on `paymentId`.
+
+- **Users by referral code** (invite-unlock flow)
+
+```ts
+usersRef.where('referralCode', '==', code);
+```
+
+Uses single‑field index on `referralCode`. Firestore auto-creates for equality queries.
 
 ### 6.3 Recommended Indexes
 

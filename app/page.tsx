@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, memo } from 'react';
 import dynamic from 'next/dynamic';
-import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/sections/home/HeroSection';
 import AboutSection from '@/components/sections/home/AboutSection';
@@ -23,17 +22,18 @@ const CTASection = dynamic(() => import('@/components/sections/home/CTASection')
   loading: () => <div style={{ minHeight: '500px' }} />,
 });
 
-export default function Home() {
+function Home() {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const showReelSrc = 'https://vz-bf52cb50-0a5.b-cdn.net/ce1749fb-077d-416a-8df8-bc32ac669c3c/playlist.m3u8';
+  const showReelSrc = useMemo(() => 'https://vz-bf52cb50-0a5.b-cdn.net/ce1749fb-077d-416a-8df8-bc32ac669c3c/playlist.m3u8', []);
+  
+  const handleShowReelClick = useMemo(() => () => setIsLightboxOpen(true), []);
+  const handleCloseLightbox = useMemo(() => () => setIsLightboxOpen(false), []);
 
   return (
     <>
-      <Navigation />
-
       <main id="main" className="page_main">
         {/* 1. Hero Section - Full-screen with video background */}
-        <HeroSection onShowReelClick={() => setIsLightboxOpen(true)} />
+        <HeroSection onShowReelClick={handleShowReelClick} />
 
         {/* 2. About Section - "Vietnam's leading creative agency" with parallax stats */}
         <AboutSection />
@@ -65,9 +65,11 @@ export default function Home() {
 
       <Lightbox
         isOpen={isLightboxOpen}
-        onClose={() => setIsLightboxOpen(false)}
+        onClose={handleCloseLightbox}
         videoSrc={showReelSrc}
       />
     </>
   );
 }
+
+export default memo(Home);

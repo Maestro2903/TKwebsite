@@ -3,9 +3,11 @@
 import { useEffect } from 'react';
 import { LoadingProvider, useLoading } from '@/contexts/LoadingContext';
 import LoadingRemastered from '@/components/ui/LoadingScreen';
+import { useReferralCapture } from '@/hooks/useReferralCapture';
 
 function ClientLayoutInner({ children }: { children: React.ReactNode }) {
   const { isLoading, setIsLoading } = useLoading();
+  useReferralCapture();
 
   const handleLoadingComplete = () => {
     setIsLoading(false);

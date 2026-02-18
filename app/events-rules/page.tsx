@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import StickyRegisterCTA from '@/components/layout/StickyRegisterCTA';
 import { EVENT_RULES, type RuleSection } from '@/data/rules';
@@ -32,8 +31,6 @@ export default function EventsRulesPage() {
 
   return (
     <>
-      <Navigation />
-
       <main id="main" className="page_main page_main--events relative z-10">
         {/* Hero */}
         <section className="u-section py-16 md:py-20 text-center bg-[#0a0a0a] border-b border-neutral-800">

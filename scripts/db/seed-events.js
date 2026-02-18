@@ -140,6 +140,19 @@ const events = [
     image: '/images/event/nontech/loadthelyrics01.jpg',
   },
   {
+    id: 'load-the-lyrics',
+    name: 'LOAD THE LYRICS',
+    category: 'non_technical',
+    type: 'individual',
+    date: '2026-02-26',
+    venue: 'Partha',
+    prizePool: 15000,
+    allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
+    isActive: true,
+    description: "When the lyrics disappear, only memory survives. Stay on beat, think fast, and don't miss a word. One mistake could cost you the game.",
+    image: '/load the lyrics.webp',
+  },
+  {
     id: 'frame-spot',
     name: 'FRAME SPOT',
     category: 'non_technical',
@@ -196,8 +209,8 @@ const events = [
 
   // ========== NON-TECHNICAL EVENTS - DAY 3 (28 FEB) ==========
   {
-    id: 'dual-dance',
-    name: 'DUAL DANCE',
+    id: 'duo-dance',
+    name: 'DUO DANCE',
     category: 'non_technical',
     type: 'group',
     date: '2026-02-28',
@@ -206,11 +219,11 @@ const events = [
     allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
     isActive: true,
     description: 'Two dancers. One vibe. Zero mercy. A power-packed performance driven by sync, chemistry, and stage dominance.',
-    image: '/images/event/nontech/DUAL%20DANCE.webp',
+    image: '/duo dance - final.webp',
   },
   {
-    id: 'paint-the-town',
-    name: 'PAINT THE TOWN',
+    id: 'canvas-painting',
+    name: 'CANVAS PAINTING',
     category: 'non_technical',
     type: 'individual',
     date: '2026-02-28',
@@ -218,8 +231,8 @@ const events = [
     prizePool: 15000,
     allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
     isActive: true,
-    description: 'Transform a blank wall into a vibrant masterpiece using colors, creativity, and speed against the clock.',
-    image: '/images/event/nontech/canvaspainting03.jpg',
+    description: 'Splash, blend, and layer your thoughts into a canvas that breathes color and life. Every stroke builds a mood, every shade shapes a story.',
+    image: '/CanvasPainting.webp',
   },
   {
     id: 'filmfinatics',
@@ -313,7 +326,7 @@ const events = [
     prizePool: 20000,
     allowedPassTypes: ['day_pass', 'sana_concert'],
     isActive: true,
-    description: 'A Mock Global Summit event focusing on the Venezuela-Greenland Crisis, with the agenda topic being US-Greenland.',
+    description: 'Discussing the geopolitical tensions over the world after the takeover of Venezuela.',
     image: '/images/event/tech/tech%20quest.jpg',
   },
 

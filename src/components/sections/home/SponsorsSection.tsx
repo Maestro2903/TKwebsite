@@ -3,30 +3,30 @@
 import Image from 'next/image';
 
 const SPONSOR_LOGO_FILES = [
-    'AGS.png',
-    'Aswins.png',
-    'Balaji photo frames.png',
-    'BIG fm_.png',
-    'chennai symposiums.png',
-    'Coldmok.png',
-    'DB productions.png',
-    'Deyga.png',
-    'Gamestry.png',
-    'Jan Enterprizes.png',
-    'K CLICKS STUDIO.png',
-    'Krafton.png',
-    'Kyn.png',
-    "Maker_s Cafe.png",
-    'Medimix.png',
-    'MGM health care.png',
-    'NAC.png',
-    'Pepsi.png',
-    'poorvika.png',
-    'Printex.png',
-    'Prithvi Prints_.png',
-    'Provoke.png',
-    'V - care.png',
-    'Vikatan.png',
+    'AGS.webp',
+    'Aswins.webp',
+    'Balaji photo frames.webp',
+    'BIG fm_.webp',
+    'chennai symposiums.webp',
+    'Coldmok.webp',
+    'DB productions.webp',
+    'Deyga.webp',
+    'Gamestry.webp',
+    'Jan Enterprizes.webp',
+    'K CLICKS STUDIO.webp',
+    'Krafton.webp',
+    'Kyn.webp',
+    "Maker_s Cafe.webp",
+    'Medimix.webp',
+    'MGM health care.webp',
+    'NAC.webp',
+    'Pepsi.webp',
+    'poorvika.webp',
+    'Printex.webp',
+    'Prithvi Prints_.webp',
+    'Provoke.webp',
+    'V - care.webp',
+    'Vikatan.webp',
 ];
 
 const SPONSORS_BASE = '/images/event/Sponsors';
@@ -44,6 +44,7 @@ function SponsorLogo({ filename }: { filename: string }) {
                 loading="lazy"
                 className="sponsors_marquee_logo_img"
                 sizes="(max-width: 767px) 224px, 640px"
+                unoptimized
             />
         </div>
     );

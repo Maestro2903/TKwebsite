@@ -40,7 +40,7 @@ export default function FeaturedClientsSection() {
 
                             <div className="cit_about_image_wrap">
                                 <Image
-                                    src="/images/about/chairman.jpeg"
+                                    src="/images/about/chairman.webp"
                                     alt="CIT - Chennai Institute of Technology"
                                     fill
                                     loading="lazy"

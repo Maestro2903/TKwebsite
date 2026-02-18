@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import { useEffect, useRef, useState, useMemo, memo } from 'react';
+
 import { GlassButton } from '@/components/ui/glass-button';
 
 interface HeroSectionProps {
@@ -20,13 +20,16 @@ const mobileVideoSources = [
     { src: '/videos/hero-bg-mobile.mp4', type: 'video/mp4' },
 ];
 
-export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
+function HeroSection({ onShowReelClick }: HeroSectionProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const sectionRef = useRef<HTMLElement>(null);
     const [playerStatus, setPlayerStatus] = useState<'idle' | 'loading' | 'ready' | 'playing' | 'paused'>('idle');
     const [playerActivated, setPlayerActivated] = useState(false);
     const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+
+    const videoSources = useMemo(() => isMobile ? mobileVideoSources : desktopVideoSources, [isMobile]);
+    const videoSrc = useMemo(() => videoSources[0].src, [videoSources]);
 
     // Detect mobile on mount and window resize (for layout/attributes)
     useEffect(() => {
@@ -44,8 +47,6 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
-    const videoSources = isMobile ? mobileVideoSources : desktopVideoSources;
-    const videoSrc = videoSources[0].src;
 
     // IntersectionObserver: only start loading video when section is near viewport
     useEffect(() => {
@@ -77,6 +78,8 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
         video.load();
 
         const onCanPlay = () => {
+            video.volume = 0;
+            video.muted = true;
             setPlayerStatus('ready');
             video.play()
                 .then(() => {
@@ -117,10 +120,7 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
 
     return (
         <section ref={sectionRef} className="u-section u-min-height-screen u-zindex-3">
-            <div
-                data-wf--spacer--section-space="main"
-                className="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 u-ignore-trim"
-            />
+
 
             <div className="home_hero_contain u-container">
                 {/* Video Background - bunny-bg */}
@@ -150,22 +150,22 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                         ))}
                     </video>
 
-                    {/* Hero center logo overlay - Takshashila 2026 with Register CTA */}
-                    <div className="hero_center_logo" aria-hidden={false}>
-                        <div className="hero_center_logo__inner">
-                            <Image
-                                src="/images/tk-26-logo.png"
-                                alt="Takshashila 2026 logo"
-                                width={1200}
-                                height={600}
-                                priority
-                                className="hero_center_logo__img hero_center_logo__img--text"
+                    {/* Hero center logo overlay - TK 26 logo in middle, Register CTA at bottom */}
+                    <div className="hero_center_logo flex flex-col justify-between">
+                        <div className="flex-1 min-h-0" aria-hidden="true" />
+                        <div className="hero_center_logo__inner w-full max-w-[900px] mx-auto px-4 flex flex-col items-center text-center shrink-0">
+                            <img
+                                src="/assets/images/tk26-logo.webp"
+                                alt="Takshashila 2026"
+                                className="hero_center_logo__img"
                             />
-                            <div className="hero_center_logo__cta">
+                        </div>
+                        <div className="shrink-0 pb-10 sm:pb-12 md:pb-16 flex justify-center pointer-events-auto">
+                            <div className="hero_center_logo__cta group w-full max-w-none sm:max-w-[260px] px-4">
                                 <GlassButton
                                     href="/register"
                                     size="lg"
-                                    className="hero_center_logo__cta-badge"
+                                    className="hero_center_logo__cta-badge border-white/15 hover:-translate-y-0.5 transition-transform duration-300 w-full"
                                 >
                                     REGISTER NOW
                                 </GlassButton>
@@ -174,7 +174,18 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                     </div>
 
                     <div data-player-control="playpause" className="bunny-bg__playpause">
-                        <button className="bunny-bg__btn" onClick={togglePlayPause} aria-label={playerStatus === 'playing' ? 'Pause' : 'Play'}>
+                        <button
+                            type="button"
+                            className="bunny-bg__btn"
+                            onClick={togglePlayPause}
+                            aria-label={playerStatus === 'playing' ? 'Pause video' : 'Play video'}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    togglePlayPause();
+                                }
+                            }}
+                        >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="100%"
@@ -200,9 +211,10 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
                         </button>
                     </div>
 
-                    <div className="bunny-bg__loading">
+                    <div className="bunny-bg__loading" aria-hidden="true">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden="true"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                             version="1.1"
                             id="L9"
@@ -237,3 +249,5 @@ export default function HeroSection({ onShowReelClick }: HeroSectionProps) {
         </section>
     );
 }
+
+export default memo(HeroSection);

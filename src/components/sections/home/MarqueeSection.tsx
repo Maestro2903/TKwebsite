@@ -1,7 +1,10 @@
 'use client';
 
-import { useRef, useEffect, useMemo, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import Image from 'next/image';
+
+import { Y2K_IMAGES } from '@/data/y2k-images';
+import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
 
 /** Optimized video: preload=metadata (saves RAM), pauses when off-screen, centered */
 function ScalingVideo() {
@@ -11,6 +14,9 @@ function ScalingVideo() {
     useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
+
+        video.volume = 0;
+        video.muted = true;
 
         const io = new IntersectionObserver(
             (entries) => {
@@ -46,14 +52,11 @@ function ScalingVideo() {
 
 // Local assets - memoized to prevent re-renders
 const IMAGE_URLS = {
-    rect38: '/assets/marquee/rectangle38.avif',
-    main: '/assets/marquee/main.avif',
-    image1113: '/assets/marquee/image1113.avif',
-    haniff: '/assets/marquee/haniff1.avif',
+    rect38: '/assets/marquee/rectangle38.webp',
+    main: '/assets/marquee/main.webp',
+    image1113: '/assets/marquee/image1113.webp',
+    haniff: '/assets/marquee/haniff1.webp',
 } as const;
-
-import { Y2K_IMAGES } from '@/data/y2k-images';
-import ParallaxFloatingImages from '@/components/ui/parallax-floating-images';
 
 export default function MarqueeSection() {
     return (
@@ -78,9 +81,11 @@ export default function MarqueeSection() {
                             <div className="home_marquee_image_wrap">
                                 <img
                                     width={160}
+                                    height={160}
                                     loading="eager"
                                     alt=""
                                     src={IMAGE_URLS.rect38}
+                                    sizes="160px"
                                     className="u-cover-absolute"
                                 />
                             </div>
@@ -88,6 +93,7 @@ export default function MarqueeSection() {
                             <div className="home_marquee_image_wrap">
                                 <img
                                     width={160}
+                                    height={160}
                                     loading="eager"
                                     alt=""
                                     src={IMAGE_URLS.main}
@@ -138,9 +144,11 @@ export default function MarqueeSection() {
                             <div className="home_marquee_image_wrap">
                                 <img
                                     width={160}
+                                    height={160}
                                     loading="eager"
                                     alt=""
                                     src={IMAGE_URLS.image1113}
+                                    sizes="160px"
                                     className="u-cover-absolute"
                                 />
                             </div>
@@ -148,6 +156,7 @@ export default function MarqueeSection() {
                             <div className="home_marquee_image_wrap">
                                 <img
                                     width={160}
+                                    height={160}
                                     loading="eager"
                                     alt=""
                                     src={IMAGE_URLS.haniff}

@@ -24,18 +24,18 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
       {
         id: 'day1-cida',
         title: 'CIDA — CIT Icon of Digital Awards',
-        imageUrl: '/images/proshows/cida.png',
+        imageUrl: '/cida.webp',
       },
       {
         id: 'day1-music-dance',
         title: "CIT's Music and Dance Team Performance",
-        imageUrl: '/images/proshows/dance-and-music.jpeg',
+        imageUrl: '/images/proshows/dance-and-music.webp',
       },
       {
         id: 'day1-jeeva',
         title: 'Actor Jeeva',
         subtitle: 'Walk-in Guest',
-        imageUrl: '/images/proshows/jeeva.png',
+        imageUrl: '/images/proshows/jeeva.webp',
       },
     ],
   },
@@ -46,7 +46,7 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
       {
         id: 'day2-sana',
         title: 'SaNa Concert',
-        imageUrl: '/images/proshows/sana.png',
+        imageUrl: '/sana 2 copy.webp',
       },
     ],
   },
@@ -56,15 +56,23 @@ export const PROSHOWS_SCHEDULE: ShowDay[] = [
     shows: [
       {
         id: 'day3-concert',
-        title: 'Concert',
-        subtitle: 'To be revealed',
-        isReveal: true,
-        imageUrl: '/images/proshows/concert.webp',
+        title: 'Harsha Vardhan Concert',
+        imageUrl: '/harsha-vardhan.webp',
       },
       {
         id: 'day3-dj',
-        title: 'DJ Night',
-        imageUrl: '/images/proshows/dj-night.webp',
+        title: 'DJ NIGHT - DJ DEEPIKA',
+        imageUrl: '/dj-deepika.webp',
+      },
+      {
+        id: 'day3-surprise-andrea',
+        title: 'ANDREA',
+        imageUrl: '/andrea.webp',
+      },
+      {
+        id: 'day3-surprise-atharva',
+        title: 'ATHARVA',
+        imageUrl: '/atharva.webp',
       },
     ],
   },

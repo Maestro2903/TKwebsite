@@ -222,7 +222,7 @@ export const EVENT_RULES: RuleSection[] = [
     ],
   },
   {
-    id: 'dual-dance',
+    id: 'duo-dance',
     title: 'DUO DANCE',
     intro: 'Two performers. One force. No holding back. Storm the stage with savage sync and raw energy that cannot be ignored. Every step hits harder. Every beat demands attention. This is not just a routine. It is a statement. Ready to take over the stage together?',
     registration: [

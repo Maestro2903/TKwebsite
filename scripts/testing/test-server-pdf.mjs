@@ -7,7 +7,8 @@
 import 'dotenv/config';
 import { Resend } from 'resend';
 import QRCode from 'qrcode';
-import { generatePassPDFBuffer } from '../backend/lib/pdfGeneratorServer.ts';
+// Use the shared server-side PDF generator from the app codebase
+import { generatePassPDFBuffer } from '../../src/features/passes/pdfGenerator.server.ts';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

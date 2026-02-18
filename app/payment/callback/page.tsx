@@ -3,7 +3,6 @@
 import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/features/auth/AuthContext';
-import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 
 function PaymentCallbackContent() {
@@ -65,7 +64,6 @@ function PaymentCallbackContent() {
   if (!user && !loading) {
     return (
       <>
-        <Navigation />
         <main className="page_main min-h-[60vh] flex flex-col items-center justify-center u-container py-16">
           <p className="text-white/80 mb-6">Sign in to view your payment status.</p>
           <button
@@ -83,7 +81,6 @@ function PaymentCallbackContent() {
 
   return (
     <>
-      <Navigation />
       <main className="page_main min-h-[60vh] flex flex-col items-center justify-center u-container py-16">
         <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-black/40 p-8 backdrop-blur-xl md:p-12">
           {status === 'verifying' && (

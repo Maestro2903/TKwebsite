@@ -42,6 +42,16 @@ export interface UserProfile {
   isOrganizer?: boolean;
   createdAt: Timestamp | { toDate: () => Date };
   updatedAt?: Timestamp | Date;
+  /** Invite-unlock: unique code for referral links (TKX{first4UID}{random3}) */
+  referralCode?: string;
+  /** Invite-unlock: UIDs of users who signed up via this user's referral */
+  invitedUsers?: string[];
+  /** Invite-unlock: count of valid invites */
+  inviteCount?: number;
+  /** Invite-unlock: true when inviteCount >= 5 */
+  dayPassUnlocked?: boolean;
+  /** Invite-unlock: when day pass was unlocked */
+  inviteUnlockedAt?: Timestamp | Date;
 }
 
 export interface UserProfileUpdate {

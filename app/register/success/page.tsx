@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 
 function SuccessContent() {
@@ -51,9 +50,8 @@ function SuccessContent() {
 export default function RegisterSuccessPage() {
   return (
     <>
-      <Navigation />
       <Suspense fallback={
-        <main id="main" className="page_main min-h-[60vh] flex items-center justify-center u-container py-16">
+        <main className="page_main min-h-[60vh] flex items-center justify-center u-container py-16" aria-label="Loading">
           <p className="text-white/70">Loading…</p>
         </main>
       }>

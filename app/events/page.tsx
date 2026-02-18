@@ -1,68 +1,44 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
-import Navigation from '@/components/layout/Navigation';
+import { useState, useEffect } from 'react';
 import Footer from '@/components/layout/Footer';
+import { EventsHero } from '@/components/sections/events/EventsHero';
 import EventCategorySwitch from '@/components/sections/events/EventCategorySwitch';
 import EventsGrid from '@/components/sections/events/EventsGrid';
 import type { EventItem } from '@/data/events';
-
-const SCROLL_THRESHOLD_DESKTOP = 60;
-const SCROLL_THRESHOLD_MOBILE = 100; // higher so bar doesn’t hide too easily on touch scroll
-
-function getScrollThreshold() {
-  if (typeof window === 'undefined') return SCROLL_THRESHOLD_DESKTOP;
-  return window.innerWidth <= 768 ? SCROLL_THRESHOLD_MOBILE : SCROLL_THRESHOLD_DESKTOP;
-}
 
 export default function EventsPage() {
   const [category, setCategory] = useState<'non-technical' | 'technical'>('non-technical');
   const [events, setEvents] = useState<EventItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [categoryBarHidden, setCategoryBarHidden] = useState(false);
-  const lastScrollY = useRef(0);
-  const ticking = useRef(false);
-
-  // Hide events category bar on scroll down, show on scroll up (works with Lenis)
-  useEffect(() => {
-    const handleScroll = () => {
-      const current = window.scrollY ?? document.documentElement.scrollTop;
-      const threshold = getScrollThreshold();
-      if (!ticking.current) {
-        window.requestAnimationFrame(() => {
-          if (current > threshold) {
-            setCategoryBarHidden(current > lastScrollY.current);
-          } else {
-            setCategoryBarHidden(false);
-          }
-          lastScrollY.current = current;
-          ticking.current = false;
-        });
-        ticking.current = true;
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const [error, setError] = useState<Error | null>(null);
 
   // Code-split eventsData - only load on events page
   useEffect(() => {
-    import('@/data/events').then((module) => {
-      const eventsData = category === 'non-technical' ? module.NON_TECHNICAL_EVENTS : module.TECHNICAL_EVENTS;
-      setEvents(eventsData);
-      setIsLoading(false);
-    });
+    setIsLoading(true);
+    setError(null);
+    import('@/data/events')
+      .then((module) => {
+        const eventsData = category === 'non-technical' ? module.NON_TECHNICAL_EVENTS : module.TECHNICAL_EVENTS;
+        setEvents(eventsData);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error('Failed to load events data:', err);
+        setError(err instanceof Error ? err : new Error('Failed to load events'));
+        setIsLoading(false);
+        setEvents([]);
+      });
   }, [category]);
-
-  // Memoize events array to prevent unnecessary re-renders
-  const memoizedEvents = useMemo(() => events, [events]);
 
   return (
     <>
-      <Navigation />
-
       <main id="main" className="page_main page_main--events page_main--events-editorial relative z-10 bg-[var(--editorial-black,#000)]">
-        <EventCategorySwitch value={category} onChange={setCategory} isHidden={categoryBarHidden} />
+        <EventsHero />
+
+        <section className="events-filter-section">
+          <EventCategorySwitch value={category} onChangeAction={setCategory} />
+        </section>
 
         <div className="events-content-shell mt-5">
           {isLoading ? (
@@ -71,8 +47,14 @@ export default function EventsPage() {
                 <div className="events-spinner" aria-label="Loading events" />
               </div>
             </div>
+          ) : error ? (
+            <div className="events-error" role="alert">
+              <p className="text-[var(--editorial-gray-muted,#999)] text-center p-8">
+                Failed to load events. Please try refreshing the page.
+              </p>
+            </div>
           ) : (
-            <EventsGrid key={category} events={memoizedEvents} category={category} />
+            <EventsGrid key={category} events={events} category={category} />
           )}
         </div>
 

@@ -144,9 +144,11 @@ These variables must be set in the environment (locally via `.env.local`, in pro
 | `NEXT_PUBLIC_CASHFREE_ENV`         | Public | Yes      | Cashfree environment (`sandbox` \| `production`) | `sandbox`                     |
 | `RESEND_API_KEY`                   | Secret | No*      | Resend email API key                         | `re_xxx`                          |
 | `QR_SECRET_KEY`                    | Secret | Yes      | Secret for QR HMAC signing                    | Random 32+ char string            |
+| `NEXT_PUBLIC_APP_URL` / `APP_URL`  | Both   | No*      | Live app URL (payment callbacks, referral link fallback) | `https://takshashila26.in` |
 
 Notes:
 
+- For **live domain**: set `NEXT_PUBLIC_APP_URL` or `APP_URL` to your production URL (e.g. `https://takshashila26.in`) so payment return URLs and the referral link fallback use the correct domain.
 - For `FIREBASE_SERVICE_ACCOUNT_KEY` vs `FIREBASE_ADMIN_*`:
   - The code supports both a single JSON string or split fields.
   - Use one consistent pattern in all environments.
@@ -284,6 +286,7 @@ Before going live:
 1. **Firebase**
    - [ ] Create production Firebase project.
    - [ ] Enable Firestore and Authentication (Google).
+   - [ ] **Add your live domain to Authorized domains:** Firebase Console → Authentication → Settings → Authorized domains → Add domain (e.g. `takshashila26.in`). Add both `www` and apex if users can land on either.
    - [ ] Create service account and download JSON.
    - [ ] Set Firestore rules via `firebase deploy --only firestore:rules`.
 
@@ -299,6 +302,7 @@ Before going live:
 4. **Vercel**
    - [ ] Link GitHub repo.
    - [ ] Configure all environment variables.
+   - [ ] Set `NEXT_PUBLIC_APP_URL` (or `APP_URL`) to your live URL (e.g. `https://takshashila26.in`) for payment callbacks and referral link fallback.
    - [ ] Trigger initial production build.
 
 5. **Security**

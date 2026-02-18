@@ -124,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       phone: data.phone,
       createdAt: serverTimestamp(),
     };
-    await setDoc(userRef, profile);
+    await setDoc(userRef, profile, { merge: true });
     setUserData({ ...profile, createdAt: { toDate: () => new Date() } } as UserProfile);
   }, [user]);
 

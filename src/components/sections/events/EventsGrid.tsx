@@ -21,8 +21,17 @@ function EventsGrid({ events, category }: EventsGridProps) {
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const { gsap } = gsapModules;
+    const { gsap, ScrollTrigger } = gsapModules;
+    
+    // Ensure ScrollTrigger is registered before using it
+    if (!ScrollTrigger) {
+      console.warn('ScrollTrigger not available, skipping animation');
+      return;
+    }
+
     const cards = gridRef.current.querySelectorAll('.event-card');
+    if (cards.length === 0) return;
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         cards,

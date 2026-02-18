@@ -1,9 +1,8 @@
-'use client';
+"use client";
 
 import { useAuth } from '@/features/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Navigation from '@/components/layout/Navigation';
 import { AwardBadge } from '@/components/decorative/AwardBadge';
 
 export default function LoginPage() {
@@ -16,10 +15,13 @@ export default function LoginPage() {
     try {
       await signIn();
     } catch (err: any) {
-      console.error('Google Sign-In Error:', err);
+      console.error("Google Sign-In Error:", err);
       // Only show alert for errors other than user closing the popup
-      if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-by-user') {
-        alert(`Sign-in failed: ${err.message || 'Unknown error'}`);
+      if (
+        err.code !== "auth/popup-closed-by-user" &&
+        err.code !== "auth/cancelled-by-user"
+      ) {
+        alert(`Sign-in failed: ${err.message || "Unknown error"}`);
       }
     } finally {
       setSigningIn(false);
@@ -28,7 +30,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace('/register');
+      router.replace("/register");
     }
   }, [user, loading, router]);
 
@@ -36,7 +38,6 @@ export default function LoginPage() {
   if (loading) {
     return (
       <>
-        <Navigation />
         <main className="page_main page_main--registration registration-loading">
           <div className="registration-loading__spinner">
             <div className="reg-spinner" />
@@ -50,11 +51,17 @@ export default function LoginPage() {
   if (user) {
     return (
       <>
-        <Navigation />
         <main className="page_main page_main--registration registration-loading">
           <div className="registration-loading__spinner">
             <div className="reg-spinner" />
-            <p style={{ marginTop: '1rem', color: 'var(--color-text-secondary)' }}>Redirecting...</p>
+            <p
+              style={{
+                marginTop: "1rem",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              Redirecting...
+            </p>
           </div>
         </main>
       </>
@@ -64,7 +71,6 @@ export default function LoginPage() {
   // Login page - Premium Split-Screen Auth Layout
   return (
     <>
-      <Navigation />
       <div className="auth-page">
         {/* Split Screen Layout */}
         <div className="auth-container">
@@ -75,7 +81,7 @@ export default function LoginPage() {
               style={{
                 backgroundImage: "url(/assets/images/parallax.webp)",
                 backgroundSize: "cover",
-                backgroundPosition: "center"
+                backgroundPosition: "center",
               }}
             />
             <div className="auth-left-overlay" />
@@ -100,7 +106,9 @@ export default function LoginPage() {
             {/* Testimonial */}
             <div className="auth-testimonial">
               <blockquote className="auth-quote">
-                &ldquo;The most electrifying tech fest I&apos;ve ever attended. From the innovations to the proshows, every moment was unforgettable.&rdquo;
+                &ldquo;The most electrifying tech fest I&apos;ve ever attended.
+                From the innovations to the proshows, every moment was
+                unforgettable.&rdquo;
               </blockquote>
               <div className="auth-author">
                 <span className="auth-author-name">— Past Attendee</span>
@@ -110,6 +118,21 @@ export default function LoginPage() {
 
           {/* Right Panel - Auth Form */}
           <div className="auth-right-panel">
+            {/* Y2K scanline overlay */}
+            <div className="auth-y2k-scanlines" aria-hidden />
+            {/* Y2K star sparkles */}
+            <span className="auth-y2k-star auth-y2k-star--1" aria-hidden>
+              ✦
+            </span>
+            <span className="auth-y2k-star auth-y2k-star--2" aria-hidden>
+              ✦
+            </span>
+            <span className="auth-y2k-star auth-y2k-star--3" aria-hidden>
+              ✧
+            </span>
+            <span className="auth-y2k-star auth-y2k-star--4" aria-hidden>
+              ✦
+            </span>
             {/* Mobile: background image (hidden on desktop) */}
             <div
               className="auth-right-bg"
@@ -138,25 +161,38 @@ export default function LoginPage() {
               {/* Auth Form */}
               <div className="auth-form">
                 <div className="auth-form-fields items-center">
-                  <div className="w-full max-w-[260px]">
-                    <AwardBadge type="button" onClick={handleGoogleSignIn} disabled={signingIn}>
+                  <button
+                    className="login-cta-btn"
+                    onClick={handleGoogleSignIn}
+                    disabled={signingIn}
+                  >
+                    <span className="login-cta-btn__bg" />
+                    <span
+                      className="login-cta-btn__glitch"
+                      data-text={
+                        signingIn ? "SIGNING IN..." : "SIGN IN WITH GOOGLE"
+                      }
+                    />
+                    <span className="login-cta-btn__text">
                       {signingIn ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="reg-spinner w-4 h-4 border-2 border-white/30 border-t-white" />
-                          <span>SIGNING IN...</span>
-                        </div>
+                        <span className="login-cta-btn__loading">
+                          <span className="login-cta-btn__spinner" />
+                          SIGNING IN...
+                        </span>
                       ) : (
                         "SIGN IN WITH GOOGLE"
                       )}
-                    </AwardBadge>
-                  </div>
+                    </span>
+                    <span className="login-cta-btn__border" />
+                  </button>
                 </div>
               </div>
 
               {/* Register Link */}
+              <hr className="auth-y2k-divider" />
               <div className="auth-footer">
                 <p className="auth-footer-text">
-                  Don&apos;t have an account?{' '}
+                  Don&apos;t have an account?{" "}
                   <a href="/register" className="auth-footer-link">
                     Register here
                   </a>

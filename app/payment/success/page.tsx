@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/features/auth/AuthContext';
-import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 
 function PaymentSuccessContent() {
@@ -49,7 +48,6 @@ function PaymentSuccessContent() {
 
   return (
     <>
-      <Navigation />
       <main className="page_main page_main--registration registration-loading">
         <div className="registration-loading__spinner">
           {status === 'verifying' && (
@@ -97,7 +95,6 @@ export default function PaymentSuccessPage() {
     <Suspense
       fallback={
         <>
-          <Navigation />
           <main className="page_main page_main--registration registration-loading">
             <div className="registration-loading__spinner">
               <div className="reg-spinner" />

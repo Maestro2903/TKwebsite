@@ -3,8 +3,6 @@
 import { useAuth } from '@/features/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import Navigation from '@/components/layout/Navigation';
-
 export default function RegisterPage() {
   const { user, userData, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -30,7 +28,6 @@ export default function RegisterPage() {
   // Show loading while redirecting
   return (
     <>
-      <Navigation />
       <main className="page_main page_main--registration registration-loading">
         <div className="registration-loading__spinner">
           <div className="reg-spinner" />
