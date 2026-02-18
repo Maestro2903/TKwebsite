@@ -5,15 +5,35 @@ import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 // Register GSAP plugin
 gsap.registerPlugin(ScrambleTextPlugin);
 
+// Type definitions
+interface Project {
+  artist: string;
+  album: string;
+  category: string;
+  label: string;
+  year: string;
+  image: string;
+  [key: string]: string; // Index signature for dynamic access
+}
+
+interface ProjectItemProps {
+  project: Project;
+  index: number;
+  onMouseEnter: (index: number, image: string) => void;
+  onMouseLeave: () => void;
+  isActive: boolean;
+  isIdle: boolean;
+}
+
 // Time Display Component
-const TimeDisplay = ({CONFIG={}}) => {
+const TimeDisplay = ({CONFIG = {timeZone: 'Asia/Kolkata', timeUpdateInterval: 1000}}: {CONFIG?: {timeZone?: string, timeUpdateInterval?: number}}) => {
   const [time, setTime] = useState({ hours: '', minutes: '', dayPeriod: '' });
 
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      const options = {
-        timeZone: CONFIG.timeZone,
+      const options: Intl.DateTimeFormatOptions = {
+        timeZone: CONFIG.timeZone || 'Asia/Kolkata',
         hour12: true,
         hour: "numeric",
         minute: "numeric",
@@ -30,7 +50,7 @@ const TimeDisplay = ({CONFIG={}}) => {
     };
 
     updateTime();
-    const interval = setInterval(updateTime, CONFIG.timeUpdateInterval);
+    const interval = setInterval(updateTime, CONFIG.timeUpdateInterval || 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -42,14 +62,15 @@ const TimeDisplay = ({CONFIG={}}) => {
 };
 
 // Project Item Component
-const ProjectItem = ({ project, index, onMouseEnter, onMouseLeave, isActive, isIdle }) => {
-  const itemRef = useRef(null);
+const ProjectItem = React.forwardRef<HTMLLIElement, ProjectItemProps>(({ project, index, onMouseEnter, onMouseLeave, isActive, isIdle }, ref) => {
+  const itemRef = useRef<HTMLLIElement>(null);
+  const combinedRef = ref || itemRef;
   const textRefs = {
-    artist: useRef(null),
-    album: useRef(null),
-    category: useRef(null),
-    label: useRef(null),
-    year: useRef(null),
+    artist: useRef<HTMLSpanElement>(null),
+    album: useRef<HTMLSpanElement>(null),
+    category: useRef<HTMLSpanElement>(null),
+    label: useRef<HTMLSpanElement>(null),
+    year: useRef<HTMLSpanElement>(null),
   };
 
   useEffect(() => {
@@ -82,7 +103,7 @@ const ProjectItem = ({ project, index, onMouseEnter, onMouseLeave, isActive, isI
 
   return (
     <li 
-      ref={itemRef}
+      ref={combinedRef}
       className={`project-item ${isActive ? 'active' : ''} ${isIdle ? 'idle' : ''}`}
       onMouseEnter={() => onMouseEnter(index, project.image)}
       onMouseLeave={onMouseLeave}
@@ -105,20 +126,30 @@ const ProjectItem = ({ project, index, onMouseEnter, onMouseLeave, isActive, isI
       </span>
     </li>
   );
-};
+});
+
+ProjectItem.displayName = 'ProjectItem';
+
+interface MusicPortfolioProps {
+  PROJECTS_DATA?: Project[];
+  LOCATION?: any;
+  CALLBACKS?: any;
+  CONFIG?: {timeZone?: string, timeUpdateInterval?: number, idleDelay?: number};
+  SOCIAL_LINKS?: any;
+}
 
 // Main Portfolio Component
-const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={}, SOCIAL_LINKS={}}) => {
+const MusicPortfolio: React.FC<MusicPortfolioProps> = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={}, SOCIAL_LINKS={}}) => {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [backgroundImage, setBackgroundImage] = useState('');
   const [isIdle, setIsIdle] = useState(true);
   
-  const backgroundRef = useRef(null);
-  const containerRef = useRef(null);
-  const idleTimerRef = useRef(null);
-  const idleAnimationRef = useRef(null);
-  const debounceRef = useRef(null);
-  const projectItemsRef = useRef([]);
+  const backgroundRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const idleAnimationRef = useRef<gsap.core.Timeline | null>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const projectItemsRef = useRef<(HTMLLIElement | null)[]>([]);
 
   // Preload images
   useEffect(() => {
@@ -187,7 +218,7 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
         setIsIdle(true);
         startIdleAnimation();
       }
-    }, CONFIG.idleDelay);
+    }, CONFIG.idleDelay || 3000);
   }, [activeIndex, startIdleAnimation]);
 
   // Stop idle timer
@@ -199,7 +230,7 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
   }, []);
 
   // Handle mouse enter on project
-  const handleProjectMouseEnter = useCallback((index, imageUrl) => {
+  const handleProjectMouseEnter = useCallback((index: number, imageUrl: string) => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
@@ -281,7 +312,7 @@ const MusicPortfolio = ({PROJECTS_DATA=[], LOCATION={}, CALLBACKS={}, CONFIG={},
                 onMouseLeave={handleProjectMouseLeave}
                 isActive={activeIndex === index}
                 isIdle={isIdle}
-                ref={el => projectItemsRef.current[index] = el}
+                ref={el => { projectItemsRef.current[index] = el; }}
               />
             ))}
           </ul>
