@@ -61,12 +61,9 @@ export default function RegistrationPassesGrid({ onRegisterClick }: Registration
 
   return (
     <section className="mt-16 md:mt-[var(--_spacing---section-space--small,4rem)]">
-      <div className="mx-auto max-w-[min(96rem,100%)] px-[var(--site--gutter)]">
+      <div className="registration-passes-grid-wrapper">
         <div
-          className="registration-passes-grid grid items-stretch auto-rows-[1fr]
-                     grid-cols-1 md:grid-cols-2 xl:grid-cols-3 min-[1600px]:grid-cols-4
-                     gap-x-[clamp(1rem,1.8vw,1.75rem)]
-                     gap-y-[clamp(1.25rem,2.2vw,2.25rem)]"
+          className="registration-passes-grid"
           role="list"
           aria-label="Pass selection"
         >

@@ -6818,26 +6818,97 @@ video {
   font-size: 0.875rem;
 }
 
+/* Registration Passes Grid Wrapper - no padding (parent .u-container handles it) */
+.registration-passes-grid-wrapper {
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  box-sizing: border-box;
+}
+
 /* Registration Passes Grid (matching events-grid) - kept for any other use */
 .registration-passes-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--site--gutter);
+  gap: clamp(1rem, 1.8vw, 1.75rem);
   align-items: stretch;
   padding: var(--_spacing---space--6) 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* Ensure grid items fill their cells */
+.registration-passes-grid > * {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Remove max-width constraint on cards for proper alignment */
+.registration-passes-grid .pass-card-ticket {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
 }
 
 @media screen and (min-width: 768px) {
   .registration-passes-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1rem, 1.8vw, 1.75rem);
   }
 }
 
 @media screen and (min-width: 992px) {
+  .registration-passes-grid-wrapper {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
   .registration-passes-grid {
     grid-template-columns: repeat(2, 1fr);
-    max-width: 1000px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
+    gap: clamp(1rem, 1.8vw, 1.75rem);
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .registration-passes-grid-wrapper {
+    max-width: min(96rem, 100%);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  .registration-passes-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 100%;
+    margin: 0;
+    gap: clamp(1rem, 1.8vw, 1.75rem);
+  }
+}
+
+/* 4x1 layout for 16:10 screens (1920x1200 and wider) */
+@media screen and (min-width: 1920px) {
+  .registration-passes-grid-wrapper {
+    max-width: min(96rem, 100%);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  .registration-passes-grid {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 100%;
+    margin: 0;
+    gap: clamp(1rem, 1.8vw, 1.75rem);
   }
 }
 
