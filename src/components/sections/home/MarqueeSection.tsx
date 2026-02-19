@@ -55,7 +55,7 @@ const IMAGE_URLS = {
     rect38: '/assets/marquee/rectangle38.webp',
     main: '/assets/marquee/main.webp',
     image1113: '/assets/marquee/image1113.webp',
-    haniff: '/assets/marquee/haniff1.webp',
+    haniff: '/assets/marquee/haniff1.avif',
 } as const;
 
 export default function MarqueeSection() {

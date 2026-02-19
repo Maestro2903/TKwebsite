@@ -68,8 +68,13 @@ function RegistrationPassCard({
         <div className="flex-1 flex flex-col p-0 bg-[#1a1a1a] relative min-w-0">
           {/* Icon Display Area */}
           {!isRadio && (
-            <div className="aspect-container relative w-full aspect-[4/3] lg:aspect-[3/2] xl:h-[clamp(160px,18vw,240px)] max-h-[260px] bg-[#050505] border border-neutral-700 overflow-hidden group-hover:border-neutral-500 transition-colors duration-300 flex items-center justify-center"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% 85%, 90% 100%, 10% 100%, 0 85%)' }}>
+            <div
+              className="aspect-container relative w-full bg-[#050505] border border-neutral-700 overflow-hidden
+                         aspect-[16/10] md:aspect-[16/9]
+                         max-h-[clamp(8.5rem,18vh,12rem)]
+                         group-hover:border-neutral-500 transition-colors duration-300 flex items-center justify-center"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% 85%, 90% 100%, 10% 100%, 0 85%)' }}
+            >
               
               {/* Icon Content */}
               <div className="absolute inset-0 z-0 flex items-center justify-center p-6">
@@ -188,9 +193,9 @@ function RegistrationPassCard({
     return <span className="registration-pass-card registration-pass-card--radio">{content}</span>;
   }
 
-  return (
+      return (
     <article
-      className="registration-pass-card h-full max-h-[95vh]"
+      className="registration-pass-card h-full min-h-0 overflow-hidden max-h-[clamp(24rem,66vh,32rem)]"
       role="button"
       tabIndex={0}
       onClick={onClick}

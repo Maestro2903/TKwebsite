@@ -119,7 +119,7 @@ function EditorialEventCard({ event, index = 0 }: EditorialEventCardProps) {
       <EventDetailsModal
         event={event}
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        onCloseAction={() => setShowModal(false)}
       />
     </article>
   );

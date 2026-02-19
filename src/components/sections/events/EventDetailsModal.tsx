@@ -14,13 +14,13 @@ import { BarcodeStripe, SectionLabel } from '@/components/decorative/EditorialMo
 interface EventDetailsModalProps {
   event: EventItem;
   isOpen: boolean;
-  onClose: () => void;
+  onCloseAction: () => void;
 }
 
 export default function EventDetailsModal({
   event,
   isOpen,
-  onClose, // @ts-ignore
+  onCloseAction,
 }: EventDetailsModalProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -75,11 +75,11 @@ export default function EventDetailsModal({
   const handleClose = React.useCallback(() => {
     setIsVisible(false);
     const timer = setTimeout(() => {
-      onClose();
+      onCloseAction();
       previousActiveElementRef.current?.focus?.();
     }, 200);
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, [onCloseAction]);
 
   useEffect(() => {
     if (!isOpen) return;

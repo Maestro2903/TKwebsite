@@ -104,9 +104,9 @@ export default function PassSelectionPage() {
 
     return (
         <>
-            <main id="main" className="page_main page_main--registration u-container py-[var(--_spacing---section-space--large)]">
+            <main id="main" className="page_main page_main--registration u-container py-12 md:py-[var(--_spacing---section-space--large)]">
                 {/* Header Section */}
-                <section className="text-center mb-8">
+                <section className="text-center mb-6 md:mb-8">
                     <p className="text-sm tracking-widest uppercase text-white/60 mb-4">
                         CIT TAKSHASHILA 2026
                     </p>
@@ -120,7 +120,7 @@ export default function PassSelectionPage() {
 
                 {/* User Info */}
                 {userData && (
-                    <section className="text-center mb-12">
+                    <section className="text-center mb-8 md:mb-12">
                         <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-white/15 bg-white/5">
                             <span className="text-sm text-white/60">Registering as:</span>
                             <span className="text-sm font-medium text-white">
@@ -136,7 +136,7 @@ export default function PassSelectionPage() {
                 />
 
                 {/* Already have a pass? */}
-                <section className="text-center mt-16">
+                <section className="text-center mt-12 lg:mt-16 xl:mt-20">
                     <p className="text-white/60 mb-4">Already registered?</p>
                     <button
                         type="button"

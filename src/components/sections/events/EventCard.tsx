@@ -29,7 +29,7 @@ function EventCard({ event }: EventCardProps) {
       <EventDetailsModal
         event={event}
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        onCloseAction={() => setShowModal(false)}
       />
     </article>
   );

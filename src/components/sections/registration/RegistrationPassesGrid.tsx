@@ -53,29 +53,35 @@ export default function RegistrationPassesGrid({ onRegisterClick }: Registration
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20">
+      <div className="flex items-center justify-center py-20">
         <div className="reg-spinner" />
       </div>
     );
   }
 
   return (
-    <div
-      className="registration-passes-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-20 px-4 sm:px-0 items-stretch max-w-6xl mx-auto"
-      style={{ gap: 'var(--site--gutter)' }}
-      role="list"
-      aria-label="Pass selection"
-    >
-      {passes.map((pass) => (
+    <section className="mt-16 md:mt-[var(--_spacing---section-space--small,4rem)]">
+      <div className="mx-auto max-w-[min(96rem,100%)] px-[var(--site--gutter)]">
         <div
-          key={pass.id}
-          className="min-w-0 min-w-[280px] flex flex-col flex-1 min-h-0"
-          role="listitem"
+          className="registration-passes-grid grid items-stretch auto-rows-[1fr]
+                     grid-cols-1 md:grid-cols-2 xl:grid-cols-3 min-[1600px]:grid-cols-4
+                     gap-x-[clamp(1rem,1.8vw,1.75rem)]
+                     gap-y-[clamp(1.25rem,2.2vw,2.25rem)]"
+          role="list"
+          aria-label="Pass selection"
         >
-          <PassCard pass={pass} onRegister={onRegisterClick} />
+          {passes.map((pass) => (
+            <div
+              key={pass.id}
+              className="min-h-0 min-w-0 flex h-full flex-1 flex-col"
+              role="listitem"
+            >
+              <PassCard pass={pass} onRegister={onRegisterClick} />
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      </div>
+    </section>
   );
 }
 
