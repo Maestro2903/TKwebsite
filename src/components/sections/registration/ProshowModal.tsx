@@ -193,8 +193,8 @@ export default function ProshowModal({
 
     return (
         <div
-            ref={overlayRef}
-            className="modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+        ref={overlayRef}
+        className="modal-overlay fixed inset-0 z-[2000] flex items-start justify-center pt-[calc(var(--nav-height)+1rem)] bg-black/90 p-4 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-labelledby="proshow-pass-title"
@@ -203,13 +203,13 @@ export default function ProshowModal({
             onTouchMove={(e) => e.stopPropagation()}
         >
             <div
-                className="modal-content-scroll w-full max-w-lg max-h-[90vh] flex flex-col overflow-y-auto bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative group"
+                className="modal-content-scroll w-full max-w-lg max-h-[calc(100dvh-var(--nav-height)-2rem)] flex flex-col overflow-y-auto bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative group rounded-none sm:rounded-xl"
                 onClick={(e) => e.stopPropagation()}
                 onWheel={(e) => e.stopPropagation()}
                 onTouchMove={(e) => e.stopPropagation()}
             >
                 {/* --- Top + Header --- */}
-                <div className="sticky top-0 z-20 bg-[#151515] border-b border-neutral-800">
+                <div className="sticky top-0 z-30 bg-[#151515] border-b border-neutral-800">
                     <div className="h-6 w-full flex items-center justify-between px-2">
                         <div className="flex gap-2 text-[8px] tracking-[0.2em] text-neutral-500 uppercase font-bold font-orbitron">
                             <span>SYS.PROSHOW.01</span>

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import { X } from 'lucide-react';
@@ -16,11 +17,17 @@ interface EventDetailsModalProps {
   onClose: () => void;
 }
 
+// @ts-expect-error - onClose is a client-side callback, not a Server Action
 export default function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const focusableSelector =
     'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])';
@@ -99,7 +106,7 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
   const description = event.fullDescription ?? event.description;
   const registerHref = '/register';
 
-  return (
+  const modalContent = (
     <div
       className={cn(
         'modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6',
@@ -226,4 +233,6 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
       </div>
     </div>
   );
+
+  return mounted ? createPortal(modalContent, document.body) : null;
 }

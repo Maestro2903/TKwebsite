@@ -101,7 +101,7 @@ export default function PassCardTicket({ pass, onRegister }: PassCardTicketProps
       data-pass-type={pass.passType}
     >
       {/* Header: gradient from globals.css, punch holes, globe, title, price pill */}
-      <div className="pass-card-ticket__header relative flex flex-col items-center justify-center min-h-[280px] sm:min-h-[300px] px-6 py-6 rounded-t-2xl text-[#1a1a1a] shrink-0">
+      <div className="pass-card-ticket__header relative flex flex-col items-center justify-center px-6 py-6 rounded-t-2xl text-[#1a1a1a] shrink-0">
         <div className="absolute top-3 left-4 size-[10px] rounded-full bg-black" aria-hidden="true"></div>
         <div className="absolute top-3 right-4 size-[10px] rounded-full bg-black" aria-hidden="true"></div>
         <div className="mb-1.5">
@@ -135,7 +135,7 @@ export default function PassCardTicket({ pass, onRegister }: PassCardTicketProps
       </div>
 
       {/* White section: flex-grow; two wrappers so dynamic content expands and static footer aligns across cards */}
-      <div className="bg-neutral-50 flex flex-col flex-grow min-h-0 px-5 py-4">
+      <div className="pass-card-ticket__body bg-neutral-50 flex flex-col flex-grow min-h-0 px-5">
         {/* Wrapper A: Dynamic content – min-height matches Day Pass reference so all cards share same layout */}
         <div className="flex flex-col flex-grow min-h-[220px] gap-4">
           <div>
@@ -160,7 +160,7 @@ export default function PassCardTicket({ pass, onRegister }: PassCardTicketProps
         </div>
 
         {/* Wrapper B: Static footer – mt-auto pins to bottom; same layout on every card */}
-        <div className="mt-auto shrink-0 pt-4">
+        <div className="pass-card-ticket__footer mt-auto shrink-0 pt-4">
           <div>
             <p className="text-[8px] font-bold uppercase tracking-wider text-neutral-600 mb-0.5">Best for</p>
             <p className="text-[9px] text-neutral-600 leading-snug max-w-[200px]" title={bestFor}>
@@ -205,7 +205,7 @@ export default function PassCardTicket({ pass, onRegister }: PassCardTicketProps
           <p className="text-[8px] text-neutral-400 tracking-wider mt-1">UNAUTHORISED RESALE PROHIBITED</p>
 
           {/* Fixed spacing between barcode/stamp and Register button */}
-          <div className="border-t border-black mt-6 pt-4" onClick={(e) => e.stopPropagation()}>
+          <div className="pass-card-ticket__footer-cta border-t border-black mt-6 pt-4" onClick={(e) => e.stopPropagation()}>
             {cta}
           </div>
         </div>

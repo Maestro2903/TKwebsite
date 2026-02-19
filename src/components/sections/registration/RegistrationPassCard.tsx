@@ -68,7 +68,7 @@ function RegistrationPassCard({
         <div className="flex-1 flex flex-col p-0 bg-[#1a1a1a] relative min-w-0">
           {/* Icon Display Area */}
           {!isRadio && (
-            <div className="relative w-full aspect-[16/9] bg-[#050505] border border-neutral-700 overflow-hidden group-hover:border-neutral-500 transition-colors duration-300 flex items-center justify-center"
+            <div className="aspect-container relative w-full aspect-[4/3] lg:aspect-[3/2] xl:h-[clamp(160px,18vw,240px)] max-h-[260px] bg-[#050505] border border-neutral-700 overflow-hidden group-hover:border-neutral-500 transition-colors duration-300 flex items-center justify-center"
               style={{ clipPath: 'polygon(0 0, 100% 0, 100% 85%, 90% 100%, 10% 100%, 0 85%)' }}>
               
               {/* Icon Content */}
@@ -85,10 +85,10 @@ function RegistrationPassCard({
           )}
 
           {/* Lower Control Panel */}
-          <div className="h-auto mt-3 flex flex-col gap-3 px-3 pb-3 min-w-0">
+          <div className="registration-pass-lower h-auto mt-3 flex flex-col gap-3 px-3 pb-3 min-w-0">
             {/* Content Card */}
             <div className={cn(
-              "min-h-[180px] bg-[#151515] border mt-2 p-4 flex flex-col gap-3 relative overflow-hidden transition-colors duration-300",
+              "content-block min-h-[140px] bg-[#151515] border mt-2 p-4 flex flex-col gap-3 relative overflow-hidden transition-colors duration-300",
               isSelected ? "border-blue-500/50" : "border-neutral-800 group-hover:border-neutral-600"
             )}>
               {/* Header with Title and Badge */}
@@ -190,7 +190,7 @@ function RegistrationPassCard({
 
   return (
     <article
-      className="registration-pass-card h-full"
+      className="registration-pass-card h-full max-h-[95vh]"
       role="button"
       tabIndex={0}
       onClick={onClick}

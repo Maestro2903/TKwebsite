@@ -5,11 +5,9 @@ import type { RegistrationPass } from '@/data/passes';
 
 interface RegistrationPassesGridProps {
   onRegisterClick?: (pass: RegistrationPass) => void;
-  /** Invite-unlock: when true, Day Pass shows ₹500; otherwise ₹600 */
-  dayPassUnlocked?: boolean;
 }
 
-export default function RegistrationPassesGrid({ onRegisterClick, dayPassUnlocked }: RegistrationPassesGridProps) {
+export default function RegistrationPassesGrid({ onRegisterClick }: RegistrationPassesGridProps) {
   const [backendPassTypes, setBackendPassTypes] = useState<Record<string, { id: string; price?: number; pricePerPerson?: number }> | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -38,15 +36,6 @@ export default function RegistrationPassesGrid({ onRegisterClick, dayPassUnlocke
         ? (Object.values(backendPassTypes).find((bp: any) => bp.id === pass.passType) as any)
         : null;
 
-      if (pass.passType === 'day_pass') {
-        const pricePerDay = dayPassUnlocked ? 500 : 600;
-        return {
-          ...pass,
-          amount: pricePerDay,
-          price: `₹${pricePerDay}`,
-        };
-      }
-
       if (backendPass) {
         return {
           ...pass,
@@ -60,7 +49,7 @@ export default function RegistrationPassesGrid({ onRegisterClick, dayPassUnlocke
       }
       return pass;
     });
-  }, [backendPassTypes, dayPassUnlocked]);
+  }, [backendPassTypes]);
 
   if (loading) {
     return (
@@ -72,13 +61,17 @@ export default function RegistrationPassesGrid({ onRegisterClick, dayPassUnlocke
 
   return (
     <div
-      className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-20 px-4 sm:px-0 items-stretch"
+      className="registration-passes-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-20 px-4 sm:px-0 items-stretch max-w-6xl mx-auto"
       style={{ gap: 'var(--site--gutter)' }}
       role="list"
       aria-label="Pass selection"
     >
       {passes.map((pass) => (
-        <div key={pass.id} className="min-w-0 flex flex-col flex-1 min-h-0" role="listitem">
+        <div
+          key={pass.id}
+          className="min-w-0 min-w-[280px] flex flex-col flex-1 min-h-0"
+          role="listitem"
+        >
           <PassCard pass={pass} onRegister={onRegisterClick} />
         </div>
       ))}

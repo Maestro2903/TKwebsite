@@ -9,7 +9,7 @@ service cloud.firestore {
       // Update: block client from writing server-managed fields
       allow update: if request.auth.uid == userId &&
         !request.resource.data.diff(resource.data).affectedKeys().hasAny([
-          'isOrganizer', 'referralCode', 'invitedUsers', 'inviteCount', 'dayPassUnlocked', 'inviteUnlockedAt'
+          'isOrganizer'
         ]);
     }
     match /registrations/{doc} {
@@ -38,7 +38,7 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create, update, delete: if false;  // Server only via Admin SDK
     }
-    match /mockSummitInvites/{code} {
+    match /mockSummitAccessCodes/{code} {
       allow read, write: if false;  // Server only via Admin SDK
     }
   }

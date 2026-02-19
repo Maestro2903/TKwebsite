@@ -129,7 +129,7 @@ export default function RegistrationFormModal({
   return (
     <div
       ref={overlayRef}
-      className="modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
+      className="modal-overlay fixed inset-0 z-[2000] flex items-start justify-center pt-[calc(var(--nav-height)+1rem)] bg-black/80 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="registration-form-title"
@@ -138,7 +138,7 @@ export default function RegistrationFormModal({
       onTouchMove={(e) => e.stopPropagation()}
     >
       <div
-        className="modal-content-scroll w-full max-w-md max-h-[90vh] overflow-y-auto rounded-lg border border-white/15 bg-black p-6 shadow-xl"
+        className="modal-content-scroll w-full max-w-md max-h-[calc(100dvh-var(--nav-height)-2rem)] overflow-y-auto rounded-none sm:rounded-xl border border-white/15 bg-black p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
         onWheel={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}

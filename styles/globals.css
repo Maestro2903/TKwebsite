@@ -5374,7 +5374,7 @@ video {
 .pass-selector-modal {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 2000;
   background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
@@ -5388,7 +5388,7 @@ video {
   border: 1px solid rgba(255, 255, 255, 0.15);
   max-width: 24rem;
   width: 100%;
-  max-height: 85vh;
+  max-height: calc(100dvh - var(--nav-height) - 2rem);
   overflow-y: auto;
 }
 
@@ -6235,6 +6235,8 @@ video {
   padding: var(--_spacing---space--6) 0;
 }
 
+/* Registration pass grid & card height behavior */
+
 .registration-profile-form__form {
   background: #000;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -6805,6 +6807,14 @@ video {
     grid-template-columns: repeat(2, 1fr);
     max-width: 1000px;
     margin: 0 auto;
+  }
+}
+
+@media (min-width: 1280px) and (max-height: 900px) {
+  .registration-passes-grid {
+    row-gap: 1.25rem;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
   }
 }
 
@@ -7864,6 +7874,32 @@ video {
   background-repeat: no-repeat;
   background-size: 200% 200%;
   animation: pass-card-ticket-bg 14s ease-in-out infinite;
+  min-height: clamp(220px, 22vh, 280px);
+}
+
+@media (min-width: 1280px) and (max-height: 900px) {
+  .pass-card-ticket__header {
+    min-height: 240px;
+  }
+}
+
+.pass-card-ticket__body {
+  padding-block: 1.25rem;
+}
+
+.pass-card-ticket__footer-cta {
+  transition: margin-top 150ms ease, padding-top 150ms ease;
+}
+
+@media (min-width: 1280px) and (max-height: 900px) {
+  .pass-card-ticket__body {
+    padding-block: 1rem;
+  }
+
+  .pass-card-ticket__footer-cta {
+    margin-top: 1.25rem;
+    padding-top: 0.75rem;
+  }
 }
 
 .pass-card-ticket[data-pass-type="day_pass"] .pass-card-ticket__header {

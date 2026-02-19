@@ -86,43 +86,6 @@ export default function PassSelectionPage() {
         setIsAllAccessModalOpen(false);
     };
 
-    // Invite-unlock: referral link for sharing
-    const [referralLink, setReferralLink] = useState<string | null>(null);
-    const [referralCopied, setReferralCopied] = useState(false);
-    useEffect(() => {
-        if (!user) return;
-        let cancelled = false;
-        (async () => {
-            try {
-                const token = await auth.currentUser?.getIdToken(true);
-                if (!token || cancelled) return;
-                const res = await fetch('/api/users/referral-code', {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (!res.ok || cancelled) return;
-                const data = await res.json();
-                if (data.referralCode) {
-                    const base =
-                        typeof window !== 'undefined'
-                            ? window.location.origin
-                            : (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'https://takshashila26.vercel.app')?.replace(/\/$/, '');
-                    setReferralLink(`${base}?ref=${data.referralCode}`);
-                }
-            } catch {
-                // Silently ignore
-            }
-        })();
-        return () => { cancelled = true; };
-    }, [user]);
-
-    const copyReferralLink = () => {
-        if (!referralLink) return;
-        navigator.clipboard.writeText(referralLink).then(() => {
-            setReferralCopied(true);
-            setTimeout(() => setReferralCopied(false), 2000);
-        });
-    };
-
     // Show loading while checking auth or waiting for redirect
     if (authLoading || !user || !userData || submitting) {
         return (
@@ -167,34 +130,9 @@ export default function PassSelectionPage() {
                     </section>
                 )}
 
-                {/* Invite 5 friends – referral link */}
-                {referralLink && (
-                    <section className="mb-12 p-4 sm:p-6 border border-blue-900/50 bg-blue-950/20 rounded-lg">
-                        <p className="text-sm font-medium text-white mb-2">
-                            Invite 5 friends who complete their profile to unlock Day Pass at ₹500
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-                            <input
-                                type="text"
-                                readOnly
-                                value={referralLink}
-                                className="flex-1 px-4 py-2 bg-[#0a0a0a] border border-neutral-700 rounded text-sm text-white font-mono truncate"
-                            />
-                            <button
-                                type="button"
-                                onClick={copyReferralLink}
-                                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded transition whitespace-nowrap"
-                            >
-                                {referralCopied ? 'Copied!' : 'Copy link'}
-                            </button>
-                        </div>
-                    </section>
-                )}
-
                 {/* Passes Grid */}
                 <RegistrationPassesGrid
                     onRegisterClick={handleRegisterClick}
-                    dayPassUnlocked={userData?.dayPassUnlocked}
                 />
 
                 {/* Already have a pass? */}

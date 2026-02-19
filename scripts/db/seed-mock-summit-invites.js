@@ -1,5 +1,5 @@
 /**
- * Seed Mock Global Summit invite codes in mockSummitInvites collection.
+ * Seed Mock Global Summit access codes in mockSummitAccessCodes collection.
  *
  * Schema: { code, maxUsage, usedCount, expiresAt, active, createdBy, createdAt }
  *
@@ -91,11 +91,11 @@ async function main() {
       createdBy,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     };
-    await db.collection('mockSummitInvites').doc(code).set(doc);
+    await db.collection('mockSummitAccessCodes').doc(code).set(doc);
     console.log(`  ✓ ${code} (max ${maxUsage} uses, expires ${expiresAt.toISOString().slice(0, 10)})`);
   }
 
-  console.log(`\nDone. Created ${CODES.length} invite code(s).`);
+  console.log(`\nDone. Created ${CODES.length} access code(s).`);
 }
 
 main().catch((e) => {

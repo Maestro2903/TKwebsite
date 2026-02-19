@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { userId, amount, passType, teamData, teamId, selectedDays, selectedEvents, inviteCode } = body;
+    const { userId, amount, passType, teamData, teamId, selectedDays, selectedEvents, mockSummitAccessCode } = body;
 
     if (decoded.uid !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -54,10 +54,7 @@ export async function POST(req: NextRequest) {
     if (passType === 'group_events') {
       expectedAmount = (body.teamMemberCount ?? 1) * ((validPass as { pricePerPerson?: number }).pricePerPerson ?? 250);
     } else if (passType === 'day_pass' && selectedDays && Array.isArray(selectedDays)) {
-      // Invite-unlock: fetch user to determine price (500 if unlocked, 600 otherwise)
-      const userDoc = await db.collection('users').doc(userId).get();
-      const dayPassUnlocked = userDoc.data()?.dayPassUnlocked === true;
-      const pricePerDay = dayPassUnlocked ? 500 : 600;
+      const pricePerDay = 500;
       const daysCount = selectedDays.length;
       expectedAmount = daysCount * pricePerDay;
     } else {
@@ -147,28 +144,28 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Mock Global Summit: invite-gated validation (day_pass only)
-    let mockSummitInviteCodeUsed: string | null = null;
+    // Mock Global Summit: access-code-gated validation (day_pass only)
+    let mockSummitAccessCodeUsed: string | null = null;
     if (passType === 'day_pass' && selectedEvents?.includes(MOCK_SUMMIT_EVENT_ID)) {
-      const inviteCodeTrimmed = typeof inviteCode === 'string' ? inviteCode.trim() : '';
-      if (!inviteCodeTrimmed) {
-        return NextResponse.json({ error: 'Invite code required for Mock Global Summit.' }, { status: 400 });
+      const accessCodeTrimmed = typeof mockSummitAccessCode === 'string' ? mockSummitAccessCode.trim() : '';
+      if (!accessCodeTrimmed) {
+        return NextResponse.json({ error: 'Access code required for Mock Global Summit.' }, { status: 400 });
       }
 
-      const inviteDoc = await db.collection('mockSummitInvites').doc(inviteCodeTrimmed).get();
-      if (!inviteDoc.exists) {
-        return NextResponse.json({ error: 'Invalid or expired invite code.' }, { status: 400 });
+      const accessDoc = await db.collection('mockSummitAccessCodes').doc(accessCodeTrimmed).get();
+      if (!accessDoc.exists) {
+        return NextResponse.json({ error: 'Invalid or expired access code.' }, { status: 400 });
       }
 
-      const inviteData = inviteDoc.data();
+      const accessData = accessDoc.data();
       const now = new Date();
-      const expiresAt = inviteData?.expiresAt?.toDate?.() ?? inviteData?.expiresAt;
+      const expiresAt = accessData?.expiresAt?.toDate?.() ?? accessData?.expiresAt;
       if (
-        !inviteData?.active ||
+        !accessData?.active ||
         (expiresAt && new Date(expiresAt) <= now) ||
-        (inviteData?.usedCount ?? 0) >= (inviteData?.maxUsage ?? 0)
+        (accessData?.usedCount ?? 0) >= (accessData?.maxUsage ?? 0)
       ) {
-        return NextResponse.json({ error: 'Invalid or expired invite code.' }, { status: 400 });
+        return NextResponse.json({ error: 'Invalid or expired access code.' }, { status: 400 });
       }
 
       // Event exclusivity: mock-global-summit cannot be combined with other events on same date
@@ -186,10 +183,10 @@ export async function POST(req: NextRequest) {
       }
 
       // Atomic increment usedCount
-      await db.collection('mockSummitInvites').doc(inviteCodeTrimmed).update({
+      await db.collection('mockSummitAccessCodes').doc(accessCodeTrimmed).update({
         usedCount: FieldValue.increment(1),
       });
-      mockSummitInviteCodeUsed = inviteCodeTrimmed;
+      mockSummitAccessCodeUsed = accessCodeTrimmed;
     }
 
     const appId =
@@ -299,9 +296,9 @@ export async function POST(req: NextRequest) {
       teamMemberCount: body.teamMemberCount || null,
       selectedDays: selectedDays || null,
       selectedEvents: selectedEvents || [],
-      ...(mockSummitInviteCodeUsed && {
+      ...(mockSummitAccessCodeUsed && {
         mockSummitSelected: true,
-        mockSummitInviteCode: mockSummitInviteCodeUsed,
+        mockSummitAccessCode: mockSummitAccessCodeUsed,
       }),
     });
 

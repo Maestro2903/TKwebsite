@@ -48,10 +48,9 @@ export default function DayPassModal({
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [step, setStep] = useState<'days' | 'events' | 'review'>('days');
-    const [mockSummitInviteCode, setMockSummitInviteCode] = useState('');
+    const [mockSummitAccessCode, setMockSummitAccessCode] = useState('');
 
-    // Invite-unlock: dynamic price per day (500 if unlocked, 600 otherwise)
-    const pricePerDay = userData?.dayPassUnlocked ? 500 : 600;
+    const pricePerDay = 500;
 
     // Lock global body scroll (and Lenis) when modal is open
     useLockBodyScroll(isOpen);
@@ -76,7 +75,7 @@ export default function DayPassModal({
         setSelectedDays([]);
         setSelectedEventIds([]);
         setAvailableEvents([]);
-        setMockSummitInviteCode('');
+        setMockSummitAccessCode('');
         setStep('days');
     }, [isOpen]);
 
@@ -134,7 +133,7 @@ export default function DayPassModal({
     const totalAmount = totalDays * pricePerDay;
 
     const hasMockSummitSelected = selectedEventIds.includes(MOCK_SUMMIT_EVENT_ID);
-    const canInitiatePayment = !hasMockSummitSelected || mockSummitInviteCode.trim().length > 0;
+    const canInitiatePayment = !hasMockSummitSelected || mockSummitAccessCode.trim().length > 0;
 
     // Toggle day selection
     const toggleDay = useCallback((dayId: string) => {
@@ -211,7 +210,7 @@ export default function DayPassModal({
                     amount: totalAmount,
                     selectedDays: selectedDates,
                     selectedEvents: selectedEventIds,
-                    ...(hasMockSummitSelected && mockSummitInviteCode.trim() && { inviteCode: mockSummitInviteCode.trim() }),
+                    ...(hasMockSummitSelected && mockSummitAccessCode.trim() && { mockSummitAccessCode: mockSummitAccessCode.trim() }),
                     teamData: {
                         name,
                         email: userData.email ?? email,
@@ -245,14 +244,14 @@ export default function DayPassModal({
         } finally {
             setSubmitting(false);
         }
-    }, [user, userData, selectedDays, totalAmount, selectedEventIds, hasMockSummitSelected, mockSummitInviteCode, onCloseAction]);
+    }, [user, userData, selectedDays, totalAmount, selectedEventIds, hasMockSummitSelected, mockSummitAccessCode, onCloseAction]);
 
     if (!isOpen) return null;
 
     return (
         <div
-            ref={overlayRef}
-            className="modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+        ref={overlayRef}
+        className="modal-overlay fixed inset-0 z-[2000] flex items-start justify-center pt-[calc(var(--nav-height)+1rem)] bg-black/90 p-4 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-labelledby="day-pass-title"
@@ -261,13 +260,13 @@ export default function DayPassModal({
             onTouchMove={(e) => e.stopPropagation()}
         >
             <div
-                className="modal-content-scroll w-full max-w-lg max-h-[90vh] flex flex-col overflow-y-auto bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative group"
+                className="modal-content-scroll w-full max-w-lg max-h-[calc(100dvh-var(--nav-height)-2rem)] flex flex-col overflow-y-auto bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative group rounded-none sm:rounded-xl"
                 onClick={(e) => e.stopPropagation()}
                 onWheel={(e) => e.stopPropagation()}
                 onTouchMove={(e) => e.stopPropagation()}
             >
                 {/* --- Top + Header --- */}
-                <div className="sticky top-0 z-20 bg-[#151515] border-b border-neutral-800">
+                <div className="sticky top-0 z-30 bg-[#151515] border-b border-neutral-800">
                     <div className="h-6 w-full flex items-center justify-between px-2">
                         <div className="flex gap-2 text-[8px] tracking-[0.2em] text-neutral-500 uppercase font-bold font-orbitron">
                             <span>SYS.DAY.01</span>
@@ -541,22 +540,22 @@ export default function DayPassModal({
                                     </div>
                                 </div>
 
-                                {/* Mock Global Summit Invite Code - required when event is selected */}
+                                {/* Mock Global Summit Access Code - required when event is selected */}
                                 {hasMockSummitSelected && (
                                     <div className="p-4 bg-[#151515] border border-neutral-800 space-y-2">
-                                        <label htmlFor="mock-summit-invite" className="block text-[10px] text-neutral-500 font-orbitron uppercase">
-                                            Mock Global Summit Invite Code *
+                                        <label htmlFor="mock-summit-access" className="block text-[10px] text-neutral-500 font-orbitron uppercase">
+                                            Mock Global Summit Access Code *
                                         </label>
                                         <input
-                                            id="mock-summit-invite"
+                                            id="mock-summit-access"
                                             type="text"
-                                            value={mockSummitInviteCode}
-                                            onChange={(e) => setMockSummitInviteCode(e.target.value)}
-                                            placeholder="Enter invite code"
+                                            value={mockSummitAccessCode}
+                                            onChange={(e) => setMockSummitAccessCode(e.target.value)}
+                                            placeholder="Enter access code"
                                             className="w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-700 text-white font-mono text-sm placeholder:text-neutral-600 focus:outline-none focus:border-blue-500"
                                         />
                                         <p className="text-[10px] text-neutral-500 font-mono">
-                                            This event requires a valid invite code.
+                                            This event requires a valid access code.
                                         </p>
                                     </div>
                                 )}
