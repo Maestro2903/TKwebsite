@@ -36,7 +36,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     fullDescription:
       'Own the stage, lock into the beat, and pull the crowd into your story. Every move should spark a reaction—sharp counts, smooth transitions, and powerful formations that keep the audience hooked. Feel the rhythm, play with the energy, and dance with the crowd, not just for them.',
     image: '/assets/events/choreo-showcase.webp',
-    minMembers: 1,
+    minMembers: 3,
     maxMembers: 8,
   },
   {
@@ -136,7 +136,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     fullDescription:
       'Every frame is your playground, and every cut is a flex. Twist a simple idea into a short film bursting with creativity, emotions, and cinematic style. Play with visuals, set the vibe, and make every second on screen count. Ready to roll the camera and steal the spotlight?',
     image: '/FilmFinatics.webp',
-    minMembers: 1,
+    minMembers: 2,
     maxMembers: 20,
   },
   {

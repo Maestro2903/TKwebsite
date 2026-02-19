@@ -160,7 +160,7 @@ export default function GroupRegistrationModal({
             }
         }
         if (step === 'members') {
-            const min = selectedEvent?.minMembers || 1;
+            const min = Math.max(selectedEvent?.minMembers || 2, 2);
             const max = selectedEvent?.maxMembers;
 
             if (totalMembers < min) {
