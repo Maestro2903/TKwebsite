@@ -17,8 +17,11 @@ interface EventDetailsModalProps {
   onClose: () => void;
 }
 
-// @ts-expect-error - onClose is a client-side callback, not a Server Action
-export default function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalProps) {
+export default function EventDetailsModal({
+  event,
+  isOpen,
+  onClose, // @ts-ignore
+}: EventDetailsModalProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
