@@ -22,7 +22,7 @@ function EventsGrid({ events, category }: EventsGridProps) {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const { gsap, ScrollTrigger } = gsapModules;
-    
+
     // Ensure ScrollTrigger is registered before using it
     if (!ScrollTrigger) {
       console.warn('ScrollTrigger not available, skipping animation');
@@ -45,7 +45,7 @@ function EventsGrid({ events, category }: EventsGridProps) {
           scrollTrigger: {
             trigger: gridRef.current,
             start: 'top 80%',
-            toggleActions: 'play none none reverse',
+            once: true,
           },
         }
       );

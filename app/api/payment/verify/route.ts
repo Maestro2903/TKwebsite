@@ -39,39 +39,56 @@ export async function POST(req: NextRequest) {
     console.log(`[Verify] Step 2: Cashfree credentials found (appId: ${appId?.substring(0, 8)}...)`);
 
 
-    console.log(`[Verify] Step 3: Fetching order from Cashfree: ${CASHFREE_BASE}/orders/${orderId}`);
-    const response = await fetch(`${CASHFREE_BASE}/orders/${orderId}`, {
-      headers: {
-        'x-client-id': appId,
-        'x-client-secret': secret,
-        'x-api-version': '2025-01-01',
-      },
-    });
+    // Poll Cashfree order status with retries (handles timing gap after redirect)
+    const MAX_POLL_ATTEMPTS = 5;
+    const POLL_DELAY_MS = 2000;
+    let order: any = null;
+    let lastResponse: Response | null = null;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[Verify] ERROR: Cashfree API returned ${response.status}`, errorText);
-      return NextResponse.json(
-        { error: `Cashfree API error: ${response.status}`, details: errorText },
-        { status: 500 }
-      );
+    for (let attempt = 1; attempt <= MAX_POLL_ATTEMPTS; attempt++) {
+      console.log(`[Verify] Step 3: Fetching order from Cashfree (attempt ${attempt}/${MAX_POLL_ATTEMPTS}): ${CASHFREE_BASE}/orders/${orderId}`);
+      lastResponse = await fetch(`${CASHFREE_BASE}/orders/${orderId}`, {
+        headers: {
+          'x-client-id': appId,
+          'x-client-secret': secret,
+          'x-api-version': '2025-01-01',
+        },
+      });
+
+      if (!lastResponse.ok) {
+        const errorText = await lastResponse.text();
+        console.error(`[Verify] ERROR: Cashfree API returned ${lastResponse.status}`, errorText);
+        return NextResponse.json(
+          { error: `Cashfree API error: ${lastResponse.status}`, details: errorText },
+          { status: 500 }
+        );
+      }
+
+      order = await lastResponse.json();
+      console.log(`[Verify] Step 4: Cashfree order status: ${order.order_status}, Amount: ${order.order_amount} (attempt ${attempt})`);
+
+      if (order.order_status === 'PAID') {
+        console.log(`[Verify] ✅ Payment confirmed as PAID on attempt ${attempt}`);
+        break;
+      }
+
+      if (attempt < MAX_POLL_ATTEMPTS) {
+        console.log(`[Verify] Order not PAID yet (${order.order_status}), waiting ${POLL_DELAY_MS}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, POLL_DELAY_MS));
+      }
     }
 
-    const order = await response.json();
-    console.log(`[Verify] Step 4: Cashfree order retrieved. Status: ${order.order_status}, Amount: ${order.order_amount}`);
-
     if (order.order_status !== 'PAID') {
-      console.warn(`[Verify] WARNING: Order not paid. Current status: ${order.order_status}`);
+      console.warn(`[Verify] WARNING: Order still not paid after ${MAX_POLL_ATTEMPTS} attempts. Final status: ${order.order_status}`);
       return NextResponse.json(
         {
           success: false,
-          error: `Payment status is ${order.order_status}. Please complete payment in the Cashfree window.`,
+          error: `Payment status is ${order.order_status}. Please wait a moment and retry verification.`,
           status: order.order_status
         },
         { status: 400 }
       );
     }
-    console.log('[Verify] ✅ Payment confirmed as PAID in Cashfree');
 
     let paymentsSnapshot;
     let paymentDoc;

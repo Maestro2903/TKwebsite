@@ -11,10 +11,15 @@ function PaymentCallbackContent() {
   const { user, loading, signIn } = useAuth();
   const [status, setStatus] = useState<'verifying' | 'success' | 'failed'>('verifying');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
-  const verifyPayment = useCallback(async (orderId: string) => {
-    console.log(`Starting verification for order: ${orderId}`);
+  const MAX_AUTO_RETRIES = 3;
+  const AUTO_RETRY_DELAY_MS = 3000;
+
+  const verifyPayment = useCallback(async (orderId: string, attempt = 1) => {
+    console.log(`Starting verification for order: ${orderId} (attempt ${attempt})`);
     setStatus('verifying');
+    setRetryCount(attempt);
     setErrorMsg(null);
 
     try {
@@ -33,12 +38,30 @@ function PaymentCallbackContent() {
         setTimeout(() => router.push('/register/my-pass'), 3000);
       } else {
         console.error('Verification failed:', result.error);
-        setErrorMsg(result.error || 'Verification failed');
+
+        // Auto-retry if under max attempts
+        if (attempt < MAX_AUTO_RETRIES) {
+          console.log(`Auto-retrying in ${AUTO_RETRY_DELAY_MS}ms (attempt ${attempt + 1}/${MAX_AUTO_RETRIES})...`);
+          setErrorMsg(`Verifying payment... (attempt ${attempt + 1}/${MAX_AUTO_RETRIES})`);
+          await new Promise(resolve => setTimeout(resolve, AUTO_RETRY_DELAY_MS));
+          return verifyPayment(orderId, attempt + 1);
+        }
+
+        setErrorMsg(result.error || 'Verification failed after multiple attempts');
         setStatus('failed');
       }
     } catch (err) {
       console.error('Network error during verification:', err);
-      setErrorMsg('Network error. Please check your connection.');
+
+      // Auto-retry on network errors too
+      if (attempt < MAX_AUTO_RETRIES) {
+        console.log(`Network error, auto-retrying in ${AUTO_RETRY_DELAY_MS}ms...`);
+        setErrorMsg(`Network issue, retrying... (attempt ${attempt + 1}/${MAX_AUTO_RETRIES})`);
+        await new Promise(resolve => setTimeout(resolve, AUTO_RETRY_DELAY_MS));
+        return verifyPayment(orderId, attempt + 1);
+      }
+
+      setErrorMsg('Network error. Please check your connection and retry.');
       setStatus('failed');
     }
   }, [router]);
