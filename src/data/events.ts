@@ -12,6 +12,8 @@ export type EventItem = {
   image: string;
   minMembers?: number;
   maxMembers?: number;
+  /** If set, the REGISTER button redirects to this external URL instead of /register */
+  externalUrl?: string;
 };
 
 const PLACEHOLDER_TECH = '/images/event/tech/tech%20quest.webp';
@@ -267,5 +269,13 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     description:
       'A 5-hour immersive Capture The Flag (CTF) competition designed to challenge participants beyond traditional problem-solving with unconventional twists and layered challenges. Participants explore multiple cybersecurity domains including Reverse Engineering, Forensics, Web Exploitation, and Open Source Intelligence (OSINT).',
     image: TECH.upsideDownCtf,
+  },
+  {
+    id: 'speedathon',
+    name: 'SPEEDATHON',
+    description:
+      'A fast-paced competitive coding challenge where speed and precision are key. Race against the clock and other participants to solve problems and prove your coding prowess.',
+    image: PLACEHOLDER_TECH,
+    externalUrl: 'https://unstop.com/o/GuLmFfw?lb=ku2oIqpo&utm_medium=Share&utm_source=asymmclu9437&utm_campaign=Online_coding_challenge',
   },
 ];

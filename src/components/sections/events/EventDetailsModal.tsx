@@ -205,18 +205,35 @@ export default function EventDetailsModal({
 
             {/* CTAs */}
             <div className="mt-6 pt-4 border-t border-[var(--editorial-gray-dark,#333)] flex flex-col sm:flex-row gap-2">
-              <Link
-                href={registerHref}
-                className={cn(
-                  'flex-1 py-3 px-4 text-center',
-                  'font-editorial text-xs font-semibold uppercase tracking-wider',
-                  'bg-[var(--editorial-blue,#0047FF)]/50 text-white',
-                  'transition-colors duration-200 hover:bg-[var(--editorial-blue,#0047FF)]',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--editorial-blue,#0047FF)] focus-visible:ring-offset-2 focus-visible:ring-offset-black'
-                )}
-              >
-                REGISTER
-              </Link>
+              {event.externalUrl ? (
+                <a
+                  href={event.externalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    'flex-1 py-3 px-4 text-center',
+                    'font-editorial text-xs font-semibold uppercase tracking-wider',
+                    'bg-[var(--editorial-blue,#0047FF)]/50 text-white',
+                    'transition-colors duration-200 hover:bg-[var(--editorial-blue,#0047FF)]',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--editorial-blue,#0047FF)] focus-visible:ring-offset-2 focus-visible:ring-offset-black'
+                  )}
+                >
+                  REGISTER
+                </a>
+              ) : (
+                <Link
+                  href={registerHref}
+                  className={cn(
+                    'flex-1 py-3 px-4 text-center',
+                    'font-editorial text-xs font-semibold uppercase tracking-wider',
+                    'bg-[var(--editorial-blue,#0047FF)]/50 text-white',
+                    'transition-colors duration-200 hover:bg-[var(--editorial-blue,#0047FF)]',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--editorial-blue,#0047FF)] focus-visible:ring-offset-2 focus-visible:ring-offset-black'
+                  )}
+                >
+                  REGISTER
+                </Link>
+              )}
               <button
                 type="button"
                 onClick={handleClose}

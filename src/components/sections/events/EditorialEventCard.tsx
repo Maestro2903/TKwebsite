@@ -29,7 +29,7 @@ const buttonBaseStyles = cn(
 
 function EditorialEventCard({ event, index = 0 }: EditorialEventCardProps) {
   const [showModal, setShowModal] = useState(false);
-  const { name, image, description } = event;
+  const { name, image, description, externalUrl } = event;
   const indexStr = String(index + 1).padStart(3, '0');
 
   return (
@@ -89,17 +89,33 @@ function EditorialEventCard({ event, index = 0 }: EditorialEventCardProps) {
           className="flex gap-3 mt-auto pt-3 border-t border-[var(--editorial-gray,#333)]"
           onClick={(e) => e.stopPropagation()}
         >
-          <Link
-            href={REGISTER_URL}
-            className={cn(
-              buttonBaseStyles,
-              '!bg-[var(--editorial-blue,#0047FF)] text-white opacity-50',
-              'transition-opacity duration-200 hover:opacity-100'
-            )}
-            style={{ backgroundColor: 'var(--editorial-blue, #0047FF)' }}
-          >
-            REGISTER
-          </Link>
+          {externalUrl ? (
+            <a
+              href={externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                buttonBaseStyles,
+                '!bg-[var(--editorial-blue,#0047FF)] text-white opacity-50',
+                'transition-opacity duration-200 hover:opacity-100'
+              )}
+              style={{ backgroundColor: 'var(--editorial-blue, #0047FF)' }}
+            >
+              REGISTER
+            </a>
+          ) : (
+            <Link
+              href={REGISTER_URL}
+              className={cn(
+                buttonBaseStyles,
+                '!bg-[var(--editorial-blue,#0047FF)] text-white opacity-50',
+                'transition-opacity duration-200 hover:opacity-100'
+              )}
+              style={{ backgroundColor: 'var(--editorial-blue, #0047FF)' }}
+            >
+              REGISTER
+            </Link>
+          )}
           <button
             type="button"
             onClick={() => setShowModal(true)}
