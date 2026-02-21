@@ -84,6 +84,22 @@ function EditorialEventCard({ event, index = 0 }: EditorialEventCardProps) {
           </p>
         )}
 
+        {/* Event Meta - Venue & Time */}
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mb-4 text-[11px] font-editorial uppercase tracking-wider text-[var(--editorial-blue,#0047FF)]">
+          {event.venue && (
+            <div className="flex items-center gap-1">
+              <span className="opacity-60 text-white/50">LOC:</span>
+              <span>{event.venue}</span>
+            </div>
+          )}
+          {event.startTime && (
+            <div className="flex items-center gap-1">
+              <span className="opacity-60 text-white/50">TIME:</span>
+              <span>{event.startTime}</span>
+            </div>
+          )}
+        </div>
+
         {/* CTA buttons - equal size, spacing, and font */}
         <div
           className="flex gap-3 mt-auto pt-3 border-t border-[var(--editorial-gray,#333)]"

@@ -194,14 +194,54 @@ export default function EventDetailsModal({
               ABOUT
             </SectionLabel>
             {description ? (
-              <p className="text-[var(--editorial-gray,#E5E5E5)] text-sm leading-relaxed whitespace-pre-line">
+              <p className="text-[var(--editorial-gray,#E5E5E5)] text-sm leading-relaxed whitespace-pre-line mb-6">
                 {description}
               </p>
             ) : (
-              <p className="text-[var(--editorial-gray-muted,#666)] text-sm italic">
+              <p className="text-[var(--editorial-gray-muted,#666)] text-sm italic mb-6">
                 No description available.
               </p>
             )}
+
+            {/* Structured Details */}
+            <div className="grid grid-cols-2 gap-4 text-xs font-editorial uppercase tracking-wider mb-6">
+              {event.date && (
+                <div className="flex flex-col gap-1">
+                  <span className="text-white/40 text-[9px]">DATE</span>
+                  <span className="text-white">{event.date}</span>
+                </div>
+              )}
+              {event.startTime && (
+                <div className="flex flex-col gap-1">
+                  <span className="text-white/40 text-[9px]">TIMING</span>
+                  <span className="text-white">
+                    {event.startTime} {event.endTime ? `— ${event.endTime}` : ''}
+                  </span>
+                </div>
+              )}
+              {event.venue && (
+                <div className="flex flex-col gap-1">
+                  <span className="text-white/40 text-[9px]">LOCATION</span>
+                  <span className="text-white">{event.venue}</span>
+                </div>
+              )}
+              {event.prizePool !== undefined && event.prizePool > 0 && (
+                <div className="flex flex-col gap-1">
+                  <span className="text-[var(--editorial-blue,#0047FF)] text-[9px]">PRIZE POOL</span>
+                  <span className="text-[var(--editorial-blue,#0047FF)] font-bold">
+                    ₹{event.prizePool.toLocaleString()}
+                  </span>
+                </div>
+              )}
+              {event.minMembers && (
+                <div className="flex flex-col gap-1">
+                  <span className="text-white/40 text-[9px]">TEAM SIZE</span>
+                  <span className="text-white">
+                    {event.minMembers} {event.maxMembers ? `— ${event.maxMembers}` : 'Members'}
+                  </span>
+                </div>
+              )}
+            </div>
 
             {/* CTAs */}
             <div className="mt-6 pt-4 border-t border-[var(--editorial-gray-dark,#333)] flex flex-col sm:flex-row gap-2">
