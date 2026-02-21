@@ -73,13 +73,12 @@ const createdBy = process.env.MOCK_SUMMIT_CREATED_BY || 'seed-script';
 
 // Example codes – edit as needed
 const CODES = [
-  { code: 'MOCKSUMMIT2026', maxUsage: 50 },
-  { code: 'SUMMIT-VIP-01', maxUsage: 10 },
+  { code: 'MOCKSUMMIT2026', maxUsage: 45 },
 ];
 
 async function main() {
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000); // 90 days
+  const expiresAt = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 year
 
   for (const { code, maxUsage } of CODES) {
     const doc = {

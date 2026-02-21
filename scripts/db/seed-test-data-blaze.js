@@ -90,7 +90,7 @@ const sampleEvents = [
             date: '2026-02-26',
             venue: 'Partha',
             prizePool: 35000,
-            allowedPassTypes: ['group_events', 'day_pass', 'proshow', 'sana_concert'],
+            allowedPassTypes: ['group_events'],
             isActive: true,
             description: 'Test event - Group dance battle',
             image: '/images/event/nontech/CHOREO%20SHOWCASE.webp',
