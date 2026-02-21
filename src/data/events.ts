@@ -76,7 +76,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'A one-on-one freestyle dance battle where raw moves, attitude, and instinct decide who owns the circle.',
     fullDescription:
       'Hear the beat calling? Step forward. Got a move that hits harder than words? Prove it. This is a one-on-one freestyle battle where every step is a statement, and every pause is a challenge. When the circle closes in, will you rise—or get outdanced?',
-    image: '/images/event/nontech/CYPHER.webp',
+    image: '/images/event/nontech/cypher.webp',
     venue: 'OUTER OAT',
     startTime: '11:00 AM',
     endTime: '4:00 PM',
@@ -115,7 +115,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'SOLO SINGING',
     description:
       'Capture hearts with your voice as emotion, control, and melody blend into a soul-stirring solo performance.',
-    image: '/assets/events/solo-singing.webp',
+    image: '/images/event/nontech/solo-singing.webp',
     venue: 'KAVERI',
     startTime: '10:00 AM',
     endTime: '1:00 PM',
@@ -368,7 +368,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     name: 'BORDERLAND PROTOCOL',
     description:
       'A card-based tech survival event inspired by Alice in Borderland, where card suits represent difficulty (Clubs, Diamonds, Hearts, Spades). Teams face multi-round challenges, and survival depends on performance, strategy, and teamwork, with poor performance leading to eliminations.',
-    image: PLACEHOLDER_TECH,
+    image: '/images/event/tech/borderland.webp',
     venue: 'ILP Lab',
     startTime: '9:00 AM',
     date: '2026-02-26',
@@ -433,7 +433,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     name: 'PROMPT PIXEL',
     description:
       'A fun, hands-on AI event where people learn how to use generative AI to create and interpret images. Teams work together to turn ideas and visuals into good AI prompts, fostering skills in communication and creative thinking.',
-    image: TECH.promptPixel,
+    image: '/images/event/tech/prompt-pixel.webp',
     venue: 'AI Lab',
     startTime: '1:00 PM',
     date: '2026-02-27',
@@ -454,7 +454,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     id: 'digital-detective',
     name: 'DIGITAL DETECTIVE',
     description: 'Follow the digital breadcrumbs to solve complex cyber mysteries.',
-    image: PLACEHOLDER_TECH,
+    image: '/images/event/tech/digital-detective.webp',
     venue: 'CIT Lab (CS)',
     startTime: '10:00 AM',
     date: '2026-02-27',
@@ -516,7 +516,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     name: 'SPEEDATHON',
     description:
       'A fast-paced competitive coding challenge where speed and precision are key. Race against the clock and other participants to solve problems and prove your coding prowess.',
-    image: PLACEHOLDER_TECH,
+    image: '/images/event/tech/speedathon.webp',
     venue: 'Partha',
     startTime: '8:00 AM',
     endTime: '3:00 PM',
@@ -529,7 +529,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     name: 'CHAIN OF LIES',
     description:
       'A high-intensity strategy and observation game built for sharp minds and fast reactions, inspired by an Among Us-style game with a blockchain twist. Validators must scan and analyze revealed crypto-data to catch the change secretly altered by the Tamperer before time runs out.',
-    image: TECH.chainOfLies,
+    image: '/images/event/tech/chain-of-lies.webp',
     venue: 'CIT Lab',
     startTime: '1:00 PM',
     date: '2026-02-28',
@@ -560,7 +560,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     id: 'soc-investigation',
     name: 'SOC INVESTIGATION',
     description: 'Real-world security operations center simulation and incident response.',
-    image: PLACEHOLDER_TECH,
+    image: '/images/event/tech/soc-investigation.webp',
     venue: 'Python Lab',
     startTime: '10:30 AM',
     date: '2026-02-28',
