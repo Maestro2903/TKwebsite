@@ -132,6 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email: email,
       college: data.college,
       phone: data.phone,
+      idCardUrl: data.idCardUrl,
       createdAt: serverTimestamp(),
     };
     await setDoc(userRef, profile, { merge: true });

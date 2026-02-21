@@ -1,6 +1,7 @@
 import { type FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -23,6 +24,7 @@ const app = getFirebaseApp();
 
 export const auth = app ? getAuth(app) : ({} as Auth);
 export const db = app ? getFirestore(app) : ({} as Firestore);
+export const storage = app ? getStorage(app) : ({} as FirebaseStorage);
 
 /**
  * Safely get the Auth instance. Returns null if not initialized (e.g. on server or no config).
@@ -36,6 +38,13 @@ export function getAuthSafe(): Auth | null {
  */
 export function getDbSafe(): Firestore | null {
   return app ? db : null;
+}
+
+/**
+ * Safely get the Storage instance. Returns null if not initialized.
+ */
+export function getStorageSafe(): FirebaseStorage | null {
+  return app ? storage : null;
 }
 
 /**

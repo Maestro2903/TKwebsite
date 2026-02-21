@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type PassType = 'test_pass' | 'day_pass' | 'group_events' | 'proshow' | 'sana_concert';
+export type PassType = 'day_pass' | 'group_events' | 'proshow' | 'sana_concert';
 
 export type PaymentStatus = 'pending' | 'success' | 'failed';
 
@@ -41,6 +41,7 @@ export interface UserProfile {
   email: string | null;
   college: string;
   phone: string;
+  idCardUrl: string;
   isOrganizer?: boolean;
   createdAt: Timestamp | { toDate: () => Date };
   updatedAt?: Timestamp | Date;
@@ -50,6 +51,7 @@ export interface UserProfileUpdate {
   name: string;
   college: string;
   phone: string;
+  idCardUrl: string;
 }
 
 /** Tracking of orders created via Cashfree in payments/{orderId} */

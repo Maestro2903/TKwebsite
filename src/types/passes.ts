@@ -3,7 +3,6 @@
  * Used by register page, create-order, and verify API.
  */
 export const PASS_TYPES = {
-  TEST_PASS: { id: 'test_pass', name: 'Test Pass', price: 1 },
   DAY_PASS: { id: 'day_pass', name: 'Day Pass', price: 500 },
   GROUP_EVENTS: { id: 'group_events', name: 'Group Events', pricePerPerson: 250 },
   PROSHOW: { id: 'proshow', name: 'Day 1 Proshow + Day 3 Proshow', price: 1500 },
