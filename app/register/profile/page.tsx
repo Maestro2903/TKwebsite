@@ -6,8 +6,7 @@ import { useState, useEffect } from 'react';
 import Footer from '@/components/layout/Footer';
 import Navigation from '@/components/layout/Navigation';
 import { AwardBadge } from '@/components/decorative/AwardBadge';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/lib/firebase/clientApp';
+import { db } from '@/lib/firebase/clientApp';
 import { Upload, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -40,11 +39,52 @@ export default function ProfilePage() {
     }
   }, [user, userData, authLoading, router]);
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Max dimensions (e.g., 1200px)
+          const MAX_DIM = 1200;
+          if (width > height) {
+            if (width > MAX_DIM) {
+              height *= MAX_DIM / width;
+              width = MAX_DIM;
+            }
+          } else {
+            if (height > MAX_DIM) {
+              width *= MAX_DIM / height;
+              height = MAX_DIM;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Compress with quality 0.7
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(dataUrl);
+        };
+        img.onerror = (e) => reject(e);
+      };
+      reader.onerror = (e) => reject(e);
+    });
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError("File size must be less than 5MB");
+      if (file.size > 2 * 1024 * 1024) {
+        setError("File size must be less than 2MB");
         return;
       }
       if (!['image/jpeg', 'image/png', 'image/webp', 'application/pdf'].includes(file.type)) {
@@ -72,16 +112,35 @@ export default function ProfilePage() {
     try {
       if (!user) throw new Error("User not found");
 
-      // 1. Upload file to Storage
-      const storageRef = ref(storage, `users/${user.uid}/id_card`);
-      const snapshot = await uploadBytes(storageRef, idCardFile);
-      const idCardUrl = await getDownloadURL(snapshot.ref);
+      // 1. Process image locally (Compress & Base64)
+      setUploadProgress(20);
+      let imageData = "";
 
-      // 2. Update Firestore profile
+      if (idCardFile.type.startsWith('image/')) {
+        imageData = await compressImage(idCardFile);
+      } else {
+        // For PDFs, just use Base64
+        imageData = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(idCardFile);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (e) => reject(e);
+        });
+      }
+      setUploadProgress(60);
+
+      // Verify size (Firestore doc limit is 1MB)
+      // Base64 is ~33% larger than binary
+      if (imageData.length > 800000) { // ~800KB limit
+        throw new Error("File is too large even after compression. Please try a smaller image.");
+      }
+
+      // 2. Update Firestore profile directly
       await updateUserProfile({
         ...formData,
-        idCardUrl,
+        idCardUrl: imageData, // Storing base64 string
       });
+      setUploadProgress(100);
 
       router.push('/register/pass');
     } catch (error: any) {
@@ -313,7 +372,7 @@ export default function ProfilePage() {
                       ) : 'Click or Drag to Upload'}
                     </p>
                     <p className="text-[0.55rem] uppercase tracking-wider text-white/30 font-medium">
-                      JPG, PNG, WEBP or PDF (MAX 5MB)
+                      JPG, PNG, WEBP or PDF (MAX 2MB)
                     </p>
                   </div>
                 </div>
@@ -329,8 +388,19 @@ export default function ProfilePage() {
 
             <div className="flex justify-center pt-4">
               {isLoading ? (
-                <div className="flex justify-center items-center h-[54px]">
-                  <div className="reg-spinner w-5 h-5 border-2 border-white/30 border-t-white" />
+                <div className="w-full flex flex-col items-center gap-4">
+                  <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                    <div
+                      className="h-full bg-blue-500 transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="reg-spinner w-4 h-4 border-2 border-white/30 border-t-white" />
+                    <span className="text-[0.6rem] font-bold uppercase tracking-widest text-blue-400">
+                      {uploadProgress < 100 ? "Processing..." : 'Finalizing Profile...'}
+                    </span>
+                  </div>
                 </div>
               ) : (
                 <button
