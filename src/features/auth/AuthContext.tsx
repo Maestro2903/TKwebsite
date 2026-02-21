@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import type { User } from 'firebase/auth';
@@ -31,10 +32,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userData, setUserData] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch user profile from Firestore
+  // Track which UID we last fetched to avoid redundant Firestore reads
+  const lastFetchedUid = useRef<string | null>(null);
+
+  // Fetch user profile from Firestore (only when UID changes)
   const fetchUserProfile = useCallback(async (u: User) => {
+    // Skip if we already fetched for this UID
+    if (lastFetchedUid.current === u.uid && userData) {
+      return;
+    }
     try {
       const userDoc = await getDoc(doc(db, 'users', u.uid));
+      lastFetchedUid.current = u.uid;
       if (userDoc.exists()) {
         setUserData(userDoc.data() as UserProfile);
       } else {
@@ -44,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error fetching user profile:', err);
       setUserData(null);
     }
-  }, []);
+  }, [userData]);
 
   useEffect(() => {
     const authInstance = getAuthSafe();
@@ -80,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await fetchUserProfile(u);
         } else {
           setUserData(null);
+          lastFetchedUid.current = null;
         }
         setLoading(false);
       });

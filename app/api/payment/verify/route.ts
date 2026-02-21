@@ -5,6 +5,7 @@ import { getAdminFirestore } from '@/lib/firebase/adminApp';
 import { createQRPayload } from '@/features/passes/qrService';
 import { generatePassPDFBuffer } from '@/features/passes/pdfGenerator.server';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
+import { getCachedEventsByIds } from '@/lib/cache/eventsCache';
 
 const CASHFREE_BASE =
   process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production'
@@ -144,13 +145,8 @@ export async function POST(req: NextRequest) {
 
     if (selectedEvents.length > 0) {
       try {
-        const eventDocs = await Promise.all(
-          selectedEvents.map((eventId: string) => db.collection('events').doc(eventId).get())
-        );
-
-        const events = eventDocs
-          .filter(doc => doc.exists)
-          .map(doc => doc.data());
+        // Use cached events (0 Firestore reads)
+        const events = await getCachedEventsByIds(selectedEvents);
 
         hasTechEvents = events.some(e => e?.category === 'technical');
         hasNonTechEvents = events.some(e => e?.category === 'non_technical');

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminFirestore } from '@/lib/firebase/adminApp';
-import type { Event } from '@/lib/db/firestoreTypes';
+import { getCachedEvents } from '@/lib/cache/eventsCache';
 
 /**
  * GET /api/events
@@ -11,68 +10,33 @@ import type { Event } from '@/lib/db/firestoreTypes';
  * - category: Filter by category ("technical" | "non_technical")
  * - passType: Filter by allowed pass types
  * 
- * Returns all active events matching the criteria
+ * Returns all active events matching the criteria.
+ * Uses server-side in-memory cache (5-min TTL) to minimise Firestore reads.
  */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const date = searchParams.get('date');
-    const type = searchParams.get('type');
-    const category = searchParams.get('category');
-    const passType = searchParams.get('passType');
+    const date = searchParams.get('date') || undefined;
+    const type = searchParams.get('type') || undefined;
+    const category = searchParams.get('category') || undefined;
+    const passType = searchParams.get('passType') || undefined;
 
-    const db = getAdminFirestore();
-    let query = db.collection('events').where('isActive', '==', true);
+    const events = await getCachedEvents({ date, type, category, passType });
 
-    // Apply filters
-    if (date) {
-      query = query.where('date', '==', date);
-    }
-    if (type) {
-      query = query.where('type', '==', type);
-    }
-    if (category) {
-      query = query.where('category', '==', category);
-    }
-
-    const snapshot = await query.get();
-    
-    let events = snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        // Convert Firestore Timestamps to ISO strings for JSON serialization
-        createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
-        updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt,
-      } as Event;
-    });
-
-    // Filter by allowedPassTypes if provided (array_contains not available in all Firestore SDKs)
-    if (passType) {
-      events = events.filter(event => 
-        event.allowedPassTypes && event.allowedPassTypes.includes(passType as any)
-      );
-    }
-
-    // Sort by date and name for consistent ordering
-    events.sort((a, b) => {
-      const dateCompare = a.date.localeCompare(b.date);
-      if (dateCompare !== 0) return dateCompare;
-      return a.name.localeCompare(b.name);
-    });
-
-    return NextResponse.json({ 
-      success: true, 
-      events,
-      count: events.length 
-    });
+    return NextResponse.json(
+      { success: true, events, count: events.length },
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=300, stale-while-revalidate=60',
+        },
+      }
+    );
   } catch (error: unknown) {
     console.error('Events API error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch events' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch events'
       },
       { status: 500 }
     );

@@ -3,6 +3,7 @@ import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/adminApp';
 import { FieldValue } from 'firebase-admin/firestore';
 import { PASS_TYPES } from '@/types/passes';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
+import { getCachedEventsByIds } from '@/lib/cache/eventsCache';
 
 const MOCK_SUMMIT_EVENT_ID = 'mock-global-summit';
 
@@ -70,14 +71,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Event selection is required' }, { status: 400 });
     }
 
-    // Fetch selected events from Firestore to validate them
-    const eventDocs = await Promise.all(
-      selectedEvents.map((eventId: string) => db.collection('events').doc(eventId).get())
-    );
-
-    const events = eventDocs
-      .filter(doc => doc.exists)
-      .map(doc => ({ id: doc.id, ...doc.data() }));
+    // Fetch selected events from cache (0 Firestore reads)
+    const events = (await getCachedEventsByIds(selectedEvents)).map(e => ({ ...e }));
 
     if (events.length !== selectedEvents.length) {
       return NextResponse.json({ error: 'Some selected events do not exist' }, { status: 400 });
