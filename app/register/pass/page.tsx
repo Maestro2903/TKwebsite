@@ -22,6 +22,9 @@ export default function PassSelectionPage() {
     const [isProshowModalOpen, setIsProshowModalOpen] = useState(false);
     const [isAllAccessModalOpen, setIsAllAccessModalOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [selectedPassPrice, setSelectedPassPrice] = useState<number>(500);
+    const [selectedPassType, setSelectedPassType] = useState<string>('day_pass');
 
     // Redirect based on auth state - use useEffect to avoid setState during render
     useEffect(() => {
@@ -50,7 +53,14 @@ export default function PassSelectionPage() {
             return;
         }
 
+        if (pass.passType === 'test_pass') {
+            handleDirectTestPayment(pass);
+            return;
+        }
+
         if (pass.passType === 'day_pass') {
+            setSelectedPassPrice(pass.amount);
+            setSelectedPassType(pass.passType);
             setIsDayPassModalOpen(true);
             return;
         }
@@ -68,6 +78,62 @@ export default function PassSelectionPage() {
         // Fallback for any other pass types (should not happen with current setup)
         console.error('Unknown pass type:', pass.passType);
         alert('This pass type is not yet available. Please contact support.');
+    };
+
+    const handleDirectTestPayment = async (pass: RegistrationPass) => {
+        if (!user || !userData) return;
+
+        setError(null);
+        setSubmitting(true);
+
+        try {
+            const token = await auth.currentUser?.getIdToken(true);
+            if (!token) throw new Error('Not signed in');
+
+            const res = await fetch('/api/payment/create-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    userId: user.uid,
+                    passType: 'test_pass',
+                    amount: pass.amount, // ₹1
+                    selectedDays: ['2026-02-26'],
+                    selectedEvents: ['test-solo-singing'],
+                    teamData: {
+                        name: userData.name || user.displayName || 'Test User',
+                        email: userData.email || user.email || '',
+                        phone: userData.phone || '9999999999',
+                        college: userData.college || 'Test College',
+                    },
+                }),
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.error || 'Failed to create test order');
+            }
+
+            const data = await res.json();
+            const { sessionId, orderId } = data;
+
+            if (!sessionId) throw new Error('No payment session');
+
+            const result = await openCashfreeCheckout(sessionId, orderId);
+
+            if (result.success) {
+                window.location.href = `/payment/callback?order_id=${orderId}`;
+            } else {
+                throw new Error(result.message || 'Payment failed');
+            }
+        } catch (err) {
+            console.error('Test payment failed:', err);
+            setError(err instanceof Error ? err.message : 'Something went wrong');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const handleGroupModalClose = () => {
@@ -118,6 +184,17 @@ export default function PassSelectionPage() {
                     </p>
                 </section>
 
+                {/* Error Display */}
+                {error && (
+                    <section className="max-w-xl mx-auto mb-8">
+                        <div className="p-4 bg-red-900/20 border border-red-900/50 rounded text-center">
+                            <p className="text-sm text-red-200 uppercase font-mono tracking-wide">
+                                ERROR: {error}
+                            </p>
+                        </div>
+                    </section>
+                )}
+
                 {/* User Info */}
                 {userData && (
                     <section className="text-center mb-8 md:mb-12">
@@ -161,6 +238,8 @@ export default function PassSelectionPage() {
             <DayPassModal
                 isOpen={isDayPassModalOpen}
                 onCloseAction={handleDayPassModalClose}
+                passType={selectedPassType}
+                price={selectedPassPrice}
             />
 
             {/* Proshow Pass Modal */}

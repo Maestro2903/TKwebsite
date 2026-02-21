@@ -50,12 +50,16 @@ Example (sanitized):
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=AIza...
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=cit-takshashila.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=cit-takshashila-2026
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=cit-takshashila-2026.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012
-NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:abcdef123456
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=cit-takshashila-2026-3fd85
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=cit-takshashila-2026-3fd85.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=392525889400
+NEXT_PUBLIC_FIREBASE_APP_ID=1:392525889400:web:c49a8d79356652468dd28d
 
-FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"cit-takshashila-2026", ...}
+# Firebase Admin SDK (Server-side only)
+FIREBASE_PROJECT_ID=cit-takshashila-2026-3fd85
+FIREBASE_ADMIN_CLIENT_EMAIL=firebase-adminsdk-fbsvc@cit-takshashila-2026-3fd85.iam.gserviceaccount.com
+FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----\n"
+FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"cit-takshashila-2026-3fd85", ...}
 
 NEXT_PUBLIC_CASHFREE_APP_ID=CF_TEST_APP_ID
 CASHFREE_SECRET_KEY=CF_TEST_SECRET

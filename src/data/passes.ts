@@ -106,4 +106,25 @@ export const REGISTRATION_PASSES: RegistrationPass[] = [
     ],
     bestFor: 'Full festival experience without limits',
   },
+  {
+    id: 'test-pass',
+    passType: 'test_pass',
+    amount: 1,
+    emoji: '🛠️',
+    title: 'TEST PASS',
+    price: '₹1',
+    priceLabel: 'PER DAY',
+    details: 'Test pass for checking payment integration.',
+    meta: [
+      'For testing purposes only',
+      'Non-refundable',
+    ],
+    includes: [
+      { label: 'ACCESS', value: 'FULL' },
+      { label: 'EVENTS', value: 'ALL' },
+      { label: 'ENTRY', value: 'QR' },
+      { label: 'PRICE', value: '₹1' },
+    ],
+    bestFor: 'Developer testing and payment verification',
+  },
 ];

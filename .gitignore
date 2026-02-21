@@ -29,6 +29,15 @@ yarn-error.log*
 # vercel
 .vercel
 
+# secrets
+*-firebase-adminsdk-*.json
+*.json
+!package.json
+!tsconfig.json
+!firebase.json
+!firestore.indexes.json
+!package-lock.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

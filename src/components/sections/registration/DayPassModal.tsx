@@ -27,11 +27,15 @@ const DAY_OPTIONS: DayOption[] = [
 interface DayPassModalProps {
     isOpen: boolean;
     onCloseAction: () => void;
+    passType?: string;
+    price?: number;
 }
 
 export default function DayPassModal({
     isOpen,
     onCloseAction,
+    passType = 'day_pass',
+    price = 500,
 }: DayPassModalProps) {
     const { user, userData } = useAuth();
     const overlayRef = useRef<HTMLDivElement>(null);
@@ -50,7 +54,7 @@ export default function DayPassModal({
     const [step, setStep] = useState<'days' | 'events' | 'review'>('days');
     const [mockSummitAccessCode, setMockSummitAccessCode] = useState('');
 
-    const pricePerDay = 500;
+    // const pricePerDay = 500; // Removed hardcoded price
 
     // Lock global body scroll (and Lenis) when modal is open
     useLockBodyScroll(isOpen);
@@ -109,7 +113,7 @@ export default function DayPassModal({
 
                 // Fetch events for all selected days
                 const eventPromises = dates.map(date =>
-                    fetch(`/api/events?date=${date}&passType=day_pass`)
+                    fetch(`/api/events?date=${date}&passType=${passType}`)
                         .then(r => r.json())
                 );
 
@@ -130,7 +134,7 @@ export default function DayPassModal({
 
     // Calculate total
     const totalDays = selectedDays.length;
-    const totalAmount = totalDays * pricePerDay;
+    const totalAmount = totalDays * price;
 
     const hasMockSummitSelected = selectedEventIds.includes(MOCK_SUMMIT_EVENT_ID);
     const canInitiatePayment = !hasMockSummitSelected || mockSummitAccessCode.trim().length > 0;
@@ -206,7 +210,7 @@ export default function DayPassModal({
                 },
                 body: JSON.stringify({
                     userId: uid,
-                    passType: 'day_pass',
+                    passType: passType,
                     amount: totalAmount,
                     selectedDays: selectedDates,
                     selectedEvents: selectedEventIds,
@@ -250,8 +254,8 @@ export default function DayPassModal({
 
     return (
         <div
-        ref={overlayRef}
-        className="modal-overlay fixed inset-0 z-[2000] flex items-start justify-center pt-[calc(var(--nav-height)+1rem)] bg-black/90 p-4 backdrop-blur-sm"
+            ref={overlayRef}
+            className="modal-overlay fixed inset-0 z-[2000] flex items-start justify-center pt-[calc(var(--nav-height)+1rem)] bg-black/90 p-4 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-labelledby="day-pass-title"
@@ -355,7 +359,7 @@ export default function DayPassModal({
                                                 </div>
                                             </div>
                                             <div className="text-white font-orbitron text-sm">
-                                                ₹{pricePerDay}
+                                                ₹{price}
                                             </div>
                                         </button>
                                     ))}
@@ -531,7 +535,7 @@ export default function DayPassModal({
                                                     return (
                                                         <div key={dayId} className="flex justify-between text-xs font-mono">
                                                             <span className="text-neutral-400">{day?.label}</span>
-                                                            <span className="text-neutral-500">₹{pricePerDay}</span>
+                                                            <span className="text-neutral-500">₹{price}</span>
                                                         </div>
                                                     );
                                                 })}
@@ -569,7 +573,7 @@ export default function DayPassModal({
                                         <div>
                                             <p className="text-[10px] text-neutral-500 font-orbitron uppercase mb-1">Total Assessment</p>
                                             <div className="text-xs text-neutral-400 font-mono">
-                                                {totalDays} DAY{totalDays > 1 ? 'S' : ''} × ₹{pricePerDay}
+                                                {totalDays} DAY{totalDays > 1 ? 'S' : ''} × ₹{price}
                                             </div>
                                         </div>
                                         <div className="text-2xl font-bold text-white font-orbitron tracking-tighter">

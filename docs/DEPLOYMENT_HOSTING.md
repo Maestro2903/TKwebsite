@@ -132,8 +132,8 @@ These variables must be set in the environment (locally via `.env.local`, in pro
 |------------------------------------|--------|----------|----------------------------------------------|-----------------------------------|
 | `NEXT_PUBLIC_FIREBASE_API_KEY`     | Public | Yes      | Firebase client API key                      | `AIzaSy...`                       |
 | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Public | Yes      | Firebase auth domain                         | `cit-takshashila.firebaseapp.com` |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID`  | Public | Yes      | Firebase project ID                          | `cit-takshashila-2026`            |
-| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Public | No      | Firebase storage bucket (if used)           | `cit-takshashila-2026.appspot.com`|
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID`  | Public | Yes      | Firebase project ID                          | `cit-takshashila-2026-3fd85`            |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Public | No      | Firebase storage bucket (if used)           | `cit-takshashila-2026-3fd85.firebasestorage.app`|
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Public | No | Messaging sender ID                          | `123456789012`                    |
 | `NEXT_PUBLIC_FIREBASE_APP_ID`      | Public | Yes      | Firebase app ID                              | `1:123456789012:web:abcdef123456` |
 | `FIREBASE_SERVICE_ACCOUNT_KEY`     | Secret | Yes*     | JSON for Admin SDK (stringified service account) | `{"type":"service_account",...}` |
@@ -160,9 +160,9 @@ Local development uses `.env.local` (ignored by Git). Typical content:
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=AIza...
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=cit-takshashila.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=cit-takshashila-2026
-
-FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"cit-takshashila-2026", ...}
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=cit-takshashila-2026-3fd85
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=cit-takshashila-2026-3fd85.firebasestorage.app
+FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"cit-takshashila-2026-3fd85", ...}
 
 NEXT_PUBLIC_CASHFREE_APP_ID=CF_TEST_APP_ID
 CASHFREE_SECRET_KEY=CF_TEST_SECRET
