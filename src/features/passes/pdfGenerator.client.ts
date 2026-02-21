@@ -99,6 +99,13 @@ interface PassData {
     qrCode: string;
     teamName?: string;
     members?: Array<{ name: string; isLeader?: boolean }>;
+    selectedEvents?: Array<{
+        id: string;
+        name: string;
+        venue?: string;
+        startTime?: string;
+        endTime?: string;
+    }>;
 }
 
 /**
@@ -198,10 +205,10 @@ export async function generatePassPDF(passData: PassData): Promise<void> {
         pdf.text(userProfile.phone, 70, startY + lineHeight * 4);
         pdf.text(userProfile.college, 70, startY + lineHeight * 5);
 
-        // Add Team Details with pagination if available
-        if (passData.teamName || (passData.members && passData.members.length > 0)) {
-            let currentY = startY + lineHeight * 6 + 5;
+        let currentY = startY + lineHeight * 6 + 10;
 
+        // Add Team Details if available
+        if (passData.teamName || (passData.members && passData.members.length > 0)) {
             pdf.setDrawColor(200, 200, 200);
             pdf.line(25, currentY - 5, pageWidth - 25, currentY - 5);
 
@@ -224,22 +231,70 @@ export async function generatePassPDF(passData: PassData): Promise<void> {
                 pdf.text('Members:', 30, currentY);
                 pdf.setFont('helvetica', 'normal');
 
-                // Render members list with pagination check
-                const members = passData.members;
-                for (let i = 0; i < members.length; i++) {
-                    const member = members[i];
+                for (let i = 0; i < passData.members.length; i++) {
+                    const member = passData.members[i];
                     const text = `${i + 1}. ${member.name}${member.isLeader ? ' (Leader)' : ''}`;
 
-                    // If we're getting close to the footer (~270mm), add a new page
                     if (currentY > 265) {
                         pdf.addPage();
                         drawPageLayout(pdf, pageWidth, pageHeight);
-                        currentY = 30; // Start at top of new page
+                        currentY = 30;
                     }
 
                     pdf.text(text, 70, currentY);
                     currentY += 6;
                 }
+                currentY += 4;
+            }
+        }
+
+        // Add Registered Events section
+        if (passData.selectedEvents && passData.selectedEvents.length > 0) {
+            // Add a separator before events
+            pdf.setDrawColor(200, 200, 200);
+            pdf.line(25, currentY - 2, pageWidth - 25, currentY - 2);
+            currentY += 5;
+
+            pdf.setFontSize(12);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('REGISTERED EVENTS', pageWidth / 2, currentY, { align: 'center' });
+            currentY += 8;
+
+            for (const event of passData.selectedEvents) {
+                // Check for page break
+                if (currentY > 255) {
+                    pdf.addPage();
+                    drawPageLayout(pdf, pageWidth, pageHeight);
+                    currentY = 30;
+
+                    pdf.setFontSize(12);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text('REGISTERED EVENTS (Cont.)', pageWidth / 2, currentY, { align: 'center' });
+                    currentY += 8;
+                }
+
+                // Event Name
+                pdf.setFontSize(10);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(event.name, 30, currentY);
+                currentY += 5;
+
+                // Venue & Time
+                pdf.setFontSize(9);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(80, 80, 80);
+
+                let details = [];
+                if (event.venue) details.push(`Venue: ${event.venue}`);
+                if (event.startTime) {
+                    let timeStr = `Time: ${event.startTime}`;
+                    if (event.endTime) timeStr += ` – ${event.endTime}`;
+                    details.push(timeStr);
+                }
+
+                pdf.text(details.join('  |  '), 35, currentY);
+                pdf.setTextColor(0, 0, 0); // Reset color
+                currentY += 8;
             }
         }
 

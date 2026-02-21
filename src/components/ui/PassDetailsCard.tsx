@@ -8,7 +8,13 @@ interface PassDetailsCardProps {
   status: string;
   purchaseDate: string | null;
   selectedDays: string[];
-  selectedEvents: string[];
+  selectedEvents: Array<{
+    id: string;
+    name: string;
+    venue?: string;
+    startTime?: string;
+    endTime?: string;
+  }>;
   eventAccess: {
     tech: boolean;
     nonTech: boolean;
@@ -111,24 +117,43 @@ export default function PassDetailsCard({
           )}
         </DetailSection> */}
 
-        {/* Registered Events - Hidden as per user request */}
-        {/* <DetailSection title="Registered Events">
+        {/* Registered Events */}
+        <DetailSection title="Registered Events">
           {selectedEvents.length > 0 ? (
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {selectedEvents.map((event) => (
                 <div
-                  key={event}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg border border-white/5"
+                  key={event.id}
+                  className="px-3 py-2 bg-white/5 rounded-lg border border-white/10"
                 >
-                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-                  <span className="text-sm text-neutral-300">{event}</span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                    <span className="text-sm font-medium text-neutral-200">{event.name}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 ml-3.5">
+                    {event.venue && (
+                      <div className="flex items-center gap-1.5 text-[10px] text-neutral-400">
+                        <MapPin size={10} className="text-neutral-500" />
+                        <span>{event.venue}</span>
+                      </div>
+                    )}
+                    {(event.startTime || event.endTime) && (
+                      <div className="flex items-center gap-1.5 text-[10px] text-neutral-400">
+                        <Clock size={10} className="text-neutral-500" />
+                        <span>
+                          {event.startTime}
+                          {event.endTime && ` – ${event.endTime}`}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
             <p className="text-xs text-neutral-500 italic">No events registered yet</p>
           )}
-        </DetailSection> */}
+        </DetailSection>
 
 
         {/* Event Access */}

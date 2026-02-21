@@ -14,10 +14,16 @@ import { Download } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { NON_TECHNICAL_EVENTS, TECHNICAL_EVENTS } from '@/data/events';
 
-// Build a slug → display-name map from events data
-const EVENT_NAME_MAP: Record<string, string> = {};
+// Build a slug → full-data map from events data
+const EVENT_DATA_MAP: Record<string, { id: string; name: string; venue?: string; startTime?: string; endTime?: string }> = {};
 [...NON_TECHNICAL_EVENTS, ...TECHNICAL_EVENTS].forEach((e) => {
-  EVENT_NAME_MAP[e.id] = e.name;
+  EVENT_DATA_MAP[e.id] = {
+    id: e.id,
+    name: e.name,
+    venue: e.venue,
+    startTime: e.startTime,
+    endTime: e.endTime
+  };
 });
 
 // Dynamic import for the 3D Lanyard (needs WebGL, can't SSR)
@@ -63,7 +69,6 @@ interface UserProfileData {
 }
 
 const passTypeLabel: Record<string, string> = {
-  test_pass: PASS_TYPES.TEST_PASS.name,
   day_pass: PASS_TYPES.DAY_PASS.name,
   group_events: PASS_TYPES.GROUP_EVENTS.name,
   proshow: PASS_TYPES.PROSHOW.name,
@@ -171,6 +176,14 @@ export default function MyPassPage() {
         qrCode: pass.qrCode,
         teamName: pass.teamSnapshot?.teamName,
         members: pass.teamSnapshot?.members,
+        selectedEvents: (pass.selectedEvents ?? []).map((slug: string) => {
+          const eventData = EVENT_DATA_MAP[slug];
+          if (eventData) return eventData;
+          return {
+            id: slug,
+            name: slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+          };
+        }),
       });
     } catch (error) {
       console.error('Error downloading PDF:', error);
@@ -249,11 +262,10 @@ export default function MyPassPage() {
                     key={pass.id}
                     type="button"
                     onClick={() => setActivePassIndex(i)}
-                    className={`px-4 py-2 rounded-lg text-xs font-orbitron uppercase tracking-wider border transition-all duration-200 ${
-                      i === activePassIndex
-                        ? 'bg-white/10 border-blue-500/50 text-white shadow-lg shadow-blue-500/10'
-                        : 'bg-white/5 border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-neutral-200'
-                    }`}
+                    className={`px-4 py-2 rounded-lg text-xs font-orbitron uppercase tracking-wider border transition-all duration-200 ${i === activePassIndex
+                      ? 'bg-white/10 border-blue-500/50 text-white shadow-lg shadow-blue-500/10'
+                      : 'bg-white/5 border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-neutral-200'
+                      }`}
                   >
                     {passTypeLabel[pass.passType] ?? pass.passType}
                   </button>
@@ -273,14 +285,23 @@ export default function MyPassPage() {
                     purchaseDate={
                       activePass.createdAt?.toDate
                         ? activePass.createdAt.toDate().toLocaleDateString('en-IN', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })
                         : null
                     }
                     selectedDays={activePass.selectedDays ?? []}
-                    selectedEvents={(activePass.selectedEvents ?? []).map((slug: string) => EVENT_NAME_MAP[slug] || slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()))}
+                    selectedEvents={(activePass.selectedEvents ?? []).map((slug: string) => {
+                      const eventData = EVENT_DATA_MAP[slug];
+                      if (eventData) return eventData;
+
+                      // Fallback for unknown events
+                      return {
+                        id: slug,
+                        name: slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+                      };
+                    })}
                     eventAccess={activePass.eventAccess ?? null}
                     teamSnapshot={activePass.teamSnapshot ?? null}
                     userName={userProfile.name}

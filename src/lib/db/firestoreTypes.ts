@@ -15,6 +15,8 @@ export interface Event {
   type: EventType;
   date: string; // ISO format: "2026-02-26"
   venue: string;
+  startTime?: string; // e.g. "10:30 AM"
+  endTime?: string;   // e.g. "2:00 PM"
   prizePool?: number;
   minMembers?: number;
   maxMembers?: number;
