@@ -245,7 +245,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     startTime: '10:30 AM',
     endTime: '2:00 PM',
     date: '2026-02-26',
-    prizePool: 10000,
+    prizePool: 1000,
     minMembers: 2,
   },
   {
