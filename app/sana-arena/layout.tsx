@@ -6,10 +6,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Sana Arena | CIT Takshashila 2026",
     description: "Experience Santhosh Narayanan live at CIT Takshashila 2026. An exclusive concert featuring the legendary music composer's greatest hits in an unforgettable arena experience.",
-    url: "https://takshashila.cit.edu.in/sana-arena",
+    url: "https://cittakshashila.org/sana-arena",
   },
   alternates: {
-    canonical: "https://takshashila.cit.edu.in/sana-arena",
+    canonical: "https://cittakshashila.org/sana-arena",
   },
 };
 

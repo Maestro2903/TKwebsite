@@ -6,10 +6,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Event Rules | CIT Takshashila 2026",
     description: "Read the official rules and guidelines for all events at CIT Takshashila 2026. Understand participation criteria, judging criteria, and event-specific regulations.",
-    url: "https://takshashila.cit.edu.in/events-rules",
+    url: "https://cittakshashila.org/events-rules",
   },
   alternates: {
-    canonical: "https://takshashila.cit.edu.in/events-rules",
+    canonical: "https://cittakshashila.org/events-rules",
   },
 };
 

@@ -6,10 +6,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Events | CIT Takshashila 2026",
     description: "Explore technical and non-technical events at CIT Takshashila 2026. Participate in coding competitions, robotics challenges, cultural performances, and more.",
-    url: "https://takshashila.cit.edu.in/events",
+    url: "https://cittakshashila.org/events",
   },
   alternates: {
-    canonical: "https://takshashila.cit.edu.in/events",
+    canonical: "https://cittakshashila.org/events",
   },
 };
 
@@ -22,13 +22,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://takshashila.cit.edu.in"
+        "item": "https://cittakshashila.org"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Events",
-        "item": "https://takshashila.cit.edu.in/events"
+        "item": "https://cittakshashila.org/events"
       }
     ]
   };

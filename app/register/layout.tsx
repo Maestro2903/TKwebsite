@@ -6,10 +6,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Register | CIT Takshashila 2026",
     description: "Register for CIT Takshashila 2026 and get your event pass. Choose from individual or group passes and unlock access to all events, proshows, and exclusive experiences.",
-    url: "https://takshashila.cit.edu.in/register",
+    url: "https://cittakshashila.org/register",
   },
   alternates: {
-    canonical: "https://takshashila.cit.edu.in/register",
+    canonical: "https://cittakshashila.org/register",
   },
 };
 
@@ -22,13 +22,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://takshashila.cit.edu.in"
+        "item": "https://cittakshashila.org"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Register",
-        "item": "https://takshashila.cit.edu.in/register"
+        "item": "https://cittakshashila.org/register"
       }
     ]
   };

@@ -6,10 +6,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Proshows | CIT Takshashila 2026",
     description: "Experience electrifying proshows at CIT Takshashila 2026. Featuring top artists, live performances, and unforgettable entertainment across multiple days.",
-    url: "https://takshashila.cit.edu.in/proshows",
+    url: "https://cittakshashila.org/proshows",
   },
   alternates: {
-    canonical: "https://takshashila.cit.edu.in/proshows",
+    canonical: "https://cittakshashila.org/proshows",
   },
 };
 
