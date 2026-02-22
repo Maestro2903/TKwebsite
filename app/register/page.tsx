@@ -3,6 +3,7 @@
 import { useAuth } from '@/features/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+
 export default function RegisterPage() {
   const { user, userData, loading: authLoading } = useAuth();
   const router = useRouter();
