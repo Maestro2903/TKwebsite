@@ -178,7 +178,7 @@ const events = [
     allowedPassTypes: ['group_events'],
     isActive: true,
     description: 'Direct your model and capture a frame where style and attitude come alive.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     minMembers: 2,
   },
   {
@@ -224,7 +224,7 @@ const events = [
     allowedPassTypes: ['day_pass', 'sana_concert'],
     isActive: true,
     description: 'Learn the secrets of successful startups and business scaling from industry experts.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
   },
   {
     id: 'finance-trading',
@@ -239,7 +239,7 @@ const events = [
     allowedPassTypes: ['day_pass', 'sana_concert'],
     isActive: true,
     description: 'A deep dive into stock markets, trading strategies, and financial management.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
   },
   {
     id: 'modelling',
@@ -254,7 +254,7 @@ const events = [
     allowedPassTypes: ['day_pass', 'sana_concert'],
     isActive: true,
     description: 'Showcase your walk, style, and attitude on the ramp in this high-fashion showdown.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
   },
 
   // ========== NON-TECHNICAL EVENTS - DAY 2 (27 FEB) ==========
@@ -333,7 +333,7 @@ const events = [
     allowedPassTypes: ['group_events'],
     isActive: true,
     description: 'The art of visual storytelling, from script to screen.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     minMembers: 2,
   },
   {
@@ -349,7 +349,7 @@ const events = [
     allowedPassTypes: ['day_pass', 'sana_concert'],
     isActive: true,
     description: 'Visualize your dreams and manifest your future through creative collaging.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
   },
 
   // ========== NON-TECHNICAL EVENTS - DAY 3 (28 FEB) ==========
@@ -397,7 +397,7 @@ const events = [
     allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
     isActive: true,
     description: 'Blink and you\'ll miss it—catch the clue and answer before the channel changes.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
   },
   {
     id: 'designers-onboard',
@@ -427,7 +427,7 @@ const events = [
     allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
     isActive: true,
     description: 'Master the techniques of professional makeup and skincare.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
   },
   {
     id: 'photography-workshop',
@@ -442,7 +442,7 @@ const events = [
     allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
     isActive: true,
     description: 'Learn the fundamentals of framing, lighting, and post-processing from the pros.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
   },
   {
     id: 'branding',
@@ -457,7 +457,7 @@ const events = [
     allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
     isActive: true,
     description: 'The strategy and design behind building iconic identities.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
   },
 
   // ========== TECHNICAL EVENTS - DAY 1 (26 FEB) ==========

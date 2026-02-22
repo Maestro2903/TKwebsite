@@ -23,7 +23,7 @@ export type EventItem = {
   externalUrl?: string;
 };
 
-const PLACEHOLDER_TECH = '/images/event/tech/tech%20quest.webp';
+const PLACEHOLDER_TECH = '/images/event/tech/tech%20quest.jpg';
 
 /** Tech poster paths (from public/images/event/tech) */
 const TECH = {
@@ -153,7 +153,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     name: 'GAMING EVENT',
     description:
       'Step into intense virtual battles where strategy, reflexes, and skill decide who rules the game.',
-    image: '/images/event/nontech/DESIGNERS%20ONBOARD.webp',
+    image: '/gaming%20event.webp',
     venue: 'SH 1 / PENNEI HALL',
     date: '2026-02-26',
     prizePool: 25000,
@@ -165,7 +165,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Crack clues, connect evidence, and race against time in this thrilling mystery-solving challenge inspired by classic detective logic.',
     fullDescription:
       'Think you can outthink the clock and the case? Break down the clues, connect the facts, and make smart decisions under pressure, guided by the calm precision of Hercule Poirot. Will your logic lead you to the truth in time?',
-    image: '/images/event/nontech/CASE%20FILES.webp',
+    image: '/casefiles.webp',
     venue: 'CLASSROOM',
     startTime: '10:30 AM',
     endTime: '2:00 PM',
@@ -196,7 +196,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Turn a simple idea into a powerful short film using creativity, emotion, and cinematic storytelling.',
     fullDescription:
       'Every frame is your playground, and every cut is a flex. Twist a simple idea into a short film bursting with creativity, emotions, and cinematic style. Play with visuals, set the vibe, and make every second on screen count. Ready to roll the camera and steal the spotlight?',
-    image: '/images/event/nontech/FILMFINATICS.webp',
+    image: '/FilmFinatics.webp',
     venue: 'KAVERI',
     startTime: '12:00 PM',
     endTime: '2:00 PM',
@@ -212,7 +212,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Design lives under pressure as you transform surprise themes into striking digital visuals before time runs out.',
     fullDescription:
       'A surprise theme, a ticking clock, and creativity under pressure. Design live, think fast, and turn bold ideas into eye-catching digital visuals using your skills and tools. Can you adapt, create, and stand out before time runs out?',
-    image: '/images/event/nontech/DESIGNERS%20ONBOARD.webp',
+    image: '/designersonboard.webp',
     venue: 'DAIMER LAB',
     startTime: '10:00 AM',
     endTime: '1:00 PM',
@@ -226,7 +226,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Blink and you\'ll miss it—catch the clue and answer before the channel changes.',
     fullDescription:
       'Flip through a whirlwind of channels, spot the clues in seconds, and call it out before the screen changes again. From iconic scenes to surprise flashes, your reflexes and pop culture radar will be pushed to the limit. Stay sharp. Hesitate, and the answer disappears.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     venue: 'OUTER OAT',
     startTime: '10:30 AM',
     endTime: '12:30 PM',
@@ -240,7 +240,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Direct your model and capture a frame where style and attitude come alive.',
     fullDescription:
       'Look closer, chase the details, and connect moments that seem miles apart but belong to the same story. The answers aren\'t handed to you—they\'re hidden in plain sight, waiting for sharp eyes and sharper minds. Can you piece it together before the picture slips away?',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     venue: 'CAMPUS',
     startTime: '10:30 AM',
     endTime: '2:00 PM',
@@ -252,7 +252,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     id: 'entrepreneurship-talks',
     name: 'ENTREPRENEURSHIP TALKS',
     description: 'Learn the secrets of successful startups and business scaling from industry experts.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     venue: 'CITIL',
     startTime: '10:30 AM',
     endTime: '11:30 AM',
@@ -263,7 +263,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     id: 'finance-trading',
     name: 'FINANCE & TRADING',
     description: 'A deep dive into stock markets, trading strategies, and financial management.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     venue: 'CITIL',
     startTime: '12:00 PM',
     endTime: '1:30 PM',
@@ -274,7 +274,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     id: 'modelling',
     name: 'MODELLING',
     description: 'Showcase your walk, style, and attitude on the ramp in this high-fashion showdown.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     venue: 'F5',
     startTime: '11:00 AM',
     endTime: '1:00 PM',
@@ -285,7 +285,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     id: 'film-making',
     name: 'FILM MAKING',
     description: 'The art of visual storytelling, from script to screen.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     venue: 'F5',
     startTime: '10:30 AM',
     endTime: '12:30 PM',
@@ -297,7 +297,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     id: 'vision-board-workshop',
     name: 'VISION BOARD WORKSHOP',
     description: 'Visualize your dreams and manifest your future through creative collaging.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     venue: 'F6',
     startTime: '11:30 AM',
     endTime: '1:00 PM',
@@ -308,7 +308,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     id: 'make-up-workshop',
     name: 'MAKE-UP WORKSHOP',
     description: 'Master the techniques of professional makeup and skincare.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     venue: 'F5',
     startTime: '11:00 AM',
     endTime: '12:30 PM',
@@ -319,7 +319,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     id: 'photography-workshop',
     name: 'PHOTOGRAPHY WORKSHOP',
     description: 'Learn the fundamentals of framing, lighting, and post-processing from the pros.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     venue: 'F6',
     startTime: '10:00 AM',
     endTime: '11:30 AM',
@@ -330,7 +330,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     id: 'branding',
     name: 'BRANDING',
     description: 'The strategy and design behind building iconic identities.',
-    image: '/images/event/nontech/REELTOREAL.jpg',
+    image: '/images/event/nontech/REELTOREAL.webp',
     venue: 'F7',
     startTime: '10:00 AM',
     endTime: '12:00 PM',
