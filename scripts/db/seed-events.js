@@ -614,7 +614,7 @@ const events = [
     venue: 'Auditorium',
     startTime: '9:00 AM',
     prizePool: 20000,
-    allowedPassTypes: ['day_pass', 'sana_concert'],
+    allowedPassTypes: ['day_pass', 'proshow', 'sana_concert'],
     isActive: true,
     description: 'Discussing the geopolitical tensions over the world after the takeover of Venezuela.',
     image: '/images/event/tech/tech%20quest.jpg',

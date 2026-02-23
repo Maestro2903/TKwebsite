@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { userId, amount, passType, teamData, teamId, selectedDays, selectedEvents, mockSummitAccessCode } = body;
+    const { userId, amount, passType, teamData, teamId, selectedDays, selectedEvents, mockSummitAccessCode, countryId: bodyCountryId } = body;
 
     if (decoded.uid !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -66,8 +66,51 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
 
+    // Mock Summit (individual event in day_pass / proshow / sana_concert): require countryId + invite code
+    let mockSummitCountryId: string | null = null;
+    let mockSummitCountryName: string | null = null;
+    const hasMockSummitEvent = selectedEvents?.includes(MOCK_SUMMIT_EVENT_ID);
+    if (hasMockSummitEvent && (passType === 'day_pass' || passType === 'proshow' || passType === 'sana_concert')) {
+      const countryIdTrimmed = typeof bodyCountryId === 'string' ? bodyCountryId.trim() : '';
+      if (!countryIdTrimmed) {
+        return NextResponse.json({ error: 'Country selection is required for Mock Global Summit.' }, { status: 400 });
+      }
+      const countryDoc = await db.collection('mockSummitCountries').doc(countryIdTrimmed).get();
+      if (!countryDoc.exists) {
+        return NextResponse.json({ error: 'Invalid country.' }, { status: 400 });
+      }
+      const countryData = countryDoc.data();
+      if (countryData?.assignedTo !== userId) {
+        return NextResponse.json({ error: 'This country is not assigned to you. Please select your country again.' }, { status: 409 });
+      }
+      mockSummitCountryId = countryIdTrimmed;
+      mockSummitCountryName = (countryData?.name as string) ?? countryIdTrimmed;
+
+      const accessCodeTrimmed = typeof mockSummitAccessCode === 'string' ? mockSummitAccessCode.trim() : '';
+      if (!accessCodeTrimmed) {
+        return NextResponse.json({ error: 'Access code required for Mock Global Summit.' }, { status: 400 });
+      }
+      const accessDoc = await db.collection('mockSummitAccessCodes').doc(accessCodeTrimmed).get();
+      if (!accessDoc.exists) {
+        return NextResponse.json({ error: 'Invalid or expired access code.' }, { status: 400 });
+      }
+      const accessData = accessDoc.data();
+      const now = new Date();
+      const expiresAt = accessData?.expiresAt?.toDate?.() ?? accessData?.expiresAt;
+      if (
+        !accessData?.active ||
+        (expiresAt && new Date(expiresAt) <= now) ||
+        (accessData?.usedCount ?? 0) >= (accessData?.maxUsage ?? 0)
+      ) {
+        return NextResponse.json({ error: 'Invalid or expired access code.' }, { status: 400 });
+      }
+      await db.collection('mockSummitAccessCodes').doc(accessCodeTrimmed).update({
+        usedCount: FieldValue.increment(1),
+      });
+    }
+
     // Validate selectedEvents - MANDATORY for all pass types
-    if (!selectedEvents || !Array.isArray(selectedEvents) || selectedEvents.length === 0) {
+    if (!selectedEvents || selectedEvents.length === 0) {
       return NextResponse.json({ error: 'Event selection is required' }, { status: 400 });
     }
 
@@ -139,31 +182,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Mock Global Summit: access-code-gated validation (day_pass only)
-    let mockSummitAccessCodeUsed: string | null = null;
-    if (passType === 'day_pass' && selectedEvents?.includes(MOCK_SUMMIT_EVENT_ID)) {
-      const accessCodeTrimmed = typeof mockSummitAccessCode === 'string' ? mockSummitAccessCode.trim() : '';
-      if (!accessCodeTrimmed) {
-        return NextResponse.json({ error: 'Access code required for Mock Global Summit.' }, { status: 400 });
-      }
-
-      const accessDoc = await db.collection('mockSummitAccessCodes').doc(accessCodeTrimmed).get();
-      if (!accessDoc.exists) {
-        return NextResponse.json({ error: 'Invalid or expired access code.' }, { status: 400 });
-      }
-
-      const accessData = accessDoc.data();
-      const now = new Date();
-      const expiresAt = accessData?.expiresAt?.toDate?.() ?? accessData?.expiresAt;
-      if (
-        !accessData?.active ||
-        (expiresAt && new Date(expiresAt) <= now) ||
-        (accessData?.usedCount ?? 0) >= (accessData?.maxUsage ?? 0)
-      ) {
-        return NextResponse.json({ error: 'Invalid or expired access code.' }, { status: 400 });
-      }
-
-      // Event exclusivity: mock-global-summit cannot be combined with other events on same date
+    // Event exclusivity: mock-global-summit cannot be combined with other events on same date (day_pass / proshow / sana)
+    if (hasMockSummitEvent) {
       const mockSummitEvent = events.find((e: any) => e.id === MOCK_SUMMIT_EVENT_ID) as { date?: string } | undefined;
       const mockSummitDate = mockSummitEvent?.date;
       if (mockSummitDate) {
@@ -176,12 +196,6 @@ export async function POST(req: NextRequest) {
           }, { status: 400 });
         }
       }
-
-      // Atomic increment usedCount
-      await db.collection('mockSummitAccessCodes').doc(accessCodeTrimmed).update({
-        usedCount: FieldValue.increment(1),
-      });
-      mockSummitAccessCodeUsed = accessCodeTrimmed;
     }
 
     const appId =
@@ -291,9 +305,13 @@ export async function POST(req: NextRequest) {
       teamMemberCount: body.teamMemberCount || null,
       selectedDays: selectedDays || null,
       selectedEvents: selectedEvents || [],
-      ...(mockSummitAccessCodeUsed && {
+      ...(hasMockSummitEvent && {
         mockSummitSelected: true,
-        mockSummitAccessCode: mockSummitAccessCodeUsed,
+        mockSummitAccessCode: typeof mockSummitAccessCode === 'string' ? mockSummitAccessCode.trim() : null,
+      }),
+      ...(mockSummitCountryId && {
+        countryId: mockSummitCountryId,
+        countryName: mockSummitCountryName,
       }),
     });
 

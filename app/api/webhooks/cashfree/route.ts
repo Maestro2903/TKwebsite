@@ -177,6 +177,10 @@ export async function POST(req: Request) {
         qrCode: qrCodeUrl,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       };
+      if (paymentData.countryId != null) {
+        passData.countryId = paymentData.countryId;
+        if (paymentData.countryName != null) passData.countryName = paymentData.countryName;
+      }
 
       // Group event logic
       if (paymentData.passType === 'group_events' && paymentData.teamId) {

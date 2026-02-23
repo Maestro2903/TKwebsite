@@ -53,6 +53,8 @@ interface PassDoc {
   createdAt?: { toDate: () => Date };
   selectedDays?: string[];
   selectedEvents?: string[];
+  countryId?: string;
+  countryName?: string;
   eventAccess?: EventAccess;
   teamSnapshot?: {
     teamName: string;
@@ -73,6 +75,7 @@ const passTypeLabel: Record<string, string> = {
   group_events: PASS_TYPES.GROUP_EVENTS.name,
   proshow: PASS_TYPES.PROSHOW.name,
   sana_concert: PASS_TYPES.SANA_CONCERT.name,
+  mock_summit: PASS_TYPES.MOCK_SUMMIT.name,
 };
 
 export default function MyPassPage() {
@@ -282,6 +285,7 @@ export default function MyPassPage() {
                     passType={passTypeLabel[activePass.passType] ?? activePass.passType}
                     amount={activePass.amount}
                     status={activePass.status}
+                    countryName={activePass.countryName ?? null}
                     purchaseDate={
                       activePass.createdAt?.toDate
                         ? activePass.createdAt.toDate().toLocaleDateString('en-IN', {

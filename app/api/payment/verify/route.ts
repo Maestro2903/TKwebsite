@@ -261,6 +261,10 @@ export async function POST(req: NextRequest) {
           fullAccess: paymentData.passType === 'sana_concert',
         },
       };
+      if (paymentData.countryId != null) {
+        passData.countryId = paymentData.countryId;
+        if (paymentData.countryName != null) passData.countryName = paymentData.countryName;
+      }
 
       // For group events, fetch and snapshot team data
       if (paymentData.passType === 'group_events' && paymentData.teamId) {

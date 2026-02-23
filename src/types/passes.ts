@@ -7,6 +7,7 @@ export const PASS_TYPES = {
   GROUP_EVENTS: { id: 'group_events', name: 'Group Events', pricePerPerson: 250 },
   PROSHOW: { id: 'proshow', name: 'Day 1 Proshow + Day 3 Proshow', price: 1500 },
   SANA_CONCERT: { id: 'sana_concert', name: 'SANA Concert + All 3-Day Pass', price: 2000 },
+  MOCK_SUMMIT: { id: 'mock_summit', name: 'Mock Global Summit', price: 0 },
 } as const;
 
 export type PassTypeId = (typeof PASS_TYPES)[keyof typeof PASS_TYPES]['id'];

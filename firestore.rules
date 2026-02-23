@@ -41,5 +41,9 @@ service cloud.firestore {
     match /mockSummitAccessCodes/{code} {
       allow read, write: if false;  // Server only via Admin SDK
     }
+    match /mockSummitCountries/{countryId} {
+      allow read: if true;
+      allow write: if false;  // Server only via Admin SDK
+    }
   }
 }

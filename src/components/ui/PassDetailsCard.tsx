@@ -8,6 +8,8 @@ interface PassDetailsCardProps {
   status: string;
   purchaseDate: string | null;
   selectedDays: string[];
+  /** Mock Summit: country represented */
+  countryName?: string | null;
   selectedEvents: Array<{
     id: string;
     name: string;
@@ -38,6 +40,7 @@ export default function PassDetailsCard({
   status,
   purchaseDate,
   selectedDays,
+  countryName,
   selectedEvents,
   eventAccess,
   teamSnapshot,
@@ -55,6 +58,11 @@ export default function PassDetailsCard({
             <h2 className="text-lg font-bold text-white font-orbitron tracking-tight uppercase">
               {passType}
             </h2>
+            {countryName && (
+              <div className="mt-3 text-xs tracking-widest uppercase opacity-70 text-neutral-400">
+                COUNTRY REPRESENTED: {countryName}
+              </div>
+            )}
             <div className="flex items-center gap-2 mt-1">
               <span className="text-2xl font-bold text-white font-orbitron">₹{amount}</span>
               <span className="px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full text-[10px] text-green-400 font-semibold uppercase tracking-wider flex items-center gap-1">

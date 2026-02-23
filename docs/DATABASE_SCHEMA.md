@@ -72,6 +72,8 @@ This document covers:
 | `selectedEvents`   | `string[]`                       | No       | Event IDs selected for the pass                         |
 | `mockSummitSelected` | `boolean`                     | No       | True when Mock Global Summit event was selected         |
 | `mockSummitInviteCode` | `string`                     | No       | Invite code used for Mock Global Summit (if applicable) |
+| `countryId`          | `string \| null`              | No       | Mock Summit: `mockSummitCountries` doc ID               |
+| `countryName`         | `string \| null`              | No       | Mock Summit: display name of country                    |
 
 #### Read/Write Permissions
 
@@ -92,7 +94,7 @@ This document covers:
 | Field          | Type                                         | Required | Description                                               |
 |---------------|----------------------------------------------|----------|-----------------------------------------------------------|
 | `userId`      | `string`                                     | Yes      | UID of the pass owner                                     |
-| `passType`    | `string`                                     | Yes      | `day_pass`, `group_events`, `proshow`, `sana_concert`     |
+| `passType`    | `string`                                     | Yes      | `day_pass`, `group_events`, `proshow`, `sana_concert`, `mock_summit` |
 | `amount`      | `number`                                     | Yes      | Amount paid for this pass                                 |
 | `paymentId`   | `string`                                     | Yes      | Related `payments/{paymentId}` / Cashfree `order_id`      |
 | `status`      | `'paid' \| 'used'`                           | Yes      | Whether the pass has been scanned/used                    |
@@ -103,6 +105,8 @@ This document covers:
 | `teamId`      | `string`                                     | No       | Related `teams/{teamId}` for group passes                 |
 | `teamSnapshot`| `TeamSnapshot` (see below)                   | No       | Immutable snapshot of team at time of payment             |
 | `selectedDays`| `string[]`                                   | No       | Days included for `day_pass`                              |
+| `countryId`   | `string`                                     | No       | Mock Summit: country doc ID                               |
+| `countryName` | `string`                                     | No       | Mock Summit: country display name                         |
 
 **`TeamSnapshot` embedded type:**
 
@@ -239,6 +243,35 @@ Or create documents manually in Firebase Console. Required fields:
 - `active` (boolean, true)
 - `createdBy` (string)
 - `createdAt` (Timestamp)
+
+---
+
+### 2.7 `mockSummitCountries` – Mock Summit Country Selection
+
+- **Collection path:** `mockSummitCountries/{countryId}`
+- **Document ID:** `countryId` = lowercase, hyphenated (e.g. `united-states`, `south-korea`).
+- **Purpose:** One country per document for Mock Global Summit; assigned to a user when they select it before payment.
+- **Access:** Read by anyone; writes only via Admin SDK (assign-country API).
+
+#### Schema
+
+| Field        | Type                | Required | Description                    |
+|-------------|---------------------|----------|--------------------------------|
+| `name`      | `string`            | Yes      | Display name (e.g. Japan)     |
+| `code`      | `string`            | Yes      | Short code                    |
+| `assignedTo`| `string \| null`     | No       | UID of user who selected it   |
+| `assignedAt`| `Timestamp \| null`  | No       | When assigned                 |
+
+#### Read/Write Permissions
+
+- **Read:** `true` (public list for country selection).
+- **Write:** Denied (server‑only via Admin SDK in `/api/mock-summit/assign-country`).
+
+#### Seeding
+
+```bash
+node scripts/db/seed-mock-summit-countries.js
+```
 
 ---
 

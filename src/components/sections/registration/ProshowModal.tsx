@@ -9,7 +9,13 @@ import { X } from 'lucide-react';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import { getAllConflicts, type EventWithTiming } from '@/lib/utils/eventConflicts';
 
-// Fixed price for proshow pass
+const MOCK_SUMMIT_EVENT_ID = 'mock-global-summit';
+
+interface CountryItem {
+  id: string;
+  name: string;
+  assignedTo: string | null;
+}
 const PROSHOW_PRICE = 1500;
 
 // Proshow days (Day 1 and Day 3)
@@ -35,7 +41,13 @@ export default function ProshowModal({
     // UI state
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [step, setStep] = useState<'events' | 'review'>('events');
+    const [step, setStep] = useState<'events' | 'invite' | 'country' | 'review'>('events');
+    const [mockSummitAccessCode, setMockSummitAccessCode] = useState('');
+    const [countries, setCountries] = useState<CountryItem[]>([]);
+    const [loadingCountries, setLoadingCountries] = useState(false);
+    const [assigningCountryId, setAssigningCountryId] = useState<string | null>(null);
+    const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null);
+    const [selectedCountryName, setSelectedCountryName] = useState<string | null>(null);
 
     // Reset form when modal opens
     useEffect(() => {
@@ -43,6 +55,10 @@ export default function ProshowModal({
         setError(null);
         setSelectedEventIds([]);
         setAvailableEvents([]);
+        setMockSummitAccessCode('');
+        setCountries([]);
+        setSelectedCountryId(null);
+        setSelectedCountryName(null);
         setStep('events');
     }, [isOpen]);
 
@@ -114,80 +130,161 @@ export default function ProshowModal({
     }, [step, selectedEventIds]);
 
     // Handle step navigation
+    const hasMockSummitSelected = selectedEventIds.includes(MOCK_SUMMIT_EVENT_ID);
+    const stepsForFlow = hasMockSummitSelected ? ['events', 'invite', 'country', 'review'] : ['events', 'review'];
+    const currentStepIndex = stepsForFlow.indexOf(step);
+    const totalSteps = stepsForFlow.length;
+    const progressWidth = totalSteps > 0 ? ((currentStepIndex + 1) / totalSteps) * 100 : 0;
+
+    const fetchCountries = useCallback(async () => {
+        setLoadingCountries(true);
+        setError(null);
+        try {
+            const res = await fetch('/api/mock-summit/countries');
+            if (!res.ok) throw new Error('Failed to load countries');
+            const data = await res.json();
+            setCountries(Array.isArray(data) ? data : []);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to load countries');
+            setCountries([]);
+        } finally {
+            setLoadingCountries(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (isOpen && step === 'country') fetchCountries();
+    }, [isOpen, step, fetchCountries]);
+
+    const validateInviteStep = useCallback(() => {
+        if (step !== 'invite') return true;
+        if (!mockSummitAccessCode.trim()) {
+            setError('Please enter your Mock Global Summit access code.');
+            return false;
+        }
+        setError(null);
+        return true;
+    }, [step, mockSummitAccessCode]);
+
+    const validateCountryStep = useCallback(() => {
+        if (step !== 'country') return true;
+        if (!selectedCountryId) {
+            setError('Please select a country to represent.');
+            return false;
+        }
+        setError(null);
+        return true;
+    }, [step, selectedCountryId]);
+
     const goToNextStep = useCallback(() => {
-        if (!validateStep()) return;
-        if (step === 'events') setStep('review');
-    }, [step, validateStep]);
+        if (step === 'invite' && !validateInviteStep()) return;
+        if (step === 'country' && !validateCountryStep()) return;
+        if (step !== 'invite' && step !== 'country' && !validateStep()) return;
+        if (step === 'events') setStep(hasMockSummitSelected ? 'invite' : 'review');
+        else if (step === 'invite') setStep('country');
+        else if (step === 'country') setStep('review');
+    }, [step, hasMockSummitSelected, validateStep, validateInviteStep, validateCountryStep]);
 
     const goToPrevStep = useCallback(() => {
-        if (step === 'review') setStep('events');
-    }, [step]);
+        if (step === 'invite') setStep('events');
+        else if (step === 'country') setStep('invite');
+        else if (step === 'review') setStep(hasMockSummitSelected ? 'country' : 'events');
+    }, [step, hasMockSummitSelected]);
 
-    // Handle form submission
+    const canInitiatePayment = !hasMockSummitSelected || (mockSummitAccessCode.trim().length > 0 && selectedCountryId != null);
+
+    const runPayment = useCallback(async (countryId?: string) => {
+        if (!user || !userData) return;
+        const uid = user.uid;
+        const email = user.email || user.providerData?.[0]?.email || '';
+        const name = userData.name || user.displayName || email || 'Attendee';
+        const token = await auth.currentUser?.getIdToken(true);
+        if (!token) throw new Error('Not signed in');
+
+        const res = await fetch('/api/payment/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({
+                userId: uid,
+                passType: 'proshow',
+                amount: PROSHOW_PRICE,
+                selectedDays: PROSHOW_DAYS,
+                selectedEvents: selectedEventIds,
+                ...(hasMockSummitSelected && mockSummitAccessCode.trim() && { mockSummitAccessCode: mockSummitAccessCode.trim() }),
+                ...(hasMockSummitSelected && countryId && { countryId }),
+                teamData: {
+                    name,
+                    email: userData.email ?? email,
+                    phone: userData.phone ?? '',
+                    college: userData.college ?? '',
+                },
+            }),
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || 'Failed to create order');
+        }
+        const data = (await res.json()) as { sessionId?: string; orderId?: string };
+        const sessionId = data.sessionId;
+        const orderId = data.orderId;
+        if (!sessionId) throw new Error('No payment session');
+        onCloseAction();
+        const result = await openCashfreeCheckout(sessionId, orderId);
+        if (result.success) window.location.href = `/payment/callback?order_id=${orderId}`;
+        else throw new Error(result.message || 'Payment failed');
+    }, [user, userData, selectedEventIds, hasMockSummitSelected, mockSummitAccessCode, onCloseAction]);
+
+    const handleCountrySelect = useCallback(async (countryId: string) => {
+        if (!user?.uid) return;
+        const country = countries.find((c) => c.id === countryId);
+        if (!country) return;
+        if (country.assignedTo != null && country.assignedTo !== user.uid) return;
+        setAssigningCountryId(countryId);
+        setError(null);
+        try {
+            const token = await auth.currentUser?.getIdToken(true);
+            if (!token) throw new Error('Not signed in');
+            const res = await fetch('/api/mock-summit/assign-country', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ countryId }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? 'Failed to assign country');
+            setSelectedCountryId(countryId);
+            setSelectedCountryName(data.countryName ?? country.name);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Something went wrong');
+        } finally {
+            setAssigningCountryId(null);
+        }
+    }, [user, countries]);
+
     const handleSubmit = useCallback(async () => {
         if (!user) return;
         if (!userData) {
             setError('Profile incomplete. Please complete your profile first.');
             return;
         }
+        if (hasMockSummitSelected && !mockSummitAccessCode.trim()) {
+            setError('Access code required for Mock Global Summit.');
+            return;
+        }
+        if (hasMockSummitSelected && !selectedCountryId) {
+            setError('Please select a country to represent.');
+            return;
+        }
         setError(null);
         setSubmitting(true);
-
         try {
-            const uid = user.uid;
-            const email = user.email || user.providerData?.[0]?.email || '';
-            const name = userData.name || user.displayName || email || 'Attendee';
-
-            // Create payment order via server
-            const token = await auth.currentUser?.getIdToken(true);
-            if (!token) throw new Error('Not signed in');
-
-            const res = await fetch('/api/payment/create-order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    userId: uid,
-                    passType: 'proshow',
-                    amount: PROSHOW_PRICE,
-                    selectedDays: PROSHOW_DAYS,
-                    selectedEvents: selectedEventIds,
-                    teamData: {
-                        name,
-                        email: userData.email ?? email,
-                        phone: userData.phone ?? '',
-                        college: userData.college ?? '',
-                    },
-                }),
-            });
-
-            if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                throw new Error(data.error || 'Failed to create order');
-            }
-
-            const data = (await res.json()) as { sessionId?: string; orderId?: string };
-            const sessionId = data.sessionId;
-            const orderId = data.orderId;
-            if (!sessionId) throw new Error('No payment session');
-
-            onCloseAction();
-            const result = await openCashfreeCheckout(sessionId, orderId);
-
-            if (result.success) {
-                // Navigate to callback page to verify payment
-                window.location.href = `/payment/callback?order_id=${orderId}`;
-            } else {
-                throw new Error(result.message || 'Payment failed');
-            }
+            await runPayment(selectedCountryId ?? undefined);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Something went wrong');
         } finally {
             setSubmitting(false);
         }
-    }, [user, userData, selectedEventIds, onCloseAction]);
+    }, [user, userData, hasMockSummitSelected, mockSummitAccessCode, selectedCountryId, runPayment]);
 
     if (!isOpen) return null;
 
@@ -203,7 +300,7 @@ export default function ProshowModal({
             onTouchMove={(e) => e.stopPropagation()}
         >
             <div
-                className="modal-content-scroll w-full max-w-lg max-h-[calc(100dvh-var(--nav-height)-2rem)] flex flex-col overflow-y-auto bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative group rounded-none sm:rounded-xl"
+                className="modal-content-scroll w-full max-w-lg max-h-[calc(100dvh-var(--nav-height)-2rem)] min-h-[min(400px,80dvh)] flex flex-col overflow-hidden bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative group rounded-none sm:rounded-xl"
                 onClick={(e) => e.stopPropagation()}
                 onWheel={(e) => e.stopPropagation()}
                 onTouchMove={(e) => e.stopPropagation()}
@@ -230,16 +327,14 @@ export default function ProshowModal({
                             Proshow Pass Registration
                         </h2>
                         <div className="flex items-center gap-3 text-[10px] tracking-widest text-neutral-500 uppercase font-orbitron">
-                            <span>Step {step === 'events' ? '01' : '02'}</span>
+                            <span>Step {String(currentStepIndex + 1).padStart(2, '0')}</span>
                             <div className="h-[1px] flex-1 bg-neutral-800"></div>
-                            <span>Total Steps: 02</span>
+                            <span>Total Steps: {String(totalSteps).padStart(2, '0')}</span>
                         </div>
                         <div className="mt-4 mb-2 h-[2px] w-full bg-neutral-800">
                             <div
                                 className="h-full bg-neutral-400 transition-all duration-300 relative"
-                                style={{
-                                    width: step === 'events' ? '50%' : '100%',
-                                }}
+                                style={{ width: `${progressWidth}%` }}
                             >
                                 <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
                             </div>
@@ -248,8 +343,8 @@ export default function ProshowModal({
                 </div>
 
                 {/* Scrollable content */}
-                <div className="flex-1 overflow-y-auto">
-                    <div className="p-6 relative">
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                    <div className="p-6 relative min-h-[200px]">
                         {/* Corner Accents */}
                         <div className="absolute top-6 right-6 w-3 h-3 border-t border-r border-neutral-600 pointer-events-none" />
                         <div className="absolute bottom-6 left-6 w-3 h-3 border-b border-l border-neutral-600 pointer-events-none" />
@@ -362,7 +457,106 @@ export default function ProshowModal({
                             </div>
                         )}
 
-                        {/* Step 2: Review & Pay */}
+                        {/* Step: Invite code (Mock Summit only) */}
+                        {step === 'invite' && (
+                            <div className="space-y-6">
+                                <div className="p-4 bg-[#151515] border border-neutral-800 flex items-start gap-3">
+                                    <div className="w-1 h-full min-h-[2rem] bg-neutral-700" />
+                                    <div>
+                                        <p className="text-neutral-300 text-sm font-orbitron tracking-wide uppercase mb-1">
+                                            Mock Global Summit — Access Code
+                                        </p>
+                                        <p className="text-neutral-500 text-xs font-mono">
+                                            // Enter the invite code you received for this event
+                                        </p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label htmlFor="proshow-mock-summit-invite" className="block text-[10px] text-neutral-500 font-orbitron uppercase mb-2">
+                                        Access code <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        id="proshow-mock-summit-invite"
+                                        type="text"
+                                        value={mockSummitAccessCode}
+                                        onChange={(e) => setMockSummitAccessCode(e.target.value)}
+                                        placeholder="Enter invite code"
+                                        className="w-full bg-[#0a0a0a] border border-neutral-800 px-4 py-3 text-white placeholder:text-neutral-700 text-sm font-mono focus:border-neutral-500 focus:outline-none transition-colors"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Step: Select country (Mock Summit only) */}
+                        {step === 'country' && (
+                            <div className="space-y-6">
+                                <div className="p-4 bg-[#151515] border border-neutral-800 flex items-start gap-3">
+                                    <div className="w-1 h-full min-h-[2rem] bg-neutral-700" />
+                                    <div>
+                                        <p className="text-neutral-300 text-sm font-orbitron tracking-wide uppercase mb-1">
+                                            Choose Country
+                                        </p>
+                                        <p className="text-neutral-500 text-xs font-mono">
+                                            // Select the country you will represent at the summit
+                                        </p>
+                                    </div>
+                                </div>
+                                {loadingCountries ? (
+                                    <div className="text-center py-12 text-neutral-500 font-mono text-xs">
+                                        LOADING COUNTRIES...
+                                    </div>
+                                ) : countries.length === 0 ? (
+                                    <div className="py-8 text-center text-neutral-500 text-xs font-mono">
+                                        No countries available. Try again later.
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[40vh] overflow-y-auto pr-2">
+                                        {countries.map((c) => {
+                                            const isTaken = c.assignedTo != null && c.assignedTo !== user?.uid;
+                                            const isAssigning = assigningCountryId === c.id;
+                                            const isSelected = selectedCountryId === c.id;
+                                            const isDisabled = isTaken;
+                                            return (
+                                                <button
+                                                    key={c.id}
+                                                    type="button"
+                                                    disabled={isDisabled}
+                                                    onClick={() => !isDisabled && handleCountrySelect(c.id)}
+                                                    className={`
+                                                        relative px-4 py-3 rounded-lg text-left transition-all duration-300
+                                                        ${isDisabled ? 'opacity-30 cursor-not-allowed bg-[#0a0a0a] border border-neutral-800 text-neutral-500' : isSelected ? 'border-blue-500 bg-blue-500/10 text-white' : 'bg-[#0a0a0a] border border-neutral-700 text-white hover:border-neutral-600 hover:-translate-y-0.5'}
+                                                    `}
+                                                >
+                                                    {isAssigning ? (
+                                                        <span className="inline-flex items-center gap-2">
+                                                            <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                                            Assigning…
+                                                        </span>
+                                                    ) : (
+                                                        <>
+                                                            <span className="font-medium text-sm">{c.name}</span>
+                                                            {isSelected && (
+                                                                <span className="absolute top-2 right-2 text-[10px] text-emerald-400 uppercase tracking-wider">Selected</span>
+                                                            )}
+                                                            {isTaken && !isSelected && (
+                                                                <span className="absolute top-2 right-2 text-[10px] text-neutral-500 uppercase">Taken</span>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                                {selectedCountryId && (
+                                    <p className="text-[10px] text-neutral-500 font-mono">
+                                        Country selected. Click Proceed to continue.
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Step: Review & Pay */}
                         {step === 'review' && (
                             <div className="space-y-6">
                                 <div>
@@ -405,6 +599,13 @@ export default function ProshowModal({
                                     </div>
                                 </div>
 
+                                {hasMockSummitSelected && selectedCountryName && (
+                                    <div className="p-3 bg-[#151515] border border-neutral-800">
+                                        <span className="text-[10px] text-neutral-500 font-orbitron uppercase">Country </span>
+                                        <span className="text-xs font-mono text-neutral-300 ml-2">{selectedCountryName}</span>
+                                    </div>
+                                )}
+
                                 {/* Pricing Display */}
                                 <div className="p-4 bg-[#151515] border border-neutral-700 relative overflow-hidden">
                                     {/* Diagonal lines bg */}
@@ -445,7 +646,7 @@ export default function ProshowModal({
                                 <button
                                     type="button"
                                     onClick={goToPrevStep}
-                                    disabled={submitting}
+                                    disabled={submitting || assigningCountryId != null}
                                     className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition disabled:opacity-50 tracking-widest"
                                 >
                                     Back
@@ -464,6 +665,7 @@ export default function ProshowModal({
                                 <button
                                     type="button"
                                     onClick={goToNextStep}
+                                    disabled={(step === 'country' && !selectedCountryId) || submitting}
                                     className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition disabled:opacity-50 tracking-widest"
                                 >
                                     Proceed
@@ -472,7 +674,7 @@ export default function ProshowModal({
                                 <button
                                     type="button"
                                     onClick={handleSubmit}
-                                    disabled={submitting}
+                                    disabled={submitting || !canInitiatePayment}
                                     className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition disabled:opacity-50 tracking-widest"
                                 >
                                     {submitting ? 'PROCESSING...' : `INITIATE PAYMENT`}

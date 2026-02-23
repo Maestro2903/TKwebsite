@@ -120,6 +120,8 @@ export default function GroupRegistrationModal({
     const totalMembers = 1 + members.length; // Leader + team members
     const totalAmount = totalMembers * pricePerPerson;
 
+    const selectedEvent = groupEvents.find(e => e.id === selectedEventId);
+
     // Add a new empty member (respect event maxMembers limit)
     const addMember = useCallback(() => {
         setMembers((prev) => {
@@ -147,8 +149,6 @@ export default function GroupRegistrationModal({
         },
         []
     );
-
-    const selectedEvent = groupEvents.find(e => e.id === selectedEventId);
 
     // Validate current step
     const validateStep = useCallback(() => {
@@ -301,7 +301,7 @@ export default function GroupRegistrationModal({
             onTouchMove={(e) => e.stopPropagation()}
         >
             <div
-                className="modal-content-scroll w-full max-w-lg max-h-[calc(100dvh-var(--nav-height)-2rem)] flex flex-col overflow-y-auto bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative group rounded-none sm:rounded-xl"
+                className="modal-content-scroll w-full max-w-lg max-h-[calc(100dvh-var(--nav-height)-2rem)] min-h-[min(400px,80dvh)] flex flex-col overflow-hidden bg-[#1a1a1a] border border-neutral-800 shadow-2xl relative group rounded-none sm:rounded-xl"
                 onClick={(e) => e.stopPropagation()}
                 onWheel={(e) => e.stopPropagation()}
                 onTouchMove={(e) => e.stopPropagation()}
@@ -346,8 +346,8 @@ export default function GroupRegistrationModal({
                 </div>
 
                 {/* Scrollable content */}
-                <div className="flex-1 overflow-y-auto">
-                    <div className="p-6 relative">
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                    <div className="p-6 relative min-h-[200px]">
                         {/* Corner Accents */}
                         <div className="absolute top-6 right-6 w-3 h-3 border-t border-r border-neutral-600 pointer-events-none" />
                         <div className="absolute bottom-6 left-6 w-3 h-3 border-b border-l border-neutral-600 pointer-events-none" />
