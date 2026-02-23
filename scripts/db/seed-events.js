@@ -750,22 +750,7 @@ const events = [
     description: 'A fast-paced competitive coding challenge where speed and precision are key.',
     image: '/images/event/tech/tech%20quest.jpg',
   },
-  {
-    id: 'prompt-pixel',
-    name: 'PROMPT PIXEL',
-    category: 'technical',
-    type: 'group',
-    date: '2026-02-28',
-    venue: 'AI Lab',
-    startTime: '1:00 PM',
-    prizePool: 3000,
-    allowedPassTypes: ['group_events'],
-    isActive: true,
-    description: 'A fun, hands-on AI event where people learn how to use generative AI to create and interpret images.',
-    image: '/images/event/tech/prompt-pixel.jpeg',
-    minMembers: 2,
-    maxMembers: 2,
-  },
+
   {
     id: 'chain-of-lies',
     name: 'CHAIN OF LIES',
