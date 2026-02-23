@@ -35,14 +35,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Track which UID we last fetched to avoid redundant Firestore reads
   const lastFetchedUid = useRef<string | null>(null);
 
-  // Fetch user profile from Firestore (only when UID changes)
   const fetchUserProfile = useCallback(async (u: User) => {
     // Skip if we already fetched for this UID
     if (lastFetchedUid.current === u.uid && userData) {
       return;
     }
     try {
-      const userDoc = await getDoc(doc(db, 'users', u.uid));
+      const userDoc = await getDoc(doc(db, 'appUsers', u.uid));
       lastFetchedUid.current = u.uid;
       if (userDoc.exists()) {
         setUserData(userDoc.data() as UserProfile);
@@ -124,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserProfile = useCallback(async (data: UserProfileUpdate) => {
     if (!user) throw new Error('No user logged in');
-    const userRef = doc(db, 'users', user.uid);
+    const userRef = doc(db, 'appUsers', user.uid);
     const email = user.email || user.providerData?.[0]?.email || '';
     const profile = {
       uid: user.uid,

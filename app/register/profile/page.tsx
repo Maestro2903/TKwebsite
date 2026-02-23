@@ -111,13 +111,22 @@ export default function ProfilePage() {
 
       setUploadProgress(0);
 
-      const idCardUrl = await uploadIdFileToStorage(idCardFile, user.uid);
+      let idCardUrl = "";
+      try {
+        idCardUrl = await uploadIdFileToStorage(idCardFile, user.uid);
+      } catch (err: any) {
+        throw new Error("Storage Error: " + err.message);
+      }
 
-      // Update Firestore profile with Storage URL
-      await updateUserProfile({
-        ...formData,
-        idCardUrl,
-      });
+      try {
+        // Update Firestore profile with Storage URL
+        await updateUserProfile({
+          ...formData,
+          idCardUrl,
+        });
+      } catch (err: any) {
+        throw new Error("Firestore Error: " + err.message);
+      }
       setUploadProgress(100);
 
       router.push('/register/pass');
