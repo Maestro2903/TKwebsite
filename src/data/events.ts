@@ -577,16 +577,6 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     prizePool: 0,
   },
   {
-    id: 'model-mastery',
-    name: 'MODEL MASTERY',
-    description:
-      'A high-stakes solo "vibe coding" challenge where you architect a frontend website using Google\'s latest AI tools. You get exactly one attempt (20-minute limit) to craft a precise natural language prompt to command the AI to build a fully functional interface.',
-    image: TECH.final,
-    venue: 'CSE Labs',
-    date: '2026-02-28',
-    prizePool: 25000,
-  },
-  {
     id: 'the-90-minute-ceo',
     name: 'THE 90 MINUTE CEO',
     description:
