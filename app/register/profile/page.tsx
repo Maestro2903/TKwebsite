@@ -6,7 +6,8 @@ import { useState, useEffect } from 'react';
 import Footer from '@/components/layout/Footer';
 import Navigation from '@/components/layout/Navigation';
 import { AwardBadge } from '@/components/decorative/AwardBadge';
-import { db } from '@/lib/firebase/clientApp';
+import { storage } from '@/lib/firebase/clientApp';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Upload, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -39,44 +40,40 @@ export default function ProfilePage() {
     }
   }, [user, userData, authLoading, router]);
 
-  const compressImage = (file: File): Promise<string> => {
+  const uploadIdFileToStorage = (file: File, uid: string): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
+      if (!storage) {
+        reject(new Error('File storage is not configured. Please contact support.'));
+        return;
+      }
 
-          // Max dimensions (e.g., 1200px)
-          const MAX_DIM = 1200;
-          if (width > height) {
-            if (width > MAX_DIM) {
-              height *= MAX_DIM / width;
-              width = MAX_DIM;
-            }
-          } else {
-            if (height > MAX_DIM) {
-              width *= MAX_DIM / height;
-              height = MAX_DIM;
-            }
+      const safeFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      const fileRef = ref(
+        storage,
+        `id-cards/${uid}/${Date.now()}-${safeFileName}`,
+      );
+
+      const uploadTask = uploadBytesResumable(fileRef, file);
+
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(Math.round(progress));
+        },
+        (error) => {
+          reject(error);
+        },
+        async () => {
+          try {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadUrl);
+          } catch (err) {
+            reject(err);
           }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-
-          // Compress with quality 0.7
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-          resolve(dataUrl);
-        };
-        img.onerror = (e) => reject(e);
-      };
-      reader.onerror = (e) => reject(e);
+        },
+      );
     });
   };
 
@@ -112,33 +109,14 @@ export default function ProfilePage() {
     try {
       if (!user) throw new Error("User not found");
 
-      // 1. Process image locally (Compress & Base64)
-      setUploadProgress(20);
-      let imageData = "";
+      setUploadProgress(0);
 
-      if (idCardFile.type.startsWith('image/')) {
-        imageData = await compressImage(idCardFile);
-      } else {
-        // For PDFs, just use Base64
-        imageData = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(idCardFile);
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = (e) => reject(e);
-        });
-      }
-      setUploadProgress(60);
+      const idCardUrl = await uploadIdFileToStorage(idCardFile, user.uid);
 
-      // Verify size (Firestore doc limit is 1MB)
-      // Base64 is ~33% larger than binary
-      if (imageData.length > 800000) { // ~800KB limit
-        throw new Error("File is too large even after compression. Please try a smaller image.");
-      }
-
-      // 2. Update Firestore profile directly
+      // Update Firestore profile with Storage URL
       await updateUserProfile({
         ...formData,
-        idCardUrl: imageData, // Storing base64 string
+        idCardUrl,
       });
       setUploadProgress(100);
 
