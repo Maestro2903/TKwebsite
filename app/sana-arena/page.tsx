@@ -9,18 +9,18 @@ import PassCard from '@/components/ui/PassCard';
 import { REGISTRATION_PASSES } from '@/data/passes';
 
 const SANTHOSH_ALBUMS = [
-  { id: 1, artist: 'SANTHOSH NARAYANAN', album: 'Irudhi Suttru', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2016', image: '/assets/images/albumcover/1.png' },
-  { id: 2, artist: 'SANTHOSH NARAYANAN', album: 'Jagame Thandhiram', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/2.png' },
-  { id: 3, artist: 'SANTHOSH NARAYANAN', album: 'Kaala', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2018', image: '/assets/images/albumcover/3.png' },
-  { id: 4, artist: 'SANTHOSH NARAYANAN', album: 'Kabali', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2016', image: '/assets/images/albumcover/4.png' },
-  { id: 5, artist: 'SANTHOSH NARAYANAN', album: 'Kalki 2898 Ad', category: 'SOUNDTRACK', label: 'TAMIL', year: '2024', image: '/assets/images/albumcover/5.png' },
-  { id: 6, artist: 'SANTHOSH NARAYANAN', album: 'Karnan', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/6.png' },
-  { id: 7, artist: 'SANTHOSH NARAYANAN', album: 'Madras', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2014', image: '/assets/images/albumcover/7.png' },
-  { id: 8, artist: 'SANTHOSH NARAYANAN', album: 'Mahaan', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2022', image: '/assets/images/albumcover/8.png' },
-  { id: 9, artist: 'SANTHOSH NARAYANAN', album: 'Pizza', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2012', image: '/assets/images/albumcover/9.png' },
-  { id: 10, artist: 'SANTHOSH NARAYANAN', album: 'Retro', category: 'ALBUM', label: 'TAMIL', year: '2024', image: '/assets/images/albumcover/10.png' },
-  { id: 11, artist: 'SANTHOSH NARAYANAN', album: 'Sarpatta Parambarai', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/11.png' },
-  { id: 12, artist: 'SANTHOSH NARAYANAN', album: 'VadaChennai', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2018', image: '/assets/images/albumcover/12.png' },
+    { id: 1, artist: 'SANTHOSH NARAYANAN', album: 'Irudhi Suttru', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2016', image: '/assets/images/albumcover/1.png' },
+    { id: 2, artist: 'SANTHOSH NARAYANAN', album: 'Jagame Thandhiram', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/2.png' },
+    { id: 3, artist: 'SANTHOSH NARAYANAN', album: 'Kaala', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2018', image: '/assets/images/albumcover/3.png' },
+    { id: 4, artist: 'SANTHOSH NARAYANAN', album: 'Kabali', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2016', image: '/assets/images/albumcover/4.png' },
+    { id: 5, artist: 'SANTHOSH NARAYANAN', album: 'Kalki 2898 Ad', category: 'SOUNDTRACK', label: 'TAMIL', year: '2024', image: '/assets/images/albumcover/5.png' },
+    { id: 6, artist: 'SANTHOSH NARAYANAN', album: 'Karnan', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/6.png' },
+    { id: 7, artist: 'SANTHOSH NARAYANAN', album: 'Madras', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2014', image: '/assets/images/albumcover/7.png' },
+    { id: 8, artist: 'SANTHOSH NARAYANAN', album: 'Mahaan', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2022', image: '/assets/images/albumcover/8.png' },
+    { id: 9, artist: 'SANTHOSH NARAYANAN', album: 'Pizza', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2012', image: '/assets/images/albumcover/9.png' },
+    { id: 10, artist: 'SANTHOSH NARAYANAN', album: 'Retro', category: 'ALBUM', label: 'TAMIL', year: '2024', image: '/assets/images/albumcover/10.png' },
+    { id: 11, artist: 'SANTHOSH NARAYANAN', album: 'Sarpatta Parambarai', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2021', image: '/assets/images/albumcover/11.png' },
+    { id: 12, artist: 'SANTHOSH NARAYANAN', album: 'VadaChennai', category: 'SOUNDTRACK', label: 'ORIGINAL MOTION PICTURE', year: '2018', image: '/assets/images/albumcover/12.png' },
 ];
 
 export default function SanaArenaPage() {
@@ -71,10 +71,11 @@ export default function SanaArenaPage() {
                     <div className="relative z-10 w-full h-full u-container flex flex-col md:flex-row items-center justify-end md:justify-between gap-8 px-4 pt-8 pb-24 md:pt-20 md:pb-20">
                         {/* Left side - empty for now or can add content */}
                         <div className="flex-1 hidden md:block"></div>
-                        
+
                         {/* Right side - Pass Card */}
                         {sanaPass && (
-                            <div className="flex-shrink-0 w-full max-w-[360px] md:max-w-[360px]">
+                            <div className="flex-shrink-0 w-full max-w-[320px] md:max-w-[360px] flex flex-col justify-center origin-center md:origin-right"
+                                style={{ transform: 'scale(0.8)' }}>
                                 <PassCard pass={sanaPass} onRegister={handlePassRegister} />
                             </div>
                         )}
@@ -90,57 +91,57 @@ export default function SanaArenaPage() {
                         <span className="arena-btn__notes-container">
                             {/* Notes from left - continuous stream */}
                             <span className="arena-btn__notes arena-btn__notes--left">
-                                <span className="arena-btn__note" style={{animationDelay: '0s'}}>♪</span>
-                                <span className="arena-btn__note" style={{animationDelay: '0.5s'}}>♫</span>
-                                <span className="arena-btn__note" style={{animationDelay: '1s'}}>♩</span>
-                                <span className="arena-btn__note" style={{animationDelay: '1.5s'}}>♬</span>
-                                <span className="arena-btn__note" style={{animationDelay: '2s'}}>𝅘𝅥𝅮</span>
-                                <span className="arena-btn__note" style={{animationDelay: '2.5s'}}>♪</span>
-                                <span className="arena-btn__note" style={{animationDelay: '3s'}}>♫</span>
-                                <span className="arena-btn__note" style={{animationDelay: '3.5s'}}>♩</span>
-                                <span className="arena-btn__note" style={{animationDelay: '4s'}}>♬</span>
-                                <span className="arena-btn__note" style={{animationDelay: '4.5s'}}>♪</span>
-                                <span className="arena-btn__note" style={{animationDelay: '5s'}}>♫</span>
-                                <span className="arena-btn__note" style={{animationDelay: '5.5s'}}>𝅘𝅥𝅮</span>
-                                <span className="arena-btn__note" style={{animationDelay: '6s'}}>♩</span>
-                                <span className="arena-btn__note" style={{animationDelay: '6.5s'}}>♬</span>
-                                <span className="arena-btn__note" style={{animationDelay: '7s'}}>♪</span>
-                                <span className="arena-btn__note" style={{animationDelay: '7.5s'}}>♫</span>
-                                <span className="arena-btn__note" style={{animationDelay: '8s'}}>♩</span>
-                                <span className="arena-btn__note" style={{animationDelay: '8.5s'}}>♬</span>
-                                <span className="arena-btn__note" style={{animationDelay: '9s'}}>𝅘𝅥𝅮</span>
-                                <span className="arena-btn__note" style={{animationDelay: '9.5s'}}>♪</span>
-                                <span className="arena-btn__note" style={{animationDelay: '10s'}}>♫</span>
-                                <span className="arena-btn__note" style={{animationDelay: '10.5s'}}>♩</span>
-                                <span className="arena-btn__note" style={{animationDelay: '11s'}}>♬</span>
-                                <span className="arena-btn__note" style={{animationDelay: '11.5s'}}>♪</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '0s' }}>♪</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '0.5s' }}>♫</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '1s' }}>♩</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '1.5s' }}>♬</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '2s' }}>𝅘𝅥𝅮</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '2.5s' }}>♪</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '3s' }}>♫</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '3.5s' }}>♩</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '4s' }}>♬</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '4.5s' }}>♪</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '5s' }}>♫</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '5.5s' }}>𝅘𝅥𝅮</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '6s' }}>♩</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '6.5s' }}>♬</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '7s' }}>♪</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '7.5s' }}>♫</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '8s' }}>♩</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '8.5s' }}>♬</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '9s' }}>𝅘𝅥𝅮</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '9.5s' }}>♪</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '10s' }}>♫</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '10.5s' }}>♩</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '11s' }}>♬</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '11.5s' }}>♪</span>
                             </span>
                             {/* Notes from right - continuous stream */}
                             <span className="arena-btn__notes arena-btn__notes--right">
-                                <span className="arena-btn__note" style={{animationDelay: '0.25s'}}>♫</span>
-                                <span className="arena-btn__note" style={{animationDelay: '0.75s'}}>♩</span>
-                                <span className="arena-btn__note" style={{animationDelay: '1.25s'}}>♪</span>
-                                <span className="arena-btn__note" style={{animationDelay: '1.75s'}}>♬</span>
-                                <span className="arena-btn__note" style={{animationDelay: '2.25s'}}>𝅘𝅥𝅯</span>
-                                <span className="arena-btn__note" style={{animationDelay: '2.75s'}}>♫</span>
-                                <span className="arena-btn__note" style={{animationDelay: '3.25s'}}>♪</span>
-                                <span className="arena-btn__note" style={{animationDelay: '3.75s'}}>♩</span>
-                                <span className="arena-btn__note" style={{animationDelay: '4.25s'}}>♬</span>
-                                <span className="arena-btn__note" style={{animationDelay: '4.75s'}}>♫</span>
-                                <span className="arena-btn__note" style={{animationDelay: '5.25s'}}>♪</span>
-                                <span className="arena-btn__note" style={{animationDelay: '5.75s'}}>𝅘𝅥𝅯</span>
-                                <span className="arena-btn__note" style={{animationDelay: '6.25s'}}>♩</span>
-                                <span className="arena-btn__note" style={{animationDelay: '6.75s'}}>♬</span>
-                                <span className="arena-btn__note" style={{animationDelay: '7.25s'}}>♫</span>
-                                <span className="arena-btn__note" style={{animationDelay: '7.75s'}}>♪</span>
-                                <span className="arena-btn__note" style={{animationDelay: '8.25s'}}>♩</span>
-                                <span className="arena-btn__note" style={{animationDelay: '8.75s'}}>♬</span>
-                                <span className="arena-btn__note" style={{animationDelay: '9.25s'}}>𝅘𝅥𝅯</span>
-                                <span className="arena-btn__note" style={{animationDelay: '9.75s'}}>♫</span>
-                                <span className="arena-btn__note" style={{animationDelay: '10.25s'}}>♪</span>
-                                <span className="arena-btn__note" style={{animationDelay: '10.75s'}}>♩</span>
-                                <span className="arena-btn__note" style={{animationDelay: '11.25s'}}>♬</span>
-                                <span className="arena-btn__note" style={{animationDelay: '11.75s'}}>♫</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '0.25s' }}>♫</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '0.75s' }}>♩</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '1.25s' }}>♪</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '1.75s' }}>♬</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '2.25s' }}>𝅘𝅥𝅯</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '2.75s' }}>♫</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '3.25s' }}>♪</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '3.75s' }}>♩</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '4.25s' }}>♬</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '4.75s' }}>♫</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '5.25s' }}>♪</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '5.75s' }}>𝅘𝅥𝅯</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '6.25s' }}>♩</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '6.75s' }}>♬</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '7.25s' }}>♫</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '7.75s' }}>♪</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '8.25s' }}>♩</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '8.75s' }}>♬</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '9.25s' }}>𝅘𝅥𝅯</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '9.75s' }}>♫</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '10.25s' }}>♪</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '10.75s' }}>♩</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '11.25s' }}>♬</span>
+                                <span className="arena-btn__note" style={{ animationDelay: '11.75s' }}>♫</span>
                             </span>
                         </span>
 
@@ -163,8 +164,8 @@ export default function SanaArenaPage() {
                         inset: 0,
                         zIndex: 9999,
                         background: '#000',
-                        animation: isClosing 
-                            ? 'arenaFadeOut 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards' 
+                        animation: isClosing
+                            ? 'arenaFadeOut 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards'
                             : 'arenaFadeIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
                     }}
                 >
