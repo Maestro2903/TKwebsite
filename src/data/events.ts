@@ -240,7 +240,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Direct your model and capture a frame where style and attitude come alive.',
     fullDescription:
       'Look closer, chase the details, and connect moments that seem miles apart but belong to the same story. The answers aren\'t handed to you—they\'re hidden in plain sight, waiting for sharp eyes and sharper minds. Can you piece it together before the picture slips away?',
-    image: '/images/event/nontech/REELTOREAL.webp',
+    image: '/images/event/nontech/FRAMESPOT.webp',
     venue: 'CAMPUS',
     startTime: '10:30 AM',
     endTime: '2:00 PM',
