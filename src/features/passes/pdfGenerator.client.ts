@@ -115,9 +115,10 @@ export async function generatePassPDF(passData: PassData): Promise<void> {
     try {
         // Fetch user profile
         const userProfile = await getUserProfile(passData.userId);
-        if (!userProfile) {
-            throw new Error('User profile not found');
-        }
+        const profileName = userProfile?.name ?? 'User';
+        const profileEmail = userProfile?.email ?? '';
+        const profilePhone = userProfile?.phone ?? '';
+        const profileCollege = userProfile?.college ?? '';
 
         // Convert logo SVG to PNG with dark background
         const logoDataUrl = await svgToDataURL('/tk-logo.svg', true);
@@ -200,10 +201,10 @@ export async function generatePassPDF(passData: PassData): Promise<void> {
         pdf.setFont('helvetica', 'normal');
         pdf.text(passData.passType, 70, startY);
         pdf.text(`₹${passData.amount}`, 70, startY + lineHeight);
-        pdf.text(userProfile.name, 70, startY + lineHeight * 2);
-        pdf.text(userProfile.email || 'N/A', 70, startY + lineHeight * 3);
-        pdf.text(userProfile.phone, 70, startY + lineHeight * 4);
-        pdf.text(userProfile.college, 70, startY + lineHeight * 5);
+        pdf.text(profileName, 70, startY + lineHeight * 2);
+        pdf.text(profileEmail || 'N/A', 70, startY + lineHeight * 3);
+        pdf.text(profilePhone, 70, startY + lineHeight * 4);
+        pdf.text(profileCollege, 70, startY + lineHeight * 5);
 
         let currentY = startY + lineHeight * 6 + 10;
 
