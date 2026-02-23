@@ -120,13 +120,18 @@ export default function GroupRegistrationModal({
     const totalMembers = 1 + members.length; // Leader + team members
     const totalAmount = totalMembers * pricePerPerson;
 
-    // Add a new empty member
+    // Add a new empty member (respect event maxMembers limit)
     const addMember = useCallback(() => {
-        setMembers((prev) => [
-            ...prev,
-            { id: `member-${Date.now()}`, name: '', phone: '', email: '' },
-        ]);
-    }, []);
+        setMembers((prev) => {
+            const total = 1 + prev.length; // leader + members
+            const max = selectedEvent?.maxMembers;
+            if (max != null && total >= max) return prev; // already at or over limit
+            return [
+                ...prev,
+                { id: `member-${Date.now()}`, name: '', phone: '', email: '' },
+            ];
+        });
+    }, [selectedEvent?.maxMembers]);
 
     // Remove a member
     const removeMember = useCallback((id: string) => {
