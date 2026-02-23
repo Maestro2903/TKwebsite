@@ -25,9 +25,7 @@ function NavbarInner() {
 
   const navClassName = [
     'nav_wrap',
-    pathname?.startsWith('/sana-arena') && 'nav_wrap--sana-arena',
-    pathname?.startsWith('/events') && 'nav_wrap--events',
-    pathname !== '/' && pathname !== '/proshows' && !pathname?.startsWith('/events') && 'nav_wrap--solid',
+    pathname?.startsWith('/sana-arena') ? 'nav_wrap--sana-arena' : 'nav_wrap--solid',
   ]
     .filter(Boolean)
     .join(' ');

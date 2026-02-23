@@ -143,8 +143,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${bebasNeue.variable} ${dmSans.variable} ${syne.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className={dmSans.className}>
+    <html lang="en" className={`${spaceGrotesk.variable} ${bebasNeue.variable} ${dmSans.variable} ${syne.variable} ${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+      <body className={dmSans.className} suppressHydrationWarning>
         <LenisProvider>
           <ClientLayout>
             <AuthProvider>
