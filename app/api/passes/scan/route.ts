@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/adminApp';
 import { verifySignedQR } from '@/features/passes/qrService';
+import { decryptQRData } from '@/lib/crypto/qrEncryption';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
 
 /**
  * POST /api/passes/scan
  * Verifies a pass and marks it as used.
  * Restricted to Organizers.
+ * Accepts two QR formats:
+ * 1. Signed token: JSON { token: "passId:exp.signature" } or raw token string (webhook-created passes)
+ * 2. Encrypted payload: "IV:hexData" (payment verify-created passes)
  */
 export async function POST(req: NextRequest) {
     // Rate limit to prevent brute-forcing signatures
@@ -28,7 +32,13 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
         }
 
-        const { qrData } = await req.json();
+        let body: { qrData?: string };
+        try {
+            body = await req.json();
+        } catch {
+            return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+        }
+        const qrData = typeof body?.qrData === 'string' ? body.qrData : '';
         if (!qrData) {
             return NextResponse.json({ error: 'Missing QR data' }, { status: 400 });
         }
@@ -41,23 +51,40 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Forbidden: Organizer access required' }, { status: 403 });
         }
 
-        // 2. Extract Token (qrData is a JSON string containing the signed token)
+        // 2. Resolve passId: try signed token first, then encrypted payload
+        let passId: string | null = null;
+
+        // 2a. Try signed token format (JSON with .token or raw "passId:exp.signature")
         let token: string;
         try {
             const parsed = JSON.parse(qrData);
-            token = parsed.token;
+            token = parsed.token ?? qrData;
         } catch {
-            token = qrData; // Fallback if direct token is passed
+            token = qrData;
         }
-
-        // 3. Verify Signature & Expiry
         const verification = verifySignedQR(token);
-        if (!verification.valid) {
-            return NextResponse.json({ error: verification.error || 'Invalid QR code' }, { status: 400 });
+        if (verification.valid && verification.passId) {
+            passId = verification.passId;
         }
 
-        // 4. Update Firestore
-        const passRef = db.collection('passes').doc(verification.passId!);
+        // 2b. If not valid signed token, try encrypted format (IV:hex from payment/verify)
+        if (!passId) {
+            try {
+                const decrypted = decryptQRData(qrData);
+                if (decrypted && typeof decrypted === 'object' && decrypted.id) {
+                    passId = decrypted.id;
+                }
+            } catch {
+                // Not valid encrypted data
+            }
+        }
+
+        if (!passId) {
+            return NextResponse.json({ error: 'Invalid QR code' }, { status: 400 });
+        }
+
+        // 3. Update Firestore
+        const passRef = db.collection('passes').doc(passId);
         const passDoc = await passRef.get();
 
         if (!passDoc.exists) {
@@ -68,11 +95,12 @@ export async function POST(req: NextRequest) {
         if (passData?.usedAt) {
             return NextResponse.json({
                 error: 'Pass already used',
-                usedAt: passData.usedAt.toDate()
+                usedAt: passData.usedAt.toDate?.() ?? passData.usedAt
             }, { status: 409 });
         }
 
         await passRef.update({
+            status: 'used',
             usedAt: new Date(),
             scannedBy: decoded.uid,
         });

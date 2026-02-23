@@ -36,7 +36,13 @@ function getAdminApp() {
   let credential;
 
   if (serviceAccountKey) {
-    credential = admin.credential.cert(JSON.parse(serviceAccountKey) as admin.ServiceAccount);
+    try {
+      credential = admin.credential.cert(JSON.parse(serviceAccountKey) as admin.ServiceAccount);
+    } catch (parseError) {
+      throw new Error(
+        'FIREBASE_SERVICE_ACCOUNT_KEY is invalid JSON. Check escaping (e.g. newlines as \\n).'
+      );
+    }
   } else if (clientEmail && privateKey) {
     const normalizedKey = normalizePrivateKey(privateKey);
     credential = admin.credential.cert({

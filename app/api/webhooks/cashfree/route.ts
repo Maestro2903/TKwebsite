@@ -6,6 +6,7 @@ import QRCode from 'qrcode';
 import { createQRPayload } from '@/features/passes/qrService';
 import { sendEmail, emailTemplates } from '@/features/email/emailService';
 import { generatePassPDFBuffer } from '@/features/passes/pdfGenerator.server';
+import { getCachedEventsByIds } from '@/lib/cache/eventsCache';
 
 /**
  * Verify Cashfree webhook signature per docs:
@@ -128,8 +129,26 @@ export async function POST(req: Request) {
     }
 
     const paymentDoc = snap.docs[0];
-    const paymentData = paymentDoc.data();
-    console.log(`[Webhook] Step 3: Found payment - User: ${paymentData.userId}, Status: ${paymentData.status}, Type: ${paymentData.passType}`);
+    const paymentData = paymentDoc.data() as Record<string, unknown>;
+    if (!paymentData.userId || !paymentData.passType || typeof paymentData.amount !== 'number') {
+      console.error('[Webhook] ERROR: Payment record missing required fields (userId, passType, amount)');
+      return NextResponse.json({ error: 'Invalid payment record' }, { status: 500 });
+    }
+    const userId = paymentData.userId as string;
+    const passType = paymentData.passType as string;
+    const amount = paymentData.amount as number;
+    const selectedEvents = Array.isArray(paymentData.selectedEvents) ? (paymentData.selectedEvents as string[]) : [];
+    const selectedDays = Array.isArray(paymentData.selectedDays) ? (paymentData.selectedDays as string[]) : [];
+    let hasTechEvents = false;
+    let hasNonTechEvents = false;
+    try {
+      const events = await getCachedEventsByIds(selectedEvents);
+      hasTechEvents = events.some((e) => e?.category === 'technical');
+      hasNonTechEvents = events.some((e) => e?.category === 'non_technical');
+    } catch {
+      // continue without event access
+    }
+    console.log(`[Webhook] Step 3: Found payment - User: ${userId}, Status: ${paymentData.status}, Type: ${passType}`);
 
     // Update payment status
     console.log('[Webhook] Step 4: Updating payment status to success...');
@@ -161,21 +180,25 @@ export async function POST(req: Request) {
       
       // 2. Create pass inside transaction
       const passRef = firestore.collection('passes').doc();
-      const qrData = createQRPayload(
-        passRef.id,
-        paymentData.userId,
-        paymentData.passType
-      );
+      const qrData = createQRPayload(passRef.id, userId, passType);
       const qrCodeUrl = await QRCode.toDataURL(qrData);
 
-      const passData: any = {
-        userId: paymentData.userId,
-        passType: paymentData.passType,
-        amount: paymentData.amount,
+      const passData: Record<string, unknown> = {
+        userId,
+        passType,
+        amount,
         paymentId: orderId,
         status: 'paid',
         qrCode: qrCodeUrl,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        selectedEvents,
+        selectedDays,
+        eventAccess: {
+          tech: hasTechEvents,
+          nonTech: hasNonTechEvents,
+          proshowDays: passType === 'proshow' ? ['2026-02-26', '2026-02-28'] : [],
+          fullAccess: passType === 'sana_concert',
+        },
       };
       if (paymentData.countryId != null) {
         passData.countryId = paymentData.countryId;
@@ -183,13 +206,14 @@ export async function POST(req: Request) {
       }
 
       // Group event logic
-      if (paymentData.passType === 'group_events' && paymentData.teamId) {
+      if (passType === 'group_events' && typeof paymentData.teamId === 'string') {
+        const teamId = paymentData.teamId;
         try {
-          const teamDocRef = firestore.collection('teams').doc(paymentData.teamId);
+          const teamDocRef = firestore.collection('teams').doc(teamId);
           const teamDoc = await transaction.get(teamDocRef);
           if (teamDoc.exists) {
             const teamData = teamDoc.data();
-            passData.teamId = paymentData.teamId;
+            passData.teamId = teamId;
             passData.teamSnapshot = {
               teamName: teamData?.teamName || '',
               totalMembers: teamData?.members?.length || 0,
@@ -208,7 +232,7 @@ export async function POST(req: Request) {
               paymentStatus: 'success',
               updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
-            console.log(`[Webhook] Scheduled team ${paymentData.teamId} update in transaction`);
+            console.log(`[Webhook] Scheduled team ${teamId} update in transaction`);
           }
         } catch (err) {
           console.error('[Webhook] Webhook team fetch error', err);
@@ -227,13 +251,13 @@ export async function POST(req: Request) {
     // Send email ONLY if pass was newly created
     if (result.created) {
       console.log('[Webhook] Step 6: Sending confirmation email (new pass)...');
-      const userDoc = await firestore.collection('users').doc(paymentData.userId).get();
+      const userDoc = await firestore.collection('users').doc(userId).get();
       const userData = userDoc.data();
       if (userData?.email) {
         const emailTemplate = emailTemplates.passConfirmation({
           name: userData.name ?? 'there',
-          amount: paymentData.amount,
-          passType: paymentData.passType,
+          amount,
+          passType,
           college: userData.college ?? '-',
           phone: userData.phone ?? '-',
           qrCodeUrl: result.qrCode || '',
@@ -246,8 +270,8 @@ export async function POST(req: Request) {
           const finalPassData = passDoc.data();
 
           const pdfBuffer = await generatePassPDFBuffer({
-            passType: paymentData.passType,
-            amount: paymentData.amount,
+            passType,
+            amount,
             userName: userData.name ?? 'User',
             email: userData.email,
             phone: userData.phone ?? '-',
@@ -264,7 +288,7 @@ export async function POST(req: Request) {
             html: emailTemplate.html,
             attachments: [
               {
-                filename: `takshashila-pass-${paymentData.passType}.pdf`,
+                filename: `takshashila-pass-${passType}.pdf`,
                 content: pdfBuffer,
               },
             ],

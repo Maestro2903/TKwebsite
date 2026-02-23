@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import QRCode from 'qrcode';
 import { sendEmail, emailTemplates } from '@/features/email/emailService';
 import { getAdminFirestore } from '@/lib/firebase/adminApp';
-import { createQRPayload } from '@/features/passes/qrService';
 import { generatePassPDFBuffer } from '@/features/passes/pdfGenerator.server';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
 import { getCachedEventsByIds } from '@/lib/cache/eventsCache';
@@ -19,10 +18,16 @@ export async function POST(req: NextRequest) {
 
   const startTime = Date.now();
   try {
-    const { orderId } = await req.json();
+    let body: { orderId?: string };
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const orderId = typeof body?.orderId === 'string' ? body.orderId.trim() : '';
     console.log(`[Verify] ========== Starting verification for orderId: ${orderId} ==========`);
     console.log(`[Verify] Environment: ${process.env.NEXT_PUBLIC_CASHFREE_ENV || 'not set'}`);
-    if (!orderId || typeof orderId !== 'string') {
+    if (!orderId) {
       console.error('[Verify] ERROR: Missing or invalid orderId');
       return NextResponse.json({ error: 'Missing orderId' }, { status: 400 });
     }
@@ -30,73 +35,12 @@ export async function POST(req: NextRequest) {
     const db = getAdminFirestore();
     console.log('[Verify] Step 1: Firestore connection established');
 
-    const appId =
-      process.env.NEXT_PUBLIC_CASHFREE_APP_ID || process.env.CASHFREE_APP_ID;
-    const secret = process.env.CASHFREE_SECRET_KEY;
-    if (!appId || !secret) {
-      console.error('[Verify] ERROR: Missing Cashfree credentials', { hasAppId: !!appId, hasSecret: !!secret });
-      return NextResponse.json({ error: 'Payment not configured' }, { status: 500 });
-    }
-    console.log(`[Verify] Step 2: Cashfree credentials found (appId: ${appId?.substring(0, 8)}...)`);
-
-
-    // Poll Cashfree order status with retries (handles timing gap after redirect)
-    const MAX_POLL_ATTEMPTS = 5;
-    const POLL_DELAY_MS = 2000;
-    let order: any = null;
-    let lastResponse: Response | null = null;
-
-    for (let attempt = 1; attempt <= MAX_POLL_ATTEMPTS; attempt++) {
-      console.log(`[Verify] Step 3: Fetching order from Cashfree (attempt ${attempt}/${MAX_POLL_ATTEMPTS}): ${CASHFREE_BASE}/orders/${orderId}`);
-      lastResponse = await fetch(`${CASHFREE_BASE}/orders/${orderId}`, {
-        headers: {
-          'x-client-id': appId,
-          'x-client-secret': secret,
-          'x-api-version': '2025-01-01',
-        },
-      });
-
-      if (!lastResponse.ok) {
-        const errorText = await lastResponse.text();
-        console.error(`[Verify] ERROR: Cashfree API returned ${lastResponse.status}`, errorText);
-        return NextResponse.json(
-          { error: `Cashfree API error: ${lastResponse.status}`, details: errorText },
-          { status: 500 }
-        );
-      }
-
-      order = await lastResponse.json();
-      console.log(`[Verify] Step 4: Cashfree order status: ${order.order_status}, Amount: ${order.order_amount} (attempt ${attempt})`);
-
-      if (order.order_status === 'PAID') {
-        console.log(`[Verify] ✅ Payment confirmed as PAID on attempt ${attempt}`);
-        break;
-      }
-
-      if (attempt < MAX_POLL_ATTEMPTS) {
-        console.log(`[Verify] Order not PAID yet (${order.order_status}), waiting ${POLL_DELAY_MS}ms before retry...`);
-        await new Promise(resolve => setTimeout(resolve, POLL_DELAY_MS));
-      }
-    }
-
-    if (order.order_status !== 'PAID') {
-      console.warn(`[Verify] WARNING: Order still not paid after ${MAX_POLL_ATTEMPTS} attempts. Final status: ${order.order_status}`);
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Payment status is ${order.order_status}. Please wait a moment and retry verification.`,
-          status: order.order_status
-        },
-        { status: 400 }
-      );
-    }
-
+    // Look up payment first so we can skip Cashfree when payment is already marked success (e.g. webhook ran but pass creation failed; user retries verify)
     let paymentsSnapshot;
     let paymentDoc;
-    let paymentData;
+    let paymentData: Record<string, unknown>;
 
-    // Retry loop for Firestore propagation
-    console.log('[Verify] Step 5: Looking up payment record in Firestore...');
+    console.log('[Verify] Step 2: Looking up payment record in Firestore...');
     for (let i = 0; i < 3; i++) {
       paymentsSnapshot = await db
         .collection('payments')
@@ -106,6 +50,13 @@ export async function POST(req: NextRequest) {
 
       if (!paymentsSnapshot.empty) {
         console.log(`[Verify] ✅ Payment record found on attempt ${i + 1}`);
+        break;
+      }
+      // Also try direct doc id (payment doc id is orderId)
+      const directDoc = await db.collection('payments').doc(orderId).get();
+      if (directDoc.exists) {
+        paymentsSnapshot = { empty: false, docs: [directDoc] } as typeof paymentsSnapshot;
+        console.log('[Verify] ✅ Payment record found by doc id');
         break;
       }
       console.warn(`[Verify] Attempt ${i + 1}/3 - Record not found. ${i < 2 ? 'Retrying in 1s...' : 'Final attempt failed'}`);
@@ -122,24 +73,104 @@ export async function POST(req: NextRequest) {
     }
 
     paymentDoc = paymentsSnapshot.docs[0];
-    paymentData = paymentDoc.data();
-    console.log(`[Verify] Step 6: Payment record details:`, {
-      userId: paymentData.userId,
+    paymentData = paymentDoc.data() as Record<string, unknown>;
+    if (!paymentData.userId || !paymentData.passType || typeof paymentData.amount !== 'number') {
+      console.error('[Verify] ERROR: Payment record missing required fields', {
+        hasUserId: !!paymentData.userId,
+        hasPassType: !!paymentData.passType,
+        hasAmount: typeof paymentData.amount === 'number',
+      });
+      return NextResponse.json(
+        { error: 'Invalid payment record; missing required fields.' },
+        { status: 500 }
+      );
+    }
+    const userId = paymentData.userId as string;
+    const passType = paymentData.passType as string;
+    const amount = paymentData.amount as number;
+    console.log('[Verify] Step 3: Payment record details:', {
+      userId,
       currentStatus: paymentData.status,
-      amount: paymentData.amount,
-      passType: paymentData.passType
+      amount,
+      passType,
     });
 
-    console.log('[Verify] Step 7: Updating payment status to success...');
-    await paymentDoc.ref.update({
-      status: 'success',
-      updatedAt: new Date()
-    });
-    console.log('[Verify] ✅ Payment status updated to success in Firestore');
+    // If payment is already success (e.g. webhook updated it but pass wasn't created), skip Cashfree and go straight to pass creation
+    if (paymentData.status === 'success') {
+      console.log('[Verify] Payment already marked success in DB; skipping Cashfree poll, creating pass if missing.');
+      await paymentDoc.ref.update({ updatedAt: new Date() }); // no-op refresh
+    } else {
+      const appId =
+        process.env.NEXT_PUBLIC_CASHFREE_APP_ID || process.env.CASHFREE_APP_ID;
+      const secret = process.env.CASHFREE_SECRET_KEY;
+      if (!appId || !secret) {
+        console.error('[Verify] ERROR: Missing Cashfree credentials', { hasAppId: !!appId, hasSecret: !!secret });
+        return NextResponse.json({ error: 'Payment not configured' }, { status: 500 });
+      }
+
+      const MAX_POLL_ATTEMPTS = 5;
+      const POLL_DELAY_MS = 2000;
+      let order: { order_status?: string; order_amount?: number } | null = null;
+
+      for (let attempt = 1; attempt <= MAX_POLL_ATTEMPTS; attempt++) {
+        console.log(`[Verify] Step 4: Fetching order from Cashfree (attempt ${attempt}/${MAX_POLL_ATTEMPTS})...`);
+        const lastResponse = await fetch(`${CASHFREE_BASE}/orders/${orderId}`, {
+          headers: {
+            'x-client-id': appId,
+            'x-client-secret': secret,
+            'x-api-version': '2025-01-01',
+          },
+        });
+
+        if (!lastResponse.ok) {
+          const errorText = await lastResponse.text();
+          console.error(`[Verify] ERROR: Cashfree API returned ${lastResponse.status}`, errorText);
+          return NextResponse.json(
+            { error: `Cashfree API error: ${lastResponse.status}`, details: errorText },
+            { status: 500 }
+          );
+        }
+
+        order = await lastResponse.json();
+        console.log(`[Verify] Cashfree order status: ${order?.order_status} (attempt ${attempt})`);
+
+        if (order?.order_status === 'PAID') {
+          console.log('[Verify] ✅ Payment confirmed as PAID');
+          break;
+        }
+
+        if (attempt < MAX_POLL_ATTEMPTS) {
+          await new Promise(resolve => setTimeout(resolve, POLL_DELAY_MS));
+        }
+      }
+
+      if (order?.order_status !== 'PAID') {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Payment status is ${order?.order_status ?? 'unknown'}. Please wait a moment and retry verification.`,
+            status: order?.order_status
+          },
+          { status: 400 }
+        );
+      }
+
+      console.log('[Verify] Step 5: Updating payment status to success...');
+      await paymentDoc.ref.update({
+        status: 'success',
+        updatedAt: new Date()
+      });
+      console.log('[Verify] ✅ Payment status updated to success in Firestore');
+    }
 
     // Fetch event details for eventAccess computation (before transaction)
     console.log('[Verify] Step 8: Fetching selected events details...');
-    const selectedEvents = paymentData.selectedEvents || [];
+    const selectedEvents = Array.isArray(paymentData.selectedEvents)
+      ? (paymentData.selectedEvents as string[])
+      : [];
+    const selectedDays = Array.isArray(paymentData.selectedDays)
+      ? (paymentData.selectedDays as string[])
+      : [];
     let hasTechEvents = false;
     let hasNonTechEvents = false;
 
@@ -170,18 +201,19 @@ export async function POST(req: NextRequest) {
       if (!existingPassSnapshot.empty) {
         // Pass already exists - return it
         const existingPass = existingPassSnapshot.docs[0];
+        const existingData = existingPass.data();
         console.log(`[Verify] ℹ️ Pass already exists: ${existingPass.id} (transaction check)`);
         return {
           created: false,
           passId: existingPass.id,
-          qrCode: existingPass.data().qrCode
+          qrCode: typeof existingData?.qrCode === 'string' ? existingData.qrCode : undefined,
         };
       }
 
       console.log('[Verify] No existing pass found, creating new pass in transaction...');
 
       // 2. Fetch user data for QR code
-      const userDocRef = db.collection('users').doc(paymentData.userId as string);
+      const userDocRef = db.collection('users').doc(userId);
       const userDoc = await transaction.get(userDocRef);
       const userData = userDoc.exists ? userDoc.data() : null;
 
@@ -194,9 +226,10 @@ export async function POST(req: NextRequest) {
       // Prepare QR data based on pass type
       let qrData: any;
 
-      if (paymentData.passType === 'group_events' && paymentData.teamId) {
+      if (passType === 'group_events' && typeof paymentData.teamId === 'string') {
+        const teamId = paymentData.teamId;
         // For group events, fetch team data first
-        const teamDocRef = db.collection('teams').doc(paymentData.teamId);
+        const teamDocRef = db.collection('teams').doc(teamId);
         const teamDoc = await transaction.get(teamDocRef);
         const teamData = teamDoc.exists ? teamDoc.data() : null;
 
@@ -204,23 +237,23 @@ export async function POST(req: NextRequest) {
           // Group event - include all team member names
           qrData = {
             id: passRef.id,
-            passType: paymentData.passType,
+            passType,
             teamName: teamData.teamName || '',
             members: (teamData.members || []).map((m: any) => ({
               name: m.name,
               isLeader: m.isLeader
             })),
             events: selectedEvents,
-            days: paymentData.selectedDays || []
+            days: selectedDays,
           };
         } else {
           // Fallback if team not found
           qrData = {
             id: passRef.id,
             name: userData?.name || 'Unknown',
-            passType: paymentData.passType,
+            passType,
             events: selectedEvents,
-            days: paymentData.selectedDays || []
+            days: selectedDays,
           };
         }
       } else {
@@ -228,9 +261,9 @@ export async function POST(req: NextRequest) {
         qrData = {
           id: passRef.id,
           name: userData?.name || 'Unknown',
-          passType: paymentData.passType,
+          passType,
           events: selectedEvents,
-          days: paymentData.selectedDays || []
+          days: selectedDays,
         };
       }
 
@@ -244,21 +277,21 @@ export async function POST(req: NextRequest) {
 
       // Prepare base pass data
       const passData: any = {
-        userId: paymentData.userId,
-        passType: paymentData.passType,
-        amount: paymentData.amount,
+        userId,
+        passType,
+        amount,
         paymentId: orderId,
         status: 'paid',
         qrCode: qrCodeUrl,
         createdAt: new Date(),
         // Event selection fields
-        selectedEvents: selectedEvents,
-        selectedDays: paymentData.selectedDays || [],
+        selectedEvents,
+        selectedDays,
         eventAccess: {
           tech: hasTechEvents,
           nonTech: hasNonTechEvents,
-          proshowDays: paymentData.passType === 'proshow' ? ['2026-02-26', '2026-02-28'] : [],
-          fullAccess: paymentData.passType === 'sana_concert',
+          proshowDays: passType === 'proshow' ? ['2026-02-26', '2026-02-28'] : [],
+          fullAccess: passType === 'sana_concert',
         },
       };
       if (paymentData.countryId != null) {
@@ -267,15 +300,16 @@ export async function POST(req: NextRequest) {
       }
 
       // For group events, fetch and snapshot team data
-      if (paymentData.passType === 'group_events' && paymentData.teamId) {
+      if (passType === 'group_events' && typeof paymentData.teamId === 'string') {
+        const teamId = paymentData.teamId;
         try {
-          const teamDocRef = db.collection('teams').doc(paymentData.teamId);
+          const teamDocRef = db.collection('teams').doc(teamId);
           const teamDoc = await transaction.get(teamDocRef);
           if (teamDoc.exists) {
             const teamData = teamDoc.data();
 
             // Create immutable snapshot of team at payment time
-            passData.teamId = paymentData.teamId;
+            passData.teamId = teamId;
             passData.teamSnapshot = {
               teamName: teamData?.teamName || '',
               totalMembers: teamData?.members?.length || 0,
@@ -294,7 +328,7 @@ export async function POST(req: NextRequest) {
               paymentStatus: 'success',
               updatedAt: new Date(),
             });
-            console.log(`[Verify] Scheduled team ${paymentData.teamId} update in transaction`);
+            console.log(`[Verify] Scheduled team ${teamId} update in transaction`);
           }
         } catch (teamError) {
           console.error('[Verify] Error fetching team data:', teamError);
@@ -315,20 +349,17 @@ export async function POST(req: NextRequest) {
     // Send email ONLY if pass was newly created
     if (result.created) {
       console.log('[Verify] Step 10: Sending confirmation email (new pass)...');
-      const userDoc = await db
-        .collection('users')
-        .doc(paymentData.userId as string)
-        .get();
+      const userDoc = await db.collection('users').doc(userId).get();
       const userData = userDoc.data();
 
       if (userData?.email) {
         const emailTemplate = emailTemplates.passConfirmation({
           name: userData.name ?? 'there',
-          amount: paymentData.amount,
-          passType: paymentData.passType,
+          amount,
+          passType,
           college: userData.college ?? '-',
           phone: userData.phone ?? '-',
-          qrCodeUrl: result.qrCode,
+          qrCodeUrl: result.qrCode ?? '',
         });
 
         // Generate PDF pass and send with attachment
@@ -338,13 +369,13 @@ export async function POST(req: NextRequest) {
           const finalPassData = passDoc.data();
 
           const pdfBuffer = await generatePassPDFBuffer({
-            passType: paymentData.passType,
-            amount: paymentData.amount,
+            passType,
+            amount,
             userName: userData.name ?? 'User',
             email: userData.email,
             phone: userData.phone ?? '-',
             college: userData.college ?? '-',
-            qrCode: result.qrCode,
+            qrCode: result.qrCode ?? '',
             teamName: finalPassData?.teamSnapshot?.teamName,
             members: finalPassData?.teamSnapshot?.members,
           });
@@ -355,7 +386,7 @@ export async function POST(req: NextRequest) {
             html: emailTemplate.html,
             attachments: [
               {
-                filename: `takshashila-pass-${paymentData.passType}.pdf`,
+                filename: `takshashila-pass-${passType}.pdf`,
                 content: pdfBuffer,
               },
             ],
@@ -380,7 +411,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       passId: result.passId,
-      qrCode: result.qrCode,
+      qrCode: result.qrCode ?? null,
       message: result.created ? undefined : 'Pass already exists',
     });
   } catch (error: unknown) {
@@ -393,7 +424,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Server error',
-        details: error instanceof Error ? error.stack : String(error)
+        details: error instanceof Error ? error.stack : String(error),
       },
       { status: 500 }
     );

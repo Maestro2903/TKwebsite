@@ -15,11 +15,11 @@ import { getCachedEvents } from '@/lib/cache/eventsCache';
  */
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const date = searchParams.get('date') || undefined;
-    const type = searchParams.get('type') || undefined;
-    const category = searchParams.get('category') || undefined;
-    const passType = searchParams.get('passType') || undefined;
+    const searchParams = req.nextUrl.searchParams;
+    const date = searchParams.get('date')?.trim() || undefined;
+    const type = searchParams.get('type')?.trim() || undefined;
+    const category = searchParams.get('category')?.trim() || undefined;
+    const passType = searchParams.get('passType')?.trim() || undefined;
 
     const events = await getCachedEvents({ date, type, category, passType });
 
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch events'
+        error: error instanceof Error ? error.message : 'Failed to fetch events',
       },
       { status: 500 }
     );
