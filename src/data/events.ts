@@ -447,7 +447,9 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     venue: 'AI Lab',
     startTime: '1:00 PM',
     date: '2026-02-27',
-    prizePool: 20000,
+    prizePool: 3000,
+    minMembers: 2,
+    maxMembers: 2,
   },
   {
     id: 'mock-global-summit',
