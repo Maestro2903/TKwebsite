@@ -240,7 +240,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
       'Direct your model and capture a frame where style and attitude come alive.',
     fullDescription:
       'Look closer, chase the details, and connect moments that seem miles apart but belong to the same story. The answers aren\'t handed to you—they\'re hidden in plain sight, waiting for sharp eyes and sharper minds. Can you piece it together before the picture slips away?',
-    image: '/images/event/nontech/REELTOREAL.webp',
+    image: '/images/event/nontech/FRAMESPOT.webp',
     venue: 'CAMPUS',
     startTime: '10:30 AM',
     endTime: '2:00 PM',
@@ -575,16 +575,6 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     startTime: '10:30 AM',
     date: '2026-02-28',
     prizePool: 0,
-  },
-  {
-    id: 'model-mastery',
-    name: 'MODEL MASTERY',
-    description:
-      'A high-stakes solo "vibe coding" challenge where you architect a frontend website using Google\'s latest AI tools. You get exactly one attempt (20-minute limit) to craft a precise natural language prompt to command the AI to build a fully functional interface.',
-    image: TECH.final,
-    venue: 'CSE Labs',
-    date: '2026-02-28',
-    prizePool: 25000,
   },
   {
     id: 'the-90-minute-ceo',

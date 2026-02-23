@@ -93,64 +93,65 @@ export default function PassCardTicket({ pass, onRegister }: PassCardTicketProps
       role="article"
       className={cn(
         'pass-card-ticket',
-        'flex flex-col h-full w-full max-w-[380px]',
+        'flex flex-col w-full max-w-[320px] mx-auto',
         'rounded-2xl overflow-hidden',
-        'border border-neutral-200/80 bg-white',
-        'shadow-[0_8px_30px_rgba(0,0,0,0.12)]'
+        'border border-neutral-200/80 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)]',
+        // Make text compact globally for the ticket to fit
+        'text-[0.8rem] leading-tight'
       )}
       data-pass-type={pass.passType}
     >
       {/* Header: gradient from globals.css, punch holes, globe, title, price pill */}
-      <div className="pass-card-ticket__header relative flex flex-col items-center justify-center px-6 py-6 rounded-t-2xl text-[#1a1a1a] shrink-0">
-        <div className="absolute top-3 left-4 size-[10px] rounded-full bg-black" aria-hidden="true"></div>
-        <div className="absolute top-3 right-4 size-[10px] rounded-full bg-black" aria-hidden="true"></div>
-        <div className="mb-1.5">
-          <GlobeIcon className="w-11 h-[22px] text-[#1a1a1a]" />
+      <div className="pass-card-ticket__header relative flex flex-col items-center justify-center p-4 rounded-t-2xl text-[#1a1a1a] shrink-0">
+        <div className="absolute top-3 left-4 size-[8px] rounded-full bg-black" aria-hidden="true"></div>
+        <div className="absolute top-3 right-4 size-[8px] rounded-full bg-black" aria-hidden="true"></div>
+        <div className="mb-1">
+          <GlobeIcon className="w-8 h-[16px] text-[#1a1a1a]" />
         </div>
-        <p className="text-[10px] font-semibold tracking-[0.2em] mb-4">TAKSHASHILA 2026</p>
-        <div className="relative flex justify-center items-center mb-2">
+        <p className="text-[8px] font-semibold tracking-[0.2em] mb-2">TAKSHASHILA 2026</p>
+        <div className="relative flex justify-center items-center mb-1">
           <span
-            className="absolute w-[140%] max-w-[260px] h-[55%] border border-[#1a1a1a]/40 rounded-full -rotate-[12deg]"
+            className="absolute w-[140%] max-w-[200px] h-[55%] border border-[#1a1a1a]/40 rounded-full -rotate-[12deg]"
             aria-hidden="true"
           />
-          <h2 className="relative z-10 font-bold text-5xl sm:text-6xl md:text-7xl leading-none tracking-tight text-[#1a1a1a]">
+          <h2 className="relative z-10 font-bold text-4xl leading-none tracking-tight text-[#1a1a1a]">
             {shortTitle}
           </h2>
         </div>
-        <p className="text-[11px] font-semibold tracking-[0.25em] mb-4">+ {pass.title} +</p>
-        <div className="border border-[#1a1a1a] rounded-full px-6 py-2 bg-white/20 mb-2">
-          <span className="text-sm font-semibold tracking-wide">{pass.price}</span>
+        <p className="text-[9px] font-semibold tracking-[0.25em] mb-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[90%]">+ {pass.title} +</p>
+        <div className="border border-[#1a1a1a] rounded-full px-4 py-1 bg-white/20 mb-1">
+          <span className="text-xs font-semibold tracking-wide">{pass.price}</span>
         </div>
-        <p className="text-[10px] text-[#1a1a1a]/70">{priceLabel}</p>
-        <div className="w-12 h-0.5 bg-[#1a1a1a]/20 rounded-full mt-2 overflow-hidden">
+        <p className="text-[8px] text-[#1a1a1a]/70">{priceLabel}</p>
+        <div className="w-10 h-0.5 bg-[#1a1a1a]/20 rounded-full mt-1.5 overflow-hidden">
           <div className="h-full w-[70%] bg-[#1a1a1a] rounded-full" />
         </div>
       </div>
 
       {/* Divider with cutouts – connects header to body */}
-      <div className="relative h-[18px] bg-neutral-100 flex items-center border-t border-neutral-200/60">
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[18px] h-[18px] rounded-full bg-neutral-800" aria-hidden="true" />
-        <span className="flex-1 mx-3 border-t border-dashed border-neutral-300" />
-        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-[18px] h-[18px] rounded-full bg-neutral-800" aria-hidden="true" />
+      <div className="relative h-[14px] bg-neutral-100 flex items-center border-t border-neutral-200/60 shrink-0">
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[14px] h-[14px] rounded-full bg-neutral-800" aria-hidden="true" />
+        <span className="flex-1 mx-2 border-t border-dashed border-neutral-300" />
+        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-[14px] h-[14px] rounded-full bg-neutral-800" aria-hidden="true" />
       </div>
 
       {/* White section: flex-grow; two wrappers so dynamic content expands and static footer aligns across cards */}
-      <div className="pass-card-ticket__body bg-neutral-50 flex flex-col flex-grow min-h-0 px-5">
+      <div className="pass-card-ticket__body bg-neutral-50 flex flex-col flex-grow min-h-0 px-4">
         {/* Wrapper A: Dynamic content – min-height matches Day Pass reference so all cards share same layout */}
-        <div className="flex flex-col flex-grow min-h-[220px] gap-4">
+        <div className="flex flex-col flex-grow gap-2 pt-2 pb-2">
           <div>
-            <p className="text-[8px] uppercase tracking-wider text-neutral-500 mb-1">Description</p>
-            <p className="text-xs font-medium text-neutral-800 leading-snug">{pass.details}</p>
-            <div className="flex justify-end gap-1 mt-2 text-right">
-              <span className="text-3xl font-bold leading-none text-neutral-800">T</span>
-              <span className="text-2xl font-bold leading-none text-neutral-800">26</span>
+            <p className="text-[7px] uppercase tracking-wider text-neutral-500 mb-0.5">Description</p>
+            <p className="text-[9px] font-medium text-neutral-800 leading-snug">{pass.details}</p>
+            <div className="flex justify-end gap-1 mt-1 text-right">
+              <span className="text-xl font-bold leading-none text-neutral-800">T</span>
+              <span className="text-lg font-bold leading-none text-neutral-800">26</span>
             </div>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-800 mb-2">Includes</p>
-            <ul className="flex flex-col gap-1.5">
+            <p className="text-[8px] font-bold uppercase tracking-wider text-neutral-800 mb-1">Includes</p>
+            <ul className="flex flex-col gap-1">
               {includesStrings.slice(0, 4).map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-[10px] text-neutral-700">
+                <li key={i} className="flex items-start gap-1 text-[8px] text-neutral-700">
                   <span className="text-neutral-800">•</span>
                   <span>{item}</span>
                 </li>
@@ -160,15 +161,15 @@ export default function PassCardTicket({ pass, onRegister }: PassCardTicketProps
         </div>
 
         {/* Wrapper B: Static footer – mt-auto pins to bottom; same layout on every card */}
-        <div className="pass-card-ticket__footer mt-auto shrink-0 pt-4">
+        <div className="pass-card-ticket__footer mt-auto shrink-0 pt-2 pb-3 border-t border-neutral-200/50">
           <div>
-            <p className="text-[8px] font-bold uppercase tracking-wider text-neutral-600 mb-0.5">Best for</p>
-            <p className="text-[9px] text-neutral-600 leading-snug max-w-[200px]" title={bestFor}>
+            <p className="text-[7px] font-bold uppercase tracking-wider text-neutral-600 mb-0.5">Best for</p>
+            <p className="text-[8px] text-neutral-600 leading-snug max-w-[200px]" title={bestFor}>
               {bestFor}
             </p>
           </div>
-          <div className="flex items-end justify-between gap-3 mt-2">
-            <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-end justify-between gap-2 mt-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
               <div className="flex flex-col">
                 {[0, 1].map((row) => (
                   <div key={row} className="flex">
@@ -176,7 +177,7 @@ export default function PassCardTicket({ pass, onRegister }: PassCardTicketProps
                       <div
                         key={col}
                         className={cn(
-                          'w-1 h-1',
+                          'w-0.5 h-0.5',
                           (row + col) % 2 === 0 ? 'bg-neutral-800' : 'bg-neutral-200'
                         )}
                       />
@@ -185,27 +186,27 @@ export default function PassCardTicket({ pass, onRegister }: PassCardTicketProps
                 ))}
               </div>
               <div
-                className="flex gap-px h-5 items-end"
+                className="flex gap-px h-3 items-end"
                 role="img"
                 aria-label="Decorative barcode"
               >
                 {heights.map((h, i) => (
                   <div
                     key={i}
-                    className="w-0.5 bg-neutral-800 flex-shrink-0"
+                    className="w-[1px] bg-neutral-800 flex-shrink-0"
                     style={{ height: h }}
                   />
                 ))}
               </div>
             </div>
-            <div className="w-11 h-11 rounded-full border-2 border-neutral-800 flex items-center justify-center flex-shrink-0" aria-hidden="true">
-              <span className="text-sm font-bold text-neutral-800">T26</span>
+            <div className="w-8 h-8 rounded-full border border-neutral-800 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+              <span className="text-[10px] font-bold text-neutral-800">T26</span>
             </div>
           </div>
-          <p className="text-[8px] text-neutral-400 tracking-wider mt-1">UNAUTHORISED RESALE PROHIBITED</p>
+          <p className="text-[6px] text-neutral-400 tracking-wider mt-1">UNAUTHORISED RESALE PROHIBITED</p>
 
           {/* Fixed spacing between barcode/stamp and Register button */}
-          <div className="pass-card-ticket__footer-cta border-t border-black mt-6 pt-4" onClick={(e) => e.stopPropagation()}>
+          <div className="pass-card-ticket__footer-cta border-t border-black mt-3 pt-2" onClick={(e) => e.stopPropagation()}>
             {cta}
           </div>
         </div>
