@@ -1,11 +1,12 @@
 import * as functions from "firebase-functions/v1";
 import { defineSecret } from "firebase-functions/params";
 import * as admin from "firebase-admin";
-import { Resend } from "resend";
+import * as nodemailer from "nodemailer";
 
 type RegistrationStatus = "pending" | "converted" | "cancelled";
 
-const RESEND_API_KEY = defineSecret("RESEND_API_KEY");
+const SMTP_USER = defineSecret("SMTP_USER");
+const SMTP_PASS = defineSecret("SMTP_PASS");
 
 type RegistrationDoc = {
   userId?: string;
@@ -15,12 +16,6 @@ type RegistrationDoc = {
   status?: RegistrationStatus | string;
   emailSentForStatus?: RegistrationStatus | string;
 };
-
-function getResendApiKey(): string | undefined {
-  // Using Firebase Secret; value() is only available at runtime inside the function.
-  const value = RESEND_API_KEY.value();
-  return value ?? process.env.RESEND_API_KEY;
-}
 
 function isAllowedStatus(value: unknown): value is RegistrationStatus {
   return value === "pending" || value === "converted" || value === "cancelled";
@@ -125,17 +120,21 @@ function buildEmail(status: RegistrationStatus, name?: string) {
 }
 
 export const onRegistrationStatusChange = functions
-  .runWith({ secrets: [RESEND_API_KEY] })
+  .runWith({ secrets: [SMTP_USER, SMTP_PASS] })
   .firestore
   .document("registrations/{registrationId}")
-  .onUpdate(async (change, context) => {
-    const before = change.before.data() as RegistrationDoc | undefined;
-    const after = change.after.data() as RegistrationDoc | undefined;
-    if (!before || !after) return;
+  .onWrite(async (change, context) => {
+    const before = change.before.exists
+      ? (change.before.data() as RegistrationDoc | undefined)
+      : undefined;
+    const after = change.after.exists
+      ? (change.after.data() as RegistrationDoc | undefined)
+      : undefined;
+    if (!after) return;
 
-    const beforeStatus = before.status;
+    const beforeStatus = before?.status;
     const afterStatus = after.status;
-    if (beforeStatus === afterStatus) return;
+    if (beforeStatus === afterStatus && before) return;
     if (!isAllowedStatus(afterStatus)) return;
 
     const email = after.email?.trim();
@@ -172,27 +171,34 @@ export const onRegistrationStatusChange = functions
       throw err;
     }
 
-    const apiKey = getResendApiKey();
-    if (!apiKey) {
+    const smtpUser = SMTP_USER.value() || process.env.SMTP_USER;
+    const smtpPass = SMTP_PASS.value() || process.env.SMTP_PASS;
+    if (!smtpUser || !smtpPass) {
       await logRef.set(
         {
           state: "failed",
-          error: "Missing Resend API key (functions.config().resend.key or RESEND_API_KEY).",
+          error: "Missing SMTP credentials (SMTP_USER / SMTP_PASS).",
           failedAt: admin.firestore.FieldValue.serverTimestamp(),
         },
         { merge: true }
       );
-      functions.logger.error("Missing Resend API key");
+      functions.logger.error("Missing SMTP credentials");
       return;
     }
 
     const { subject, html } = buildEmail(afterStatus, after.name);
-    const resend = new Resend(apiKey);
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+    });
 
     try {
-      const from = "Takshashila <noreply@cittakshashila.com>";
-      const response = await resend.emails.send({
-        from,
+      const fromAddress = `"CIT Takshashila" <${smtpUser}>`;
+      const info = await transporter.sendMail({
+        from: fromAddress,
         to: email,
         subject,
         html,
@@ -202,7 +208,7 @@ export const onRegistrationStatusChange = functions
         logRef.set(
           {
             state: "sent",
-            resendId: response.data?.id ?? null,
+            smtpMessageId: (info as any)?.messageId ?? null,
             sentAt: admin.firestore.FieldValue.serverTimestamp(),
           },
           { merge: true }
