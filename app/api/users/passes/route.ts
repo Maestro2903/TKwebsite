@@ -32,9 +32,6 @@ export async function GET(req: NextRequest) {
 
         const passes = passesSnapshot.docs.map((doc) => {
             const data = doc.data();
-            const createdAt = data.createdAt?.toDate?.() || null;
-            const usedAt = data.usedAt?.toDate?.() || null;
-
             return {
                 id: doc.id,
                 passType: data.passType,
@@ -42,12 +39,8 @@ export async function GET(req: NextRequest) {
                 status: data.status,
                 qrCode: data.qrCode,
                 paymentId: data.paymentId,
-                createdAt,
-                usedAt,
-                selectedEvents: data.selectedEvents || [],
-                selectedDays: data.selectedDays || [],
-                eventAccess: data.eventAccess || null,
-                teamSnapshot: data.teamSnapshot || null,
+                createdAt: data.createdAt?.toDate?.() || null,
+                usedAt: data.usedAt?.toDate?.() || null,
             };
         });
 

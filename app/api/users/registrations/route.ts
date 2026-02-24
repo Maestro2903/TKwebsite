@@ -29,25 +29,9 @@ export async function GET(req: NextRequest) {
 
     const registrations = snap.docs.map((doc) => {
       const data = doc.data() as Registration;
-      const createdAt =
-        (data.createdAt as any)?.toDate?.() instanceof Date
-          ? (data.createdAt as any).toDate()
-          : data.createdAt instanceof Date
-          ? data.createdAt
-          : null;
-
-      const updatedAt =
-        (data.updatedAt as any)?.toDate?.() instanceof Date
-          ? (data.updatedAt as any).toDate()
-          : data.updatedAt instanceof Date
-          ? data.updatedAt
-          : null;
-
       return {
         id: doc.id,
         ...data,
-        createdAt,
-        updatedAt,
       };
     });
 
