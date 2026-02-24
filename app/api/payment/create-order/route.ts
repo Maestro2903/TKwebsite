@@ -226,8 +226,10 @@ export async function POST(req: NextRequest) {
 
     // Priority: NEXT_PUBLIC_APP_URL > APP_URL > detected host
     const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || dynamicBaseUrl)?.replace(/\/$/, '');
+    // Cashfree requires HTTPS return_url even in dev; upgrade http:// to https:// for safety.
+    const cashfreeBaseUrl = baseUrl.replace(/^http:\/\//, 'https://');
 
-    console.log(`[Order] Using baseUrl: ${baseUrl}`);
+    console.log(`[Order] Using baseUrl: ${baseUrl} (Cashfree: ${cashfreeBaseUrl})`);
 
     const requestBody = {
       order_amount: amount,
@@ -240,8 +242,8 @@ export async function POST(req: NextRequest) {
         ...(customerEmail && { customer_email: customerEmail }),
       },
       order_meta: {
-        return_url: `${baseUrl}/payment/callback?order_id=${orderId}`,
-        notify_url: `${baseUrl}/api/webhooks/cashfree`,
+        return_url: `${cashfreeBaseUrl}/payment/callback?order_id=${orderId}`,
+        notify_url: `${cashfreeBaseUrl}/api/webhooks/cashfree`,
       },
     };
 

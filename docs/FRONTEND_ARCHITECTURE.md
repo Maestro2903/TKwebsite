@@ -1,328 +1,439 @@
-## 1. Frontend Overview
+## Frontend Architecture
 
-The frontend is a **React 19** application built with **Next.js 16 App Router** and **TypeScript**. It provides:
+This document describes the frontend architecture of the TKwebsite app: App Router structure, layouts, components, contexts, hooks, design system, animations, and performance patterns.
 
-- Marketing pages (home, events, proshows, SaNa Arena)
-- Registration and payment user flows
-- Auth‑aware navigation and pass viewing
-- Organizer‑friendly layouts (sticky CTAs, clear hierarchy)
-
-Styling is implemented with **Tailwind CSS 4** and a small set of custom CSS files in `styles/`, plus animation libraries (Framer Motion, GSAP, Lenis).
+All details are based on the code under `app/**`, `src/components/**`, `src/features/**`, `src/contexts/**`, `styles/**`, and related modules.
 
 ---
 
-## 2. Folder & File Structure
+### App Router Structure & Layout Hierarchy
 
-### 2.1 High-Level Layout
+#### Root Layout
 
-```text
-TKwebsite/
-├── app/                    # Next.js App Router (pages + API routes)
-│   ├── api/                # API route handlers (server)
-│   ├── events/             # /events page
-│   ├── events-rules/       # /events-rules page
-│   ├── login/              # /login page
-│   ├── payment/            # /payment/* pages
-│   ├── proshows/           # /proshows page
-│   ├── register/           # /register/* pages
-│   ├── sana-arena/         # /sana-arena page
-│   ├── test-font/          # internal font testing page
-│   ├── layout.tsx          # root layout (ClientLayout + providers)
-│   └── page.tsx            # home page
-├── src/
-│   ├── components/
-│   │   ├── decorative/     # visual effects & backgrounds
-│   │   ├── layout/         # navigation, footer, client layout
-│   │   ├── sections/       # page-level sections (home, events, proshows, registration)
-│   │   ├── ui/             # reusable UI primitives
-│   │   └── v1/             # legacy/experimental components
-│   ├── contexts/           # React context providers
-│   ├── data/               # static config & content (events, passes, shows, rules)
-│   ├── features/           # feature modules (auth, email, passes, payments)
-│   ├── hooks/              # custom hooks (Lenis, GSAP)
-│   ├── lib/                # shared frontend utilities (Firebase client, helpers)
-│   └── types/              # shared TypeScript types
-├── styles/                 # global CSS
-│   ├── globals.css
-│   ├── components.css
-│   ├── glowing-dots-grid.css
-│   └── reset.css
-└── public/                 # static assets (images, fonts, video, audio)
-```
+- **File**: `app/layout.tsx`
+- **Responsibilities**:
+  - Imports global styles: `@/styles/globals.css`.
+  - Loads multiple Google fonts (Space Grotesk, Bebas Neue, DM Sans, Syne, Inter, JetBrains Mono) and exposes them via CSS variables.
+  - Defines:
+    - `viewport` (`width=device-width`, `initialScale=1`, `viewportFit=cover`).
+    - `metadata` (title, description, OpenGraph, Twitter metadata) with `metadataBase` set to `https://cittakshashila.org`.
+  - Wraps the app in:
+    - `LenisProvider` (smooth scrolling context).
+    - `ClientLayout` (global loading experience + referral capture).
+    - `AuthProvider` (Firebase auth + profile).
+    - `Navbar`.
+  - Injects JSON-LD scripts:
+    - Organization schema (`Organization`).
+    - Event schema (`Event` describing the festival).
 
-### 2.2 Components
+Rendering tree from `RootLayout`:
 
-**`src/components/layout/`**
+- `<html lang="en" className="...font variables...">`
+  - `<body className={dmSans.className}>`
+    - `<LenisProvider>`
+      - `<ClientLayout>`
+        - `<AuthProvider>`
+          - `<AppContent>`
+            - `<Navbar />`
+            - `<div id="main-content">children</div>`
 
-- `ClientLayout` – wraps the app with context providers and loading screen
-- `Navigation` – top navigation bar (desktop + mobile)
-- `Footer` – global footer with key links and CTA
-- `StickyRegisterCTA` – sticky registration call‑to‑action on certain pages
+#### Route Layouts
 
-**`src/components/sections/`**
+Each major section has an optional layout that sets metadata and (for register/events) breadcrumb JSON-LD:
 
-- `home/` – hero, about, marquee, sponsors, services and works, etc.
-- `events/` – events hero, category switch, events grid, event details modal
-- `proshows/` – proshows hero and schedule
-- `registration/` – registration hero, urgency section, passes grid, modals
+- `app/events/layout.tsx`
+- `app/register/layout.tsx`
+- `app/proshows/layout.tsx`
+- `app/events-rules/layout.tsx`
+- `app/sana-arena/layout.tsx`
 
-**`src/components/ui/`**
+These are simple server components that:
+- Provide route-specific `Metadata`.
+- For events and register pages, inject structured breadcrumb JSON-LD.
+- Return `{children}` as-is, relying on the root layout for shells (navbar, providers).
 
-- Buttons, cards, lightbox, barcode/QR display, loading screen and other reusable primitives.
+#### Pages and Responsibilities
 
-**`src/components/decorative/`**
+Most pages are client components (`'use client'`) to support hooks, animations, and event handlers:
 
-- `GlowingDotsGrid`, `FabricGridBackground`, `SplineWithFallback`, badges and other visual FX components.
+- `/` → `app/page.tsx`
+  - Hero video, marquee, about, highlights, sponsors, scaling video, services & works, CTA, and showreel lightbox.
+- `/login` → `app/login/page.tsx`
+  - Login UX using `useAuth()` and Google sign-in from `AuthContext`.
+  - On sign-in, redirects to `/register`.
+- `/register` → `app/register/page.tsx`
+  - Routing orchestrator:
+    - If not authenticated: redirects to `/login`.
+    - If profile exists: redirects to `/register/pass`.
+    - Else: redirects to `/register/profile`.
+- `/register/profile` → `app/register/profile/page.tsx`
+  - Renders a profile form (name, college, phone, ID card upload) via components under `src/components/sections/registration/**`.
+  - Uses Firebase client Firestore to store profile data (`users` collection), and `AuthContext` for auth state.
+- `/register/pass` → `app/register/pass/page.tsx`
+  - Shows available passes (day, group, proshow, SANA, etc.) via `RegistrationPassesGrid`.
+  - Uses pass-specific modals that trigger `/api/payment/create-order` and `openCashfreeCheckout`.
+- `/register/my-pass` → `app/register/my-pass/page.tsx`
+  - Fetches passes for the authenticated user via `/api/users/passes`.
+  - Renders `MyPassCard` and an interactive `Lanyard` 3D view, and allows downloading a pass PDF (client-side).
+- `/register/success` → `app/register/success/page.tsx`
+  - Post-payment UX with countdown redirect to `/register/my-pass`.
+- `/events` → `app/events/page.tsx`
+  - Events hero + category switcher (technical / non-technical).
+  - Uses `EventsGrid` to render events, leveraging GSAP animations.
+- `/events-rules` → `app/events-rules/page.tsx`
+  - Rulebook-style interface:
+    - Sidebar with rule categories.
+    - Content area driven by `EVENT_RULES` static data.
+    - Keyboard navigation support and “Register” CTA.
+- `/proshows` → `app/proshows/page.tsx`
+  - Cinematic proshows layout with proshow cards and call-to-action.
+- `/sana-arena` → `app/sana-arena/page.tsx`
+  - SANTHOSH NARAYANAN concert microsite:
+    - Hero section with SANA pass card.
+    - “Enter the Arena” launches the `MusicPortfolio` immersive experience.
+    - Register button linking to `/register/pass`.
+- `/payment/callback` → `app/payment/callback/page.tsx`
+  - Receives `order_id` from Cashfree `return_url`.
+  - Auth-aware:
+    - If user is not signed in, prompts sign-in and then retries verification.
+  - Calls `/api/payment/verify` with simple retry/backoff before redirecting to `/register/my-pass`.
+- `/payment/success` → `app/payment/success/page.tsx`
+  - Legacy/alternate verification page:
+    - Uses `order_id` and optionally ID token to call `/api/payment/verify`.
+    - Renders verifying / success / error states, then redirects appropriately.
 
-### 2.3 Contexts, Features, Hooks
-
-- `src/contexts/LoadingContext.tsx` – manages the initial loading screen state.
-- `src/features/auth/AuthContext.tsx` – manages Firebase auth state and user profile.
-- `src/features/payments/cashfreeClient.ts` – wraps Cashfree JS SDK for frontend checkout.
-- `src/features/email/emailService.ts` – email sending (used from server, but colocated in features).
-- `src/features/passes/*` – QR generation, PDF generation and pass utilities.
-- `src/hooks/useLenis.ts` – smooth scrolling.
-- `src/hooks/useGSAP.ts` – GSAP animation integration.
-
----
-
-## 3. Routing Strategy
-
-Routing uses the **Next.js App Router** with each route folder under `app/`:
-
-| Route                | File                                   | Description                                                 |
-|----------------------|----------------------------------------|-------------------------------------------------------------|
-| `/`                  | `app/page.tsx`                         | Landing page                                                |
-| `/events`            | `app/events/page.tsx`                  | Events listing with filters                                 |
-| `/events-rules`      | `app/events-rules/page.tsx`            | Event rules & guidelines                                   |
-| `/proshows`          | `app/proshows/page.tsx`                | Proshows overview                                           |
-| `/sana-arena`        | `app/sana-arena/page.tsx`              | SaNa concert / music portfolio                             |
-| `/login`             | `app/login/page.tsx`                   | Google sign‑in entry point                                 |
-| `/register`          | `app/register/page.tsx`                | Registration entry (routes user based on auth/profile)     |
-| `/register/profile`  | `app/register/profile/page.tsx`        | Profile completion form                                     |
-| `/register/pass`     | `app/register/pass/page.tsx`           | Pass selection + Cashfree checkout initiation              |
-| `/register/my-pass`  | `app/register/my-pass/page.tsx`        | List and download user’s passes                            |
-| `/register/success`  | `app/register/success/page.tsx`        | Post‑registration success                                  |
-| `/payment/callback`  | `app/payment/callback/page.tsx`        | Cashfree redirect callback (verifies order)                |
-| `/payment/success`   | `app/payment/success/page.tsx`         | Clean success presentation                                 |
-| `/test-font`         | `app/test-font/page.tsx`               | Internal font testing                                       |
-
-API routes live under `app/api/**` and are covered in `BACKEND_API_REFERENCE.md`.
-
-### 3.1 Auth-Based Routing
-
-Key client‑side routing behaviors:
-
-- `/register`
-  - If **not signed in** → redirect to `/login`
-  - If signed in **without profile** → redirect to `/register/profile`
-  - If profile exists → redirect to `/register/pass`
-- `/login`
-  - If already signed in → redirect to `/register`
-- `/register/pass`
-  - If not signed in → redirect to `/login`
-  - If signed in but profile missing → redirect to `/register/profile`
-- `/register/my-pass`
-  - Requires authenticated user; otherwise redirect to `/login`
-
-These behaviors are implemented using `useAuth()` (from `AuthContext`) and `useRouter` / `usePathname` in the relevant pages.
+There is no admin dashboard UI in `app/**`; organizer/admin capabilities are surfaced through APIs and external scanner tools, not internal pages.
 
 ---
 
-## 4. State Management
+### Component Structure & Design Language
 
-The app intentionally avoids heavy global state libraries (Redux, Zustand). State is managed with:
+#### Layout Components
 
-### 4.1 React Contexts
+- **`ClientLayout`** (`src/components/layout/ClientLayout.tsx`)
+  - Client-side wrapper:
+    - Wraps children in `LoadingProvider`.
+    - Calls `useReferralCapture()` on mount to capture `?ref=` query params into `localStorage` and clean the URL with `history.replaceState`.
+    - Reads `isLoading` and `hasLoadedOnce` from `LoadingContext`.
+    - Renders `LoadingScreen` overlay until the first load completes, then fades to app content.
 
-- **`AuthContext`** (`src/features/auth/AuthContext.tsx`)
-  - Exposes:
-    - `user: firebase.auth.User | null`
-    - `userData: UserProfile | null` (from Firestore `users/{uid}`)
-    - `loading: boolean` – auth initialization state
-    - `signIn(): Promise<unknown>` – Google sign‑in (popup or redirect)
-    - `signOut(): Promise<void>` – sign out
-    - `updateUserProfile(data: UserProfileUpdate): Promise<void>` – write profile to Firestore
+- **`Navbar`** (`src/components/layout/Navbar/Navbar.tsx` and subcomponents)
+  - Composed of:
+    - Desktop links, mobile menu toggle, overlay, and auth controls.
   - Uses:
-    - `getAuthSafe()` from `src/lib/firebase/clientApp.ts`
-    - `onAuthStateChanged` and `getRedirectResult` to track auth status
-    - `getDoc`/`setDoc` on `db` (`users` collection) for profile data
+    - `useAuth()` for user and profile info; shows “My Pass” + sign-out when logged in.
+    - `useNavbarScroll(navRef)` to apply `data-*` attributes that control show/hide transitions purely via CSS.
+    - `useLockBodyScroll(menuOpen)` to freeze body + Lenis scroll when mobile menu open.
+  - Fully styled using Tailwind + custom CSS classes defined in `globals.css` (nav tokens and responsive behavior).
 
-- **`LoadingContext`** (`src/contexts/LoadingContext.tsx`)
-  - Manages the initial animated loading screen.
-  - Stores a flag (e.g. in `sessionStorage`) to show loading only once per session.
-  - Exposes `isLoading`, `hasLoadedOnce`, and update methods.
+- **`StickyRegisterCTA`** (`src/components/layout/StickyRegisterCTA.tsx`)
+  - Fixed-bottom CTA bar linking to `/register`.
 
-Both contexts are composed inside `ClientLayout`, which is used by `app/layout.tsx`.
+- **`Footer`** (`src/components/layout/Footer.tsx`)
+  - Uses `RadialGradientBg` to render a gradient background.
+  - Contains nav links, address, contact, and social icons.
 
-### 4.2 Local Component State
+#### UI Primitives
 
-Pages and sections use `useState` / `useEffect` for:
+Located mostly under `src/components/ui/**`:
 
-- Modal visibility (`PassSelectorModal`, `DayPassModal`, `GroupRegistrationModal`)
-- Selected categories (events page)
-- Scroll‑related UI (e.g. hiding category bars, sticky CTA thresholds)
-- Loading and error flags for client‑side data fetches
+- **Buttons / CTAs**
+  - `GlassButton`:
+    - Built with `class-variance-authority` for variants and sizes.
+    - Can render as `<button>` or `<Link>` depending on `href` presence.
+    - Used in hero sections, CTAs, etc.
+  - `AwardBadge`:
+    - Highly styled button-like element with background gradients and inline SVG.
+    - Provides `variant` options (e.g., solid, gold) and optional `href/onClick`.
 
-### 4.3 Data Sources
+- **Cards**
+  - `SciFiCard`:
+    - Encapsulates card layout used for events and feature sections.
+    - Supports header, body, optional image, and footer CTAs (often using `AwardBadge`).
+  - `PassCard` and `PassCardTicket`:
+    - Used for registration pass display in grids and modals.
+  - `MyPassCard`:
+    - Special card used on `/register/my-pass` to show pass details (type, amount, status, QR code placeholder) and a “Download PDF” button that drives client-side PDF generation.
 
-- **Static data** (`src/data/`):
-  - `events` – technical / non‑technical events metadata
-  - `passes` – `REGISTRATION_PASSES` with amount, label, description
-  - `shows` – proshows schedule
-  - `rules` – event rules content
-  - `config` – registration config (e.g. banners, copy)
+- **Overlays & Tooltips**
+  - `Lightbox`:
+    - Displays media (e.g., showreel video) in an overlay.
+  - `Tooltip` (`tooltip-card.tsx`):
+    - Uses Framer Motion (`motion.div`, `AnimatePresence`) to show animated tooltip cards.
+    - Tracks pointer/touch position and keeps tooltip within viewport.
 
-- **Firestore (client SDK)**:
-  - Used where the user can safely read their own data:
-    - Fetching passes in “My Pass” page
-    - Reading user profile data
+- **3D Lanyard**
 
-- **API routes (BFF)**:
-  - Used for all sensitive operations:
-    - Creating payment orders
-    - Verifying payments
-    - Generating passes and PDFs
-    - Scanning passes / team members
+The 3D pass lanyard uses React Three Fiber and physics:
 
----
+- `Lanyard` (`src/components/ui/Lanyard.tsx` + `Lanyard.css`):
+  - Uses:
+    - `@react-three/fiber` for the 3D canvas.
+    - `@react-three/drei` for helpers.
+    - `@react-three/rapier` for physics.
+    - `meshline` for rope visualization.
+  - Generates a canvas-based card face (`generateCardFaceDataUrl`):
+    - Renders pass holder’s name, college, pass type, and QR code onto a 2D canvas.
+    - Converts to a texture and maps onto the 3D card.
+  - Handles:
+    - WebGL context loss/resume.
+    - Lowering DPR on mobile to reduce GPU load.
+    - Re-using `THREE.Vector3` objects to avoid GC pressure.
 
-## 5. UI Component Hierarchy
+#### Design System & CSS
 
-### 5.1 Global Layout
+- **Global stylesheet**: `styles/globals.css`
+  - Imports:
+    - `@import "tailwindcss";` (Tailwind v4).
+    - `./reset.css`, `./components.css`, `./proshows-premium.css`.
+    - `../node_modules/tw-animate-css/dist/tw-animate.css`.
+    - `@import "shadcn/tailwind.css";`.
+  - Defines:
+    - `@custom-variant dark (&:is(.dark *));` for `.dark`-scoped dark mode.
+    - `:root` CSS variables for:
+      - Spacing (`--site--viewport-max`, `--_spacing---section-space--*`).
+      - Typography (`--_typography---font--*`).
+      - Shadcn-inspired OKLCH colors (`--background`, `--foreground`, `--primary`, etc.).
+      - Navigation layout tokens (`--nav-height`, `--nav-padding-*`, `--nav-item-gap`, `--nav-logo-size`).
+  - Applies base Tailwind tokens:
+    - `@layer base { * { @apply border-border outline-ring/50; } body { @apply bg-background text-foreground; } }`.
+  - Provides extensive layout and animation helpers:
+    - Lenis scroll integration classes (`html.lenis`, `.lenis.lenis-smooth`, `.lenis.lenis-stopped`).
+    - GPU hints (`will-change`, `translateZ(0)`, `backface-visibility: hidden`) for animated elements like `.horizontal-loop`, `.highlights-carousel__slide`, `.marquee-advanced`.
+    - Navbar behavior driven by `data-scrolling-*` attributes (applied via `useNavbarScroll`).
+    - Reduced-motion overrides for `prefers-reduced-motion: reduce`.
 
-Every page (except special routes like some API handlers) follows a common structure:
-
-```tsx
-<ClientLayout>
-  <Navigation />
-  <main className="page_main page_main--{variant}">
-    {/* Page‑specific sections */}
-  </main>
-  <Footer />
-  {/* Optional <StickyRegisterCTA /> on key pages */}
-</ClientLayout>
-```
-
-- `ClientLayout` injects global providers (auth, loading) and the loading screen.
-- `Navigation` adapts appearance based on route (e.g. special SaNa treatment).
-- `Footer` contains primary site navigation and “Get Your Gate Pass” CTA.
-- `StickyRegisterCTA` appears on pages where conversion is important (e.g. `/events`, `/proshows`, `/sana-arena`).
-
-### 5.2 Page-Level Sections
-
-Examples:
-
-- **Home (`app/page.tsx`)**
-  - Hero section with video/visuals
-  - About / story
-  - Marquee and works
-  - Services & works grid
-  - Sponsors section
-  - CTA section
-
-- **Events (`app/events/page.tsx`)**
-  - Events hero
-  - Category switch (technical / non‑technical)
-  - Events grid (cards)
-  - Event details modal
-  - Sticky register CTA
-
-- **Registration (`app/register/*`)**
-  - Registration hero + urgency messaging
-  - Registration passes grid
-  - Pass selection modal
-  - Day pass / group registration modals
-  - Success page summarizing purchased pass
-  - My Pass page: list of passes, PDF/QR download
-
-Each section is implemented as a React component under `src/components/sections/**` and composed inside the relevant page.
+Tailwind is used primarily for spacing, layout, and utility classes on components, while the heavy visual identity (colors, animations, special effects) is encoded in the global CSS.
 
 ---
 
-## 6. Role-Based UI Behaviour
+### State Management & Context Providers
 
-There are two effective roles, reflected in the UI:
+The app uses React Context and hooks for global state; there is no Redux, Zustand, or React Query.
 
-- **Regular user**
-  - Sees marketing pages and registration flows.
-  - Can:
-    - Sign in with Google
-    - Complete and edit profile
-    - Purchase passes
-    - View/download their own passes
+#### `AuthContext`
 
-- **Organizer**
-  - Marked via `isOrganizer: true` on `users/{uid}` in Firestore.
-  - Gains access (via frontend logic and API responses) to:
-    - Pass scanning tools (for gates)
-    - Team member check‑in functionality
-  - Organizer‑specific UIs are minimal and mostly revolve around scan/check‑in workflows; they rely heavily on the API responses that expose more detailed pass/team data.
+- **File**: `src/features/auth/AuthContext.tsx`
+- **State**:
+  - `user`: Firebase `User` object (client SDK).
+  - `userData`: server-sourced profile from `appUsers/{uid}`.
+  - `loading`: overall auth/profile loading flag.
+- **Actions**:
+  - `signIn`: wraps `signInWithGoogle()` from `authService.ts` (Google popup).
+  - `signOut`: wraps Firebase `signOut`.
+  - `updateUserProfile`: writes profile data to `appUsers/{uid}` via client Firestore (with `merge: true`), then updates local `userData`.
+- **Behavior**:
+  - Uses `onAuthStateChanged` from client `auth`.
+  - Uses `getRedirectResult` to support redirect-based sign-in flows.
+  - Tracks last fetched UID to avoid repeated Firestore reads on minor auth changes.
 
-Access to organizer functions is always backed by server‑side checks; the UI simply provides entry points and labels.
+#### `LoadingContext`
 
----
+- **File**: `src/contexts/LoadingContext.tsx`
+- **State**:
+  - `isLoading`: whether initial loading screen is active.
+  - `hasLoadedOnce`: whether the loading screen has already been shown this session.
+- **Behavior**:
+  - On first mount in a session:
+    - If `sessionStorage.getItem('hasSeenLoading') === 'true'`, it **skips** the loading overlay.
+    - Otherwise, it shows `LoadingScreen` until the app signals readiness, then:
+      - Sets `hasLoadedOnce` to `true`.
+      - Sets `sessionStorage['hasSeenLoading'] = 'true'`.
+  - `ClientLayout` uses this to avoid re-playing the heavy intro animation on every navigation.
 
-## 7. Styling & Theming
+#### `LenisContext`
 
-### 7.1 Tailwind + Custom CSS
+- **File**: `src/contexts/LenisContext.tsx`
+- **Responsibilities**:
+  - Initializes and owns a **Lenis** instance for smooth scrolling.
+  - Provides context with:
+    - `lenis` instance.
+    - `stop()` and `start()` methods to pause/resume smooth scrolling.
+  - Hooks:
+    - Integrates with GSAP’s ticker when GSAP is available to keep scroll updates in sync.
+    - Exposes `useLenisControl()` for components/hooks that need to control or read scroll state.
 
-- Tailwind CSS 4 via `@tailwindcss/postcss` in `postcss.config.mjs`.
-- Utility‑first styling for layout, spacing, typography.
-- Custom CSS files:
-  - `styles/globals.css` – base styles, layout, typography and global components.
-  - `styles/components.css` – additional component classes.
-  - `styles/reset.css` – reset/normalize styles.
-  - `styles/glowing-dots-grid.css` – specialized background/grid effects.
+Consumers:
 
-### 7.2 Utility Helpers
-
-- `cn` helper (`clsx` + `tailwind-merge`) from `src/lib/utils.ts` (or similar):
-  - Ensures class name merging with deduplication, especially for conditional classes.
-
----
-
-## 8. Performance Considerations
-
-The frontend implements several performance‑oriented patterns:
-
-- **Dynamic imports** for heavy sections:
-  - Large visual components (e.g. rich hero sections, proshow schedule) are loaded with `next/dynamic`, often with a skeleton `<div style={{ minHeight: ... }}>` placeholder.
-
-- **Code splitting**
-  - `next.config.ts` configures Webpack to split chunks and cap chunk size at ~200KB for better caching.
-
-- **Image optimization**
-  - Next.js Image component with:
-    - AVIF/WebP formats
-    - Device and image sizes defined
-    - 30‑day cache TTL
-
-- **Smooth and efficient animations**
-  - **Framer Motion** for React‑friendly animations where appropriate.
-  - **GSAP** for high‑control animation sequences via `useGSAP` hook.
-  - **Lenis** for smooth scrolling with requestAnimationFrame integration.
-
-- **Loading experience**
-  - A single rich loading screen per browser session reduces perceived wait time on first visit while avoiding repeated animation overhead on subsequent navigations.
+- `useLockBodyScroll` stops Lenis while overlays (modals, mobile nav) are open.
+- `useNavbarScroll` reads Lenis scroll values to control navbar visibility via data attributes.
 
 ---
 
-## 9. Frontend Responsibilities vs Backend
+### Custom Hooks & Data Fetching
 
-To summarize:
+#### `useGSAP`
 
-- Frontend **does**:
-  - Render all marketing and registration UX.
-  - Handle auth flows via Firebase client SDK.
-  - Drive navigation and route guards based on auth/profile.
-  - Collect payment intent details and call BFF API routes.
-  - Display passes, QR codes and success/failure states.
+- **File**: `src/hooks/useGSAP.ts`
+- **Purpose**:
+  - Client-only, lazy loader for GSAP and core plugins:
+    - `gsap`, `ScrollTrigger`, `SplitText`, optionally `Flip`.
+  - Ensures plugins are registered once and only on the client.
+- **Usage**:
+  - `EventsGrid`:
+    - Animates event cards on scroll using `ScrollTrigger`.
+    - Respects `prefers-reduced-motion` by short-circuiting animations.
+  - `HighlightsCarousel`:
+    - Builds a horizontal looping carousel using GSAP timelines and Draggable (dynamically imported).
+  - `music-portfolio`:
+    - Uses ScrambleText and timelines for idle/hover effects.
 
-- Frontend **does not**:
-  - Talk directly to Cashfree or Resend (always goes through API routes).
-  - Perform any privileged writes to Firestore (those are handled via Admin SDK in API routes).
-  - Decide access beyond what the backend and Firestore security rules enforce.
+#### `useLockBodyScroll`
 
-For API responsibilities and data contracts, refer to `BACKEND_API_REFERENCE.md` and `DATABASE_SCHEMA.md`.
+- **File**: `src/hooks/useLockBodyScroll.ts`
+- **Purpose**:
+  - Prevent background scroll when modals/menus are open, while cooperating with Lenis.
+- **Behavior**:
+  - On `isOpen=true`:
+    - Captures current `scrollY`.
+    - Uses `stop()` from `LenisContext` to pause smooth scrolling.
+    - Applies:
+      - `body { overflow: hidden; position: fixed; top: -scrollY; width: 100%; padding-right: scrollbarWidth }`.
+      - `html { overflow: hidden; }`.
+  - On cleanup:
+    - Restores original styles.
+    - Scrolls back to recorded `scrollY`.
+    - Calls `start()` on Lenis.
+
+Used in:
+- Navbar mobile menu.
+- Registration modals and any overlay UI that should lock scroll.
+
+#### `useReferralCapture`
+
+- **File**: `src/hooks/useReferralCapture.ts`
+- **Purpose**:
+  - Persist `?ref=` query parameter as a referral code.
+- **Behavior**:
+  - On mount:
+    - Parses `window.location.search` for `ref`.
+    - Writes to `localStorage` under a fixed key.
+    - Calls `history.replaceState` to remove `ref` from the URL without reload.
+
+#### `useNavbarScroll`
+
+- **File**: `src/components/layout/Navbar/useNavbarScroll.ts`
+- **Purpose**:
+  - Non-reactive, highly-performant navbar show/hide logic driven by scroll direction.
+- **Behavior**:
+  - Attaches scroll listeners using either:
+    - Lenis scroll events (preferred), or
+    - Window `scroll` events as fallback.
+  - Tracks:
+    - Last scroll position.
+    - Scroll direction and thresholds to avoid jitter.
+  - Sets:
+    - `data-scrolling-started`
+    - `data-scrolling-top`
+    - `data-scrolling-direction="up"|"down"`
+  - CSS in `globals.css` uses these attributes to apply transforms/opacity changes, keeping React renders minimal.
+
+---
+
+### Animation System
+
+The app uses a combination of GSAP, Framer Motion, Lenis, and Three.js.
+
+#### GSAP
+
+- **Where used** (via `useGSAP`):
+  - `HighlightsCarousel`:
+    - Builds an infinite, draggable carousel of highlight cards.
+    - Uses custom `horizontalLoop` utility to maintain looping behavior.
+    - Lazy-loads Draggable and Inertia plugins to avoid heavier bundles on initial load.
+  - `EventsGrid`:
+    - Staggered fade-in and translate animations for event cards as they scroll into view.
+    - Integrates `ScrollTrigger` and respects reduced motion.
+  - `music-portfolio`:
+    - Uses ScrambleText for label hover effects.
+    - Idle animation timeline for list items.
+    - Basic parallax on background images.
+
+#### Framer Motion
+
+- Used in:
+  - `LoadingScreen`:
+    - Coordinates an intro animation with:
+      - SVG logo drawing.
+      - Background particle animations.
+      - Stage-based transitions (`logo` → `hold` → `fade`).
+  - `Tooltip` component:
+    - Tooltip fades/expands using spring animations on open/close.
+
+#### Lenis
+
+- **Global smooth scrolling** via `LenisProvider`.
+- Works with:
+  - `useNavbarScroll` for scroll-aware nav.
+  - `useLockBodyScroll` to gracefully handle overlays.
+  - GSAP ticker integration so scroll and animations stay in sync when both are active.
+
+#### React Three Fiber & Rapier
+
+- `Lanyard` uses:
+  - R3F for 3D rendering.
+  - Rapier for physics-driven motion of the card and rope.
+  - Carefully manages performance by:
+    - Reducing physics timesteps on mobile.
+    - Limiting updates on low-powered devices.
+
+---
+
+### Responsive Design & Breakpoints
+
+The responsive behavior is a mix of:
+
+- Tailwind utility classes:
+  - `sm:`, `md:`, `lg:`, `xl:` classes for layout, typography, and visibility.
+- Custom CSS in `globals.css`:
+  - Uses CSS variables (`--nav-padding-*`, `--nav-logo-size`) with `clamp()` to create fluid layouts.
+  - Media queries for:
+    - Navbar transformations.
+    - Stacking vs grid layouts for sections.
+    - Hiding certain decorative elements on smaller viewports.
+- Components:
+  - Often make decisions based on viewport (e.g., hero video picks different sources for mobile vs desktop).
+
+---
+
+### Performance Optimizations
+
+Key patterns used to keep the UX performant despite heavy visuals:
+
+- **Lazy loading & conditional initialization**
+  - Hero video (`HeroSection`):
+    - Uses `IntersectionObserver` to delay `video.load()` until near the viewport.
+    - Only starts playback after `canplay` event.
+  - GSAP & plugins:
+    - Loaded only on the client and only when needed using `useGSAP`.
+    - Heavier plugins (`Draggable`, `InertiaPlugin`) are dynamically imported inside interaction components.
+  - Loading screen:
+    - `LoadingContext` + `sessionStorage` ensures the heavy intro is shown only once per browser session.
+
+- **Render minimization**
+  - `Navbar`, `HeroSection`, and various cards are wrapped in `React.memo`.
+  - Scroll behavior is driven by DOM attributes rather than React state updates.
+  - Tooltip and other animated overlays are portaled when necessary to avoid impact on document flow.
+
+- **GPU & scroll optimizations**
+  - Global CSS applies `will-change: transform`, `translateZ(0)`, and `backface-visibility: hidden` to major animated containers.
+  - `body` is configured to avoid horizontal scrolling and to use touch-friendly scrolling on iOS.
+  - Scrollbars are hidden to match design (WebKit and Firefox).
+
+- **Graceful degradation**
+  - `prefers-reduced-motion: reduce` media queries in CSS disable animations or adjust transitions for users who prefer reduced motion.
+  - Components guard usage of browser APIs and animation libraries to avoid SSR/hydration issues (e.g., checking `typeof window !== 'undefined'` where necessary).
+
+---
+
+### Summary
+
+The frontend of TKwebsite is a rich, animation-heavy Next.js App Router UI built on:
+
+- A layered layout structure (`RootLayout` + section layouts) with global providers for auth, smooth scrolling, and loading UX.
+- A set of reusable UI primitives (buttons, cards, tooltips, 3D lanyard) and large custom CSS design system that sits on top of Tailwind v4 and Shadcn tokens.
+- Lightweight state management using React Contexts and custom hooks instead of a centralized store.
+- An animation stack combining GSAP, Framer Motion, Lenis, and React Three Fiber, with careful lazy-loading and optimization to maintain performance.
+
+All critical business logic and data mutations are offloaded to backend APIs; the frontend focuses on orchestrating flows, rendering state, and delivering a high-fidelity visual experience.
 

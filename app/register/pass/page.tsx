@@ -7,9 +7,7 @@ import Footer from '@/components/layout/Footer';
 import RegistrationPassesGrid from '@/components/sections/registration/RegistrationPassesGrid';
 import GroupRegistrationModal from '@/components/sections/registration/GroupRegistrationModal';
 import DayPassModal from '@/components/sections/registration/DayPassModal';
-import ProshowModal from '@/components/sections/registration/ProshowModal';
 import AllAccessModal from '@/components/sections/registration/AllAccessModal';
-import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import type { RegistrationPass } from '@/data/passes';
 import Font1Text from '@/components/ui/Font1Text';
 import { auth } from '@/lib/firebase/clientApp';
@@ -19,7 +17,6 @@ export default function PassSelectionPage() {
     const { user, userData, loading: authLoading } = useAuth();
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
     const [isDayPassModalOpen, setIsDayPassModalOpen] = useState(false);
-    const [isProshowModalOpen, setIsProshowModalOpen] = useState(false);
     const [isAllAccessModalOpen, setIsAllAccessModalOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -60,11 +57,6 @@ export default function PassSelectionPage() {
             return;
         }
 
-        if (pass.passType === 'proshow') {
-            setIsProshowModalOpen(true);
-            return;
-        }
-
         if (pass.passType === 'sana_concert') {
             setIsAllAccessModalOpen(true);
             return;
@@ -81,10 +73,6 @@ export default function PassSelectionPage() {
 
     const handleDayPassModalClose = () => {
         setIsDayPassModalOpen(false);
-    };
-
-    const handleProshowModalClose = () => {
-        setIsProshowModalOpen(false);
     };
 
     const handleAllAccessModalClose = () => {
@@ -179,12 +167,6 @@ export default function PassSelectionPage() {
                 onCloseAction={handleDayPassModalClose}
                 passType={selectedPassType}
                 price={selectedPassPrice}
-            />
-
-            {/* Proshow Pass Modal */}
-            <ProshowModal
-                isOpen={isProshowModalOpen}
-                onCloseAction={handleProshowModalClose}
             />
 
             {/* All Access Pass Modal */}

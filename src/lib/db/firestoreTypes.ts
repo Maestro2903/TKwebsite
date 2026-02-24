@@ -135,3 +135,35 @@ export interface Pass {
   teamId?: string;
   teamSnapshot?: TeamSnapshot;
 }
+
+export type RegistrationStatus = 'pending' | 'converted' | 'cancelled';
+
+export interface Registration {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  college: string;
+  passType: PassType;
+  selectedEvents: string[];
+  selectedDays: string[];
+  teamData?: Record<string, unknown>;
+  calculatedAmount: number;
+  status: RegistrationStatus;
+  createdAt: Timestamp | Date;
+  updatedAt?: Timestamp | Date;
+  convertedAt?: Timestamp | Date;
+  convertedToPassId?: string;
+}
+
+export type OnspotPaymentMode = 'cash' | 'upi' | 'card';
+
+export interface OnspotPayment {
+  registrationId: string;
+  userId: string;
+  amountCollected: number;
+  paymentMode: OnspotPaymentMode;
+  collectedBy: string;
+  collectedAt: Timestamp | Date;
+  notes?: string;
+}

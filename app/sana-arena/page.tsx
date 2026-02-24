@@ -28,7 +28,7 @@ export default function SanaArenaPage() {
     const [arenaOpen, setArenaOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
 
-    // Get the SANA pass (2000 rs all-access pass)
+    // Get the SANA concert pass (all-access)
     const sanaPass = REGISTRATION_PASSES.find(pass => pass.passType === 'sana_concert');
 
     const handlePassRegister = () => {

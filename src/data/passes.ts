@@ -65,27 +65,6 @@ export const REGISTRATION_PASSES: RegistrationPass[] = [
     bestFor: 'Teams in coding, gaming, robotics challenges',
   },
   {
-    id: 'proshow-pass',
-    passType: 'proshow',
-    amount: 1500,
-    emoji: '🎤',
-    title: 'PROSHOW PASS (DAY 1 + DAY 3)',
-    price: '₹1500',
-    priceLabel: 'TOTAL',
-    details: 'Access to Day 1 and Day 3 Proshows.',
-    meta: [
-      'Covers both proshow nights',
-      'Event access not included',
-    ],
-    includes: [
-      { label: 'DAY 1', value: 'YES' },
-      { label: 'DAY 3', value: 'YES' },
-      { label: 'CONCERT', value: 'STAGE' },
-      { label: 'ENTRY', value: 'QR' },
-    ],
-    bestFor: 'Attendees for Proshow performances',
-  },
-  {
     id: 'all-access-pass',
     passType: 'sana_concert',
     amount: 2000,

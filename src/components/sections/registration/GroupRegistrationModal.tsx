@@ -4,7 +4,6 @@ import * as React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { auth } from '@/lib/firebase/clientApp';
 import { useAuth } from '@/features/auth/AuthContext';
-import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { X } from 'lucide-react';
@@ -211,7 +210,7 @@ export default function GroupRegistrationModal({
         else if (step === 'review') setStep('members');
     }, [step]);
 
-    // Handle form submission
+    // Handle form submission - create registration only (no online payment)
     const handleSubmit = useCallback(async () => {
         if (!user) return;
         if (!userData) {
@@ -226,66 +225,52 @@ export default function GroupRegistrationModal({
             const email = user.email || user.providerData?.[0]?.email || '';
             const name = userData.name || user.displayName || email || 'Team Leader';
 
-            // Team ID generated here but document created by server
-            const teamId = `team_${Date.now()}_${uid.substring(0, 8)}`;
-
-            // Create payment order and team document via server
             const token = await auth.currentUser?.getIdToken(true);
             if (!token) throw new Error('Not signed in');
 
-            const res = await fetch('/api/payment/create-order', {
+            const res = await fetch('/api/registration/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    userId: uid,
                     passType: 'group_events',
-                    amount: totalAmount,
-                    teamMemberCount: totalMembers,
-                    teamId,
-                    teamName: teamName.trim() || name,
                     selectedEvents: [selectedEventId],
-                    members: members.map(m => ({
-                        name: m.name,
-                        phone: m.phone,
-                        email: m.email
-                    })),
+                    selectedDays: [], // day is implicit in event
+                    teamMemberCount: totalMembers,
                     teamData: {
-                        name,
-                        email: userData.email ?? email,
-                        phone: userData.phone ?? '',
-                        college: userData.college ?? '',
+                        teamName: teamName.trim() || name,
+                        leader: {
+                            name,
+                            phone: leaderPhone.trim(),
+                            college: leaderCollege.trim() || (userData.college ?? ''),
+                        },
+                        members: members.map((m) => ({
+                            name: m.name.trim(),
+                            phone: m.phone.trim(),
+                            email: m.email.trim(),
+                        })),
                     },
+                    name,
+                    email: userData.email ?? email,
+                    phone: leaderPhone.trim() || (userData.phone ?? ''),
+                    college: leaderCollege.trim() || (userData.college ?? ''),
                 }),
             });
 
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
-                throw new Error(data.error || 'Failed to create order');
+                throw new Error(data.error || 'Failed to create registration');
             }
-
-            const data = (await res.json()) as { sessionId?: string; orderId?: string };
-            const sessionId = data.sessionId;
-            const orderId = data.orderId;
-            if (!sessionId) throw new Error('No payment session');
-
+            alert('Group registration saved. Please pay on spot at the venue to receive QR passes.');
             onCloseAction();
-            const result = await openCashfreeCheckout(sessionId, orderId);
-
-            if (result.success) {
-                // Navigate to callback page to verify payment
-                window.location.href = `/payment/callback?order_id=${orderId}`;
-            } else {
-                throw new Error(result.message || 'Payment failed');
-            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Something went wrong');
         } finally {
             setSubmitting(false);
         }
-    }, [user, userData, teamName, selectedEventId, members, totalMembers, totalAmount, onCloseAction]);
+    }, [user, userData, teamName, leaderPhone, leaderCollege, selectedEventId, members, totalMembers, onCloseAction]);
 
     if (!isOpen) return null;
 
@@ -696,7 +681,7 @@ export default function GroupRegistrationModal({
                                     disabled={submitting}
                                     className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition disabled:opacity-50 tracking-widest"
                                 >
-                                    {submitting ? 'PROCESSING...' : `INITIATE PAYMENT`}
+                                    {submitting ? 'SAVING...' : 'SAVE REGISTRATION'}
                                 </button>
                             )}
                         </div>

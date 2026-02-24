@@ -70,6 +70,15 @@ interface UserProfileData {
   email: string;
 }
 
+interface RegistrationDoc {
+  id: string;
+  passType: string;
+  selectedDays: string[];
+  selectedEvents: string[];
+  calculatedAmount: number;
+  status: 'pending' | 'converted' | 'cancelled';
+}
+
 const passTypeLabel: Record<string, string> = {
   day_pass: PASS_TYPES.DAY_PASS.name,
   group_events: PASS_TYPES.GROUP_EVENTS.name,
@@ -85,6 +94,7 @@ export default function MyPassPage() {
   const [downloadingPassId, setDownloadingPassId] = useState<string | null>(null);
   const [activePassIndex, setActivePassIndex] = useState(0);
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
+  const [pendingRegistration, setPendingRegistration] = useState<RegistrationDoc | null>(null);
 
   // Fetch user profile from Firestore
   useEffect(() => {
@@ -160,6 +170,45 @@ export default function MyPassPage() {
         console.error('Failed to fetch passes', e);
       } finally {
         if (!cancelled) setFetchLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await user.getIdToken();
+        const res = await fetch('/api/users/registrations', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+        const regs = (data.registrations as any[] | undefined) ?? [];
+        const firstPending = regs.find((r) => r.status === 'pending');
+        if (firstPending) {
+          setPendingRegistration({
+            id: firstPending.id,
+            passType: firstPending.passType,
+            selectedDays: firstPending.selectedDays ?? [],
+            selectedEvents: firstPending.selectedEvents ?? [],
+            calculatedAmount: firstPending.calculatedAmount ?? 0,
+            status: firstPending.status,
+          });
+        } else {
+          setPendingRegistration(null);
+        }
+      } catch (e) {
+        console.error('Failed to fetch registrations', e);
       }
     })();
     return () => {
@@ -246,15 +295,61 @@ export default function MyPassPage() {
         {fetchLoading ? (
           <p className="text-white/70">Loading your passes…</p>
         ) : passes.length === 0 ? (
-          <div className="rounded-lg border border-white/15 bg-white/5 p-8 text-center flex flex-col items-center gap-4">
-            <p className="text-white/80">You don&apos;t have any paid passes yet.</p>
-            <Link
-              href="/register"
-              className="inline-block rounded bg-white px-6 py-2 font-semibold text-black hover:opacity-90"
-            >
-              Get a pass
-            </Link>
-          </div>
+          pendingRegistration ? (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-8 flex flex-col gap-4">
+              <div>
+                <p className="text-sm font-semibold text-amber-200 tracking-wide uppercase mb-2">
+                  Pending registration
+                </p>
+                <p className="text-white/80">
+                  You have a saved registration. Complete payment on spot at the venue to receive your QR pass.
+                </p>
+              </div>
+              <div className="mt-2 space-y-2 text-sm text-white/80">
+                <p>
+                  <span className="font-medium text-white/60">Pass type:</span>{' '}
+                  {passTypeLabel[pendingRegistration.passType] ?? pendingRegistration.passType}
+                </p>
+                <p>
+                  <span className="font-medium text-white/60">Estimated amount:</span>{' '}
+                  ₹{pendingRegistration.calculatedAmount.toFixed(0)}
+                </p>
+                {pendingRegistration.selectedDays.length > 0 && (
+                  <p>
+                    <span className="font-medium text-white/60">Days:</span>{' '}
+                    {pendingRegistration.selectedDays.join(', ')}
+                  </p>
+                )}
+                {pendingRegistration.selectedEvents.length > 0 && (
+                  <p>
+                    <span className="font-medium text-white/60">Events:</span>{' '}
+                    {pendingRegistration.selectedEvents.join(', ')}
+                  </p>
+                )}
+              </div>
+              <p className="text-xs text-amber-200/80">
+                QR code will be generated only after payment is collected at the venue.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 mt-2">
+                <Link
+                  href="/register"
+                  className="inline-flex justify-center items-center rounded bg-white px-6 py-2 text-sm font-semibold text-black hover:opacity-90"
+                >
+                  Edit registration
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-white/15 bg-white/5 p-8 text-center flex flex-col items-center gap-4">
+              <p className="text-white/80">You don&apos;t have any paid passes yet.</p>
+              <Link
+                href="/register"
+                className="inline-block rounded bg-white px-6 py-2 font-semibold text-black hover:opacity-90"
+              >
+                Get a pass
+              </Link>
+            </div>
+          )
         ) : (
           <>
             {/* Pass tab selector (if multiple passes) */}

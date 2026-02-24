@@ -4,7 +4,6 @@ import * as React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { auth } from '@/lib/firebase/clientApp';
 import { useAuth } from '@/features/auth/AuthContext';
-import { openCashfreeCheckout } from '@/features/payments/cashfreeClient';
 import { X } from 'lucide-react';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import { getAllConflicts, type EventWithTiming } from '@/lib/utils/eventConflicts';
@@ -224,9 +223,10 @@ export default function AllAccessModal({
         }
     }, [user?.uid, mockSummitAccessCode, countries]);
 
-    const canInitiatePayment = !hasMockSummitSelected || (mockSummitAccessCode.trim().length > 0 && selectedCountryId != null);
+    const canSubmitRegistration = !hasMockSummitSelected || (mockSummitAccessCode.trim().length > 0 && selectedCountryId != null);
 
-    const runPayment = useCallback(async (countryId?: string) => {
+    // Create registration for all-access (no online payment)
+    const runRegistration = useCallback(async (countryId?: string) => {
         if (!user || !userData) return;
         const uid = user.uid;
         const email = user.email || user.providerData?.[0]?.email || '';
@@ -235,38 +235,30 @@ export default function AllAccessModal({
         const token = await auth.currentUser?.getIdToken(true);
         if (!token) throw new Error('Not signed in');
 
-        const res = await fetch('/api/payment/create-order', {
+        const res = await fetch('/api/registration/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({
-                userId: uid,
                 passType: 'sana_concert',
-                amount: ALL_ACCESS_PRICE,
                 selectedDays: allDates,
                 selectedEvents: selectedEventIds,
                 ...(hasMockSummitSelected && mockSummitAccessCode.trim() && { mockSummitAccessCode: mockSummitAccessCode.trim() }),
                 ...(hasMockSummitSelected && countryId && { countryId }),
-                teamData: {
-                    name,
-                    email: userData.email ?? email,
-                    phone: userData.phone ?? '',
-                    college: userData.college ?? '',
-                },
+                teamMemberCount: null,
+                teamData: undefined,
+                name,
+                email: userData.email ?? email,
+                phone: userData.phone ?? '',
+                college: userData.college ?? '',
             }),
         });
 
         if (!res.ok) {
             const data = await res.json().catch(() => ({}));
-            throw new Error(data.error || 'Failed to create order');
+            throw new Error(data.error || 'Failed to create registration');
         }
-        const data = (await res.json()) as { sessionId?: string; orderId?: string };
-        const sessionId = data.sessionId;
-        const orderId = data.orderId;
-        if (!sessionId) throw new Error('No payment session');
+        alert('Registration saved. Please pay on spot at the venue to receive your QR pass.');
         onCloseAction();
-        const result = await openCashfreeCheckout(sessionId, orderId);
-        if (result.success) window.location.href = `/payment/callback?order_id=${orderId}`;
-        else throw new Error(result.message || 'Payment failed');
     }, [user, userData, selectedEventIds, hasMockSummitSelected, mockSummitAccessCode, onCloseAction]);
 
     const handleSubmit = useCallback(async () => {
@@ -286,13 +278,13 @@ export default function AllAccessModal({
         setError(null);
         setSubmitting(true);
         try {
-            await runPayment(selectedCountryId ?? undefined);
+            await runRegistration(selectedCountryId ?? undefined);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Something went wrong');
         } finally {
             setSubmitting(false);
         }
-    }, [user, userData, hasMockSummitSelected, mockSummitAccessCode, selectedCountryId, runPayment]);
+    }, [user, userData, hasMockSummitSelected, mockSummitAccessCode, selectedCountryId, runRegistration]);
 
     if (!isOpen) return null;
 
@@ -699,10 +691,10 @@ export default function AllAccessModal({
                                 <button
                                     type="button"
                                     onClick={handleSubmit}
-                                    disabled={submitting || !canInitiatePayment}
+                                    disabled={submitting || !canSubmitRegistration}
                                     className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition disabled:opacity-50 tracking-widest"
                                 >
-                                    {submitting ? 'PROCESSING...' : `INITIATE PAYMENT`}
+                                    {submitting ? 'SAVING...' : 'SAVE REGISTRATION'}
                                 </button>
                             )}
                         </div>
