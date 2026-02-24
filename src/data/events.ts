@@ -49,7 +49,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     startTime: '10:30 AM',
     endTime: '2:00 PM',
     date: '2026-02-26',
-    prizePool: 35000,
+    prizePool: 20000,
     minMembers: 3,
     maxMembers: 8,
   },
@@ -107,7 +107,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     startTime: '11:00 AM',
     endTime: '3:00 PM',
     date: '2026-02-28',
-    prizePool: 25000,
+    prizePool: 8000,
     minMembers: 2,
   },
   {
@@ -120,7 +120,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     startTime: '10:00 AM',
     endTime: '1:00 PM',
     date: '2026-02-27',
-    prizePool: 15000,
+    prizePool: 8000,
   },
   {
     id: 'load-the-lyrics',
@@ -134,7 +134,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     startTime: '10:30 AM',
     endTime: '1:00 PM',
     date: '2026-02-27',
-    prizePool: 15000,
+    prizePool: 0,
   },
   {
     id: 'canvas-painting',
@@ -146,7 +146,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
     startTime: '10:30 AM',
     endTime: '2:00 PM',
     date: '2026-02-28',
-    prizePool: 15000,
+    prizePool: 5000,
   },
   {
     id: 'gaming-event',
