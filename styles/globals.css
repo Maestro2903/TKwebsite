@@ -6883,10 +6883,10 @@ video {
   }
 }
 
-/* 4x1 layout for 16:10 screens (1920x1200 and wider) */
+/* Keep 3-up layout on ultra-wide screens so three cards stay centered */
 @media screen and (min-width: 1920px) {
   .registration-passes-grid-wrapper {
-    max-width: min(96rem, 100%);
+    max-width: min(80rem, 100%);
     margin-left: auto;
     margin-right: auto;
     padding-left: 0;
@@ -6894,10 +6894,11 @@ video {
   }
 
   .registration-passes-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     max-width: 100%;
     margin: 0;
     gap: clamp(1rem, 1.8vw, 1.75rem);
+    justify-items: stretch;
   }
 }
 
