@@ -124,7 +124,7 @@ function EditorialEventCard({ event, index = 0 }: EditorialEventCardProps) {
               href={REGISTER_URL}
               className={cn(
                 buttonBaseStyles,
-                '!bg-[var(--editorial-blue,#0047FF)] text-white opacity-50',
+                '!bg-[var(--editorial-blue,#0047FF)] text-white opacity-90',
                 'transition-opacity duration-200 hover:opacity-100'
               )}
               style={{ backgroundColor: 'var(--editorial-blue, #0047FF)' }}
