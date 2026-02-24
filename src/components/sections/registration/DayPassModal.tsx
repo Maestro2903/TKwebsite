@@ -56,6 +56,7 @@ export default function DayPassModal({
     // UI state
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
     const [step, setStep] = useState<'days' | 'events' | 'invite' | 'country' | 'review'>('days');
     const [mockSummitAccessCode, setMockSummitAccessCode] = useState('');
     const [countries, setCountries] = useState<CountryItem[]>([]);
@@ -86,6 +87,7 @@ export default function DayPassModal({
     useEffect(() => {
         if (!isOpen) return;
         setError(null);
+        setSuccess(false);
         setSelectedDays([]);
         setSelectedEventIds([]);
         setAvailableEvents([]);
@@ -277,8 +279,7 @@ export default function DayPassModal({
             const data = await res.json().catch(() => ({}));
             throw new Error(data.error || 'Failed to create registration');
         }
-        alert('Registration saved. Please pay on spot at the venue to receive your QR pass.');
-        onCloseAction();
+        setSuccess(true);
     }, [user, userData, selectedDays, totalAmount, selectedEventIds, hasMockSummitSelected, mockSummitAccessCode, onCloseAction]);
 
     const handleCountrySelect = useCallback(async (countryId: string) => {
@@ -388,8 +389,76 @@ export default function DayPassModal({
                     </div>
                 </div>
 
+                {success ? (
+                    <>
+                        {/* Success Screen */}
+                        <div className="flex-1 min-h-0 overflow-y-auto modal-content-scroll">
+                            <div className="p-6 relative min-h-[200px] flex flex-col items-center justify-center text-center">
+                                {/* Corner Accents */}
+                                <div className="absolute top-6 right-6 w-3 h-3 border-t border-r border-neutral-600 pointer-events-none" />
+                                <div className="absolute bottom-6 left-6 w-3 h-3 border-b border-l border-neutral-600 pointer-events-none" />
+
+                                <div className="w-12 h-12 rounded-full border-2 border-green-500/60 flex items-center justify-center mb-5">
+                                    <svg className="w-6 h-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+
+                                <h3 className="text-lg font-bold text-white font-orbitron tracking-tight uppercase mb-2">
+                                    Registration Saved
+                                </h3>
+                                <p className="text-sm text-neutral-400 mb-6 max-w-xs">
+                                    Complete payment on spot at the venue to receive your QR pass.
+                                </p>
+
+                                <div className="w-full max-w-xs space-y-3">
+                                    <div className="p-4 bg-[#151515] border border-neutral-800">
+                                        <p className="text-[10px] text-neutral-500 font-orbitron uppercase tracking-widest mb-1">Pass Type</p>
+                                        <p className="text-sm text-white font-mono">DAY PASS</p>
+                                    </div>
+                                    <div className="p-4 bg-[#151515] border border-neutral-800">
+                                        <p className="text-[10px] text-neutral-500 font-orbitron uppercase tracking-widest mb-1">Estimated Amount</p>
+                                        <p className="text-xl font-bold text-white font-orbitron">₹{totalAmount}</p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-6 border border-amber-500/30 bg-amber-500/5 p-3 w-full max-w-xs">
+                                    <p className="text-[10px] text-amber-200/80 font-mono uppercase tracking-wide">
+                                        QR code will be generated after payment is collected at the venue.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Success Footer */}
+                        <div className="sticky bottom-0 z-20 bg-[#151515] border-t border-neutral-800">
+                            <div className="px-6 pb-4 pt-4 space-y-4">
+                                <div className="flex gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => { onCloseAction(); }}
+                                        className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-neutral-400 font-orbitron uppercase hover:bg-neutral-800 transition tracking-widest"
+                                    >
+                                        Close
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => { onCloseAction(); window.location.href = '/register/my-pass'; }}
+                                        className="flex-1 border border-neutral-700 py-3 text-xs font-bold text-white font-orbitron uppercase hover:bg-neutral-800 transition tracking-widest bg-white/5"
+                                    >
+                                        View Profile
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="h-4 w-full flex items-center justify-end px-2 border-t border-neutral-800 bg-[#151515] text-[6px] text-neutral-600 font-orbitron uppercase">
+                                <span>REGISTRATION CONFIRMED</span>
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                <>
                 {/* Scrollable content */}
-                <div className="flex-1 min-h-0 overflow-y-auto">
+                <div className="flex-1 min-h-0 overflow-y-auto modal-content-scroll">
                     <div className="p-6 relative min-h-[200px]">
                         {/* Corner Accents */}
                         <div className="absolute top-6 right-6 w-3 h-3 border-t border-r border-neutral-600 pointer-events-none" />
@@ -812,6 +881,8 @@ export default function DayPassModal({
                         <span>SECURE CONNECTION ESTABLISHED</span>
                     </div>
                 </div>
+                </>
+                )}
             </div>
         </div>
     );

@@ -141,7 +141,7 @@ export function NavMenuOverlay({
                   <div className="nav_menu_icon">
                     <NavMenuArrow />
                   </div>
-                  <div className="nav_menu_text">My Pass</div>
+                  <div className="nav_menu_text">Profile</div>
                 </Link>
               </li>
               <li className="nav_menu_link_wrap">

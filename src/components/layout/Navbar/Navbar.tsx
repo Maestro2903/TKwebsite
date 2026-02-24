@@ -77,7 +77,7 @@ function NavbarInner() {
                         href="/register/my-pass"
                         className="nav-auth-link nav-auth-link--pass"
                       >
-                        My Pass
+                        Profile
                       </Link>
                       <button
                         type="button"

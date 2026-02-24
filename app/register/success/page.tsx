@@ -37,10 +37,10 @@ function SuccessContent() {
           href="/register/my-pass"
           className="inline-block rounded bg-white px-6 py-3 font-semibold text-black transition hover:opacity-90"
         >
-          View my pass
+          View my profile
         </Link>
         <p className="mt-6 text-sm text-white/50">
-          Redirecting to My Pass in {countdown}…
+          Redirecting to Profile in {countdown}…
         </p>
       </div>
     </main>

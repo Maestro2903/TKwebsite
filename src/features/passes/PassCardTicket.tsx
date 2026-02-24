@@ -93,7 +93,7 @@ export default function PassCardTicket({ pass, onRegister }: PassCardTicketProps
       role="article"
       className={cn(
         'pass-card-ticket',
-        'flex flex-col w-full max-w-[320px] mx-auto',
+        'flex flex-col w-full mx-auto',
         'rounded-2xl overflow-hidden',
         'border border-neutral-200/80 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)]',
         // Make text compact globally for the ticket to fit

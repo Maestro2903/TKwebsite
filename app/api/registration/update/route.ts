@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/adminApp';
+import { FieldValue } from 'firebase-admin/firestore';
 import { validateRegistrationInput } from '@/lib/validation/registration';
 import type { Registration } from '@/lib/db/firestoreTypes';
 
@@ -72,21 +73,82 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    const update: Partial<Registration> = {
+    // --- Handle team document for group_events ---
+    let teamId: string | undefined;
+
+    if (passType === 'group_events' && teamData) {
+      const teamMembers = (teamData.members ?? []).map((m: any, i: number) => ({
+        memberId: `member_${i}`,
+        name: m.name?.trim() ?? '',
+        phone: m.phone?.trim() ?? '',
+        email: m.email?.trim() ?? '',
+        isLeader: false,
+        attendance: { checkedIn: false, checkInTime: null, checkedInBy: null },
+      }));
+
+      teamMembers.unshift({
+        memberId: decoded.uid,
+        name: teamData.leader?.name ?? name,
+        phone: teamData.leader?.phone ?? phone,
+        email: email ?? '',
+        isLeader: true,
+        attendance: { checkedIn: false, checkInTime: null, checkedInBy: null },
+      });
+
+      // Reuse existing team doc if available
+      if (registration.teamId) {
+        teamId = registration.teamId;
+        await db.collection('teams').doc(teamId).update({
+          teamName: teamData.teamName?.trim() || name,
+          leaderId: decoded.uid,
+          totalMembers: teamMembers.length,
+          totalAmount: calculatedAmount,
+          members: teamMembers,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+      } else {
+        const teamRef = db.collection('teams').doc();
+        teamId = teamRef.id;
+        await teamRef.set({
+          teamName: teamData.teamName?.trim() || name,
+          leaderId: decoded.uid,
+          passId: '',
+          totalMembers: teamMembers.length,
+          totalAmount: calculatedAmount,
+          members: teamMembers,
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+      }
+    }
+
+    const updatePayload: Record<string, any> = {
       passType,
       selectedEvents,
       selectedDays: selectedDays ?? [],
-      teamData: teamData ?? undefined,
       calculatedAmount,
       updatedAt: new Date(),
     };
 
-    if (typeof name === 'string') update.name = name;
-    if (typeof email === 'string') update.email = email;
-    if (typeof phone === 'string') update.phone = phone;
-    if (typeof college === 'string') update.college = college;
+    if (typeof name === 'string') updatePayload.name = name;
+    if (typeof email === 'string') updatePayload.email = email;
+    if (typeof phone === 'string') updatePayload.phone = phone;
+    if (typeof college === 'string') updatePayload.college = college;
 
-    await registrationRef.update(update);
+    // Handle teamData + teamId fields
+    if (teamData != null) {
+      updatePayload.teamData = teamData;
+    } else if (registration.teamData) {
+      updatePayload.teamData = FieldValue.delete();
+    }
+
+    if (teamId) {
+      updatePayload.teamId = teamId;
+    } else if (registration.teamId) {
+      updatePayload.teamId = FieldValue.delete();
+    }
+
+    await registrationRef.update(updatePayload);
 
     const updatedSnap = await registrationRef.get();
     const updatedData = updatedSnap.data() as Registration;
@@ -95,6 +157,7 @@ export async function PUT(req: NextRequest) {
       success: true,
       registrationId,
       registration: updatedData,
+      ...(teamId ? { teamId } : {}),
     });
   } catch (error) {
     console.error('Registration update error:', error);
@@ -104,4 +167,3 @@ export async function PUT(req: NextRequest) {
     );
   }
 }
-

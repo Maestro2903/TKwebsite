@@ -148,6 +148,8 @@ export interface Registration {
   selectedEvents: string[];
   selectedDays: string[];
   teamData?: Record<string, unknown>;
+  teamId?: string;
+  orderId?: string | null;
   calculatedAmount: number;
   status: RegistrationStatus;
   createdAt: Timestamp | Date;
