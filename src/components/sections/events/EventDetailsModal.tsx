@@ -112,7 +112,7 @@ export default function EventDetailsModal({
   const modalContent = (
     <div
       className={cn(
-        'modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6',
+        'modal-overlay fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6',
         'bg-black/95',
         'transition-opacity duration-200',
         isVisible ? 'opacity-100' : 'opacity-0'
