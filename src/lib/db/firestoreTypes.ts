@@ -2,7 +2,7 @@ import type { Timestamp } from 'firebase/firestore';
 
 export type PassType = 'day_pass' | 'group_events' | 'proshow' | 'sana_concert' | 'mock_summit';
 
-export type PaymentStatus = 'pending' | 'success' | 'failed';
+export type PaymentStatus = 'pending' | 'success' | 'failed' | 'converted';
 
 export type EventCategory = 'technical' | 'non_technical';
 export type EventType = 'individual' | 'group' | 'workshop';

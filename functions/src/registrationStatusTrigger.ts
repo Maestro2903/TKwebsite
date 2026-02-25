@@ -2,6 +2,7 @@ import * as functions from "firebase-functions/v1";
 import { defineSecret } from "firebase-functions/params";
 import * as admin from "firebase-admin";
 import * as nodemailer from "nodemailer";
+import { generatePassQRImage } from "./passQrUtil";
 
 type RegistrationStatus = "pending" | "converted" | "cancelled";
 
@@ -24,6 +25,8 @@ type RegistrationDoc = {
   totalMembers?: number;
   college?: string;
   phone?: string;
+  qrCode?: string;
+  passId?: string;
 };
 
 function isAllowedStatus(value: unknown): value is RegistrationStatus {
@@ -54,6 +57,7 @@ function buildEmail(
     college?: string;
     phone?: string;
     email?: string;
+    qrCode?: string; // Data URL or CID
   }
 ) {
   const safeName = options.name?.trim() || "there";
@@ -147,21 +151,35 @@ Chennai Institute of Technology, Kundrathur, Chennai - 600069
 </p>`.trim(),
       };
     case "converted":
+      const qrCodeSection = options.qrCode
+        ? `
+        <div style="text-align: center; margin: 32px 0;">
+          <p style="font-weight: 600; margin-bottom: 16px;">Your Entry QR Code:</p>
+          <img src="cid:qrcode" alt="Registration QR Code" style="width: 250px; height: 250px; border: 4px solid #7c3aed; border-radius: 12px;" />
+          <p style="font-size: 14px; color: #ef4444; margin-top: 12px;">*Please keep this QR code secure and present it at the venue.</p>
+        </div>`
+        : "";
+
       return {
         subject: "Pass Activated – Takshashila 2026",
         html: `
-<h2>Your Pass is Activated</h2>
+<div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
+<h2 style="color: #7c3aed;">Your Pass is Activated</h2>
 
 <p>Dear ${safeName},</p>
 
 <p>We confirm that your payment has been successfully received at the venue.</p>
 
 <p><strong>Pass Details:</strong></p>
+<div style="background: #f3f4f6; padding: 20px; border-radius: 12px; margin: 20px 0;">
 <ul>
   <li>Pass Type: ${passType}</li>
   <li>Amount Paid: ₹${formattedAmount}</li>
   <li>Registration ID: ${registrationId}</li>
 </ul>
+</div>
+
+${qrCodeSection}
 
 <p>
 Your official QR pass is now active.
@@ -169,12 +187,12 @@ Your official QR pass is now active.
 
 <p>
 Access your pass here:<br/>
-<a href="https://cittakshashila.org/register/my-pass">
+<a href="https://cittakshashila.org/register/my-pass" style="background: #7c3aed; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; display: inline-block; margin-top: 10px;">
 View My Pass
 </a>
 </p>
 
-<p>
+<p style="margin-top: 20px;">
 Please do not share your QR code. It is valid for single-entry scanning.
 </p>
 
@@ -186,6 +204,7 @@ We wish you an exciting experience at Takshashila 2026.
 Regards,<br/>
 Team Takshashila 2026
 </p>
+</div>
 `.trim(),
       };
     case "cancelled":
@@ -276,6 +295,21 @@ export const onRegistrationStatusChange = functions
       return;
     }
 
+    let qrCode: string | undefined = undefined;
+    if (afterStatus === "converted") {
+      const passId = after.passId || (after as any).convertedToPassId;
+      if (passId) {
+        try {
+          const passSnap = await admin.firestore().collection("passes").doc(passId).get();
+          if (passSnap.exists) {
+            qrCode = passSnap.data()?.qrCode as string | undefined;
+          }
+        } catch (err) {
+          functions.logger.error("Failed to fetch pass for QR code", { passId, error: err });
+        }
+      }
+    }
+
     const { subject, html } = buildEmail(afterStatus, {
       name: after.name,
       registrationId,
@@ -297,6 +331,7 @@ export const onRegistrationStatusChange = functions
       college: after.college,
       phone: after.phone,
       email: email,
+      qrCode: qrCode ? "cid:qrcode" : undefined,
     });
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -308,12 +343,28 @@ export const onRegistrationStatusChange = functions
 
     try {
       const fromAddress = `"CIT Takshashila" <${smtpUser}>`;
-      const info = await transporter.sendMail({
+      const mailOptions: any = {
         from: fromAddress,
         to: email,
         subject,
         html,
-      });
+      };
+
+      if (qrCode) {
+        const base64Data = qrCode.split(",")[1];
+        if (base64Data) {
+          mailOptions.attachments = [
+            {
+              filename: "qrcode.png",
+              content: base64Data,
+              encoding: "base64",
+              cid: "qrcode",
+            },
+          ];
+        }
+      }
+
+      const info = await transporter.sendMail(mailOptions);
 
       await Promise.all([
         logRef.set(
@@ -549,6 +600,155 @@ export const onRegistrationConvertedCreatePass = functions.firestore
         }
       );
       // Intentionally do not roll back the payment here to keep side effects simple.
+    }
+  });
+
+/**
+ * Trigger: payments/{paymentId}
+ * Triggered on any change to a payment document.
+ * If status becomes 'converted', ensures a pass exists and sends email.
+ */
+export const onPaymentStatusConverted = functions
+  .runWith({ secrets: [SMTP_USER, SMTP_PASS] })
+  .firestore
+  .document("payments/{paymentId}")
+  .onWrite(async (change, context) => {
+    const after = change.after.exists
+      ? (change.after.data() as Record<string, unknown>)
+      : undefined;
+    if (!after) return;
+
+    const beforeStatus = (change.before.data()?.status as string | undefined) ?? undefined;
+    const afterStatus = after.status as string;
+
+    // Only act on transitions into "converted" (or 'success' if it came from conversion)
+    if (afterStatus !== "converted" && afterStatus !== "success") return;
+    if (beforeStatus === afterStatus) return;
+
+    const paymentId = context.params.paymentId;
+    const userId = after.userId as string;
+    const registrationId = after.registrationId as string | undefined;
+
+    if (!userId) return;
+
+    const db = admin.firestore();
+
+    // 1. Check if pass already exists
+    const passSnap = await db
+      .collection("passes")
+      .where("paymentId", "==", paymentId)
+      .limit(1)
+      .get();
+
+    let qrCode: string;
+
+    if (passSnap.empty) {
+      functions.logger.info("Creating missing pass for converted payment", { paymentId });
+
+      const userSnap = await db.collection("users").doc(userId).get();
+      const userData = userSnap.data();
+      const userName = userData?.name || "Attendee";
+
+      const passRef = db.collection("passes").doc();
+      const passId = passRef.id;
+
+      let hasTech = false;
+      let hasNonTech = false;
+      const passType = after.passType as string;
+      const selectedEvents = (after.selectedEvents as string[]) || [];
+      const selectedDays = (after.selectedDays as string[]) || [];
+
+      // Generate QR Code
+      const { qrDataUrl } = await generatePassQRImage({
+        passId,
+        name: userName,
+        passType: passType,
+        events: selectedEvents,
+        days: selectedDays,
+      });
+      qrCode = qrDataUrl;
+
+      const passData: Record<string, unknown> = {
+        userId,
+        passType,
+        amount: after.amount || 0,
+        paymentId,
+        registrationId: registrationId || null,
+        status: "paid",
+        qrCode: qrCode,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        selectedEvents,
+        selectedDays,
+        eventAccess: {
+          tech: hasTech,
+          nonTech: hasNonTech,
+          proshowDays: passType === "proshow" ? ["2026-02-26", "2026-02-28"] : [],
+          fullAccess: passType === "sana_concert",
+        },
+      };
+
+      if (after.teamId) {
+        passData.teamId = after.teamId;
+      }
+
+      await passRef.set(passData);
+      functions.logger.info("Pass created", { passId, paymentId });
+    } else {
+      const existingPass = passSnap.docs[0];
+      qrCode = existingPass.data().qrCode as string;
+      functions.logger.info("Pass already exists for converted payment", { passId: existingPass.id, paymentId });
+    }
+
+    // 2. Send Email
+    const userDoc = await db.collection("users").doc(userId).get();
+    const userData = userDoc.data();
+    const email = (userData?.email || (after.customerDetails as any)?.email) as string | undefined;
+
+    if (!email) {
+      functions.logger.warn("No email found to send confirmation for payment", { paymentId });
+      return;
+    }
+
+    const smtpUser = SMTP_USER.value() || process.env.SMTP_USER;
+    const smtpPass = SMTP_PASS.value() || process.env.SMTP_PASS;
+    if (!smtpUser || !smtpPass) return;
+
+    const { subject, html } = buildEmail("converted", {
+      name: userData?.name || (after.customerDetails as any)?.name,
+      registrationId: registrationId || paymentId,
+      passType: after.passType as string,
+      amount: (after.amount as number) || 0,
+      email: email,
+      qrCode: "cid:qrcode",
+      college: userData?.college,
+      phone: userData?.phone || (after.customerDetails as any)?.phone,
+      selectedEvents: after.selectedEvents as string[],
+    });
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: { user: smtpUser, pass: smtpPass },
+    });
+
+    try {
+      const base64Data = qrCode.split(",")[1];
+      await transporter.sendMail({
+        from: `"CIT Takshashila" <${smtpUser}>`,
+        to: email,
+        subject,
+        html,
+        attachments: base64Data ? [
+          {
+            filename: "qrcode.png",
+            content: base64Data,
+            encoding: "base64",
+            cid: "qrcode",
+          },
+        ] : [],
+      });
+      functions.logger.info("Confirmation email sent for converted payment", { paymentId, email });
+    } catch (err) {
+      functions.logger.error("Failed to send email for converted payment", { paymentId, error: err });
     }
   });
 
