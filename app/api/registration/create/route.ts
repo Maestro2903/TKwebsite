@@ -188,35 +188,7 @@ export async function POST(req: NextRequest) {
       await registrationRef.set(registrationData);
     }
 
-    const subject = isUpdate
-      ? 'Registration updated – payment pending'
-      : 'Registration received – payment pending';
-    const html = `
-      <div style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; color: #111827;">
-        <h1 style="font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 12px;">
-          ${isUpdate ? 'Registration Updated' : 'Thanks for registering for CIT Takshashila 2026'}
-        </h1>
-        <p style="font-size: 15px; line-height: 1.6; color: #374151; margin-bottom: 16px;">
-          Hi <strong>${name}</strong>, ${isUpdate ? 'your registration has been updated' : 'we&apos;ve received your registration'}. Your payment is still pending.
-        </p>
-        <div style="background: #F3F4F6; padding: 16px 20px; border-radius: 10px; margin-bottom: 16px;">
-          <p style="margin: 4px 0; font-size: 14px;"><strong>Pass type:</strong> ${passType}</p>
-          <p style="margin: 4px 0; font-size: 14px;"><strong>Estimated amount:</strong> ₹${calculatedAmount}</p>
-        </div>
-        <p style="font-size: 14px; line-height: 1.6; color: #4B5563; margin-bottom: 16px;">
-          Please complete payment at the venue to receive your official QR pass. You can still edit your registration from the profile page while it is pending.
-        </p>
-        <p style="font-size: 13px; color: #9CA3AF; margin-top: 24px; border-top: 1px solid #E5E7EB; padding-top: 12px;">
-          This email does not contain a QR code. Entry is only allowed after on-spot payment is recorded and your pass is generated.
-        </p>
-      </div>
-    `;
-
-    await enqueueEmail({
-      to: email,
-      subject,
-      html,
-    });
+    // Email dispatch removed because Firebase Cloud Functions handles sending the OD mail on registration creation.
 
     return NextResponse.json({
       success: true,

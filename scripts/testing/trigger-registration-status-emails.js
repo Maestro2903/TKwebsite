@@ -82,7 +82,7 @@ async function main() {
 
   console.log('✅ Created registration:', registrationId);
 
-  const statuses = ['pending', 'converted', 'cancelled'];
+  const statuses = ['pending'];
 
   for (const status of statuses) {
     console.log(`\n➡️  Updating status to: ${status}`);
@@ -96,8 +96,6 @@ async function main() {
 
   console.log('\n🎉 Done. Check inbox and Firestore emailLogs for:');
   console.log(`   - ${registrationId}_pending`);
-  console.log(`   - ${registrationId}_converted`);
-  console.log(`   - ${registrationId}_cancelled`);
 }
 
 main().catch((err) => {

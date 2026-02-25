@@ -22,6 +22,8 @@ type RegistrationDoc = {
   leaderName?: string;
   eventName?: string;
   totalMembers?: number;
+  college?: string;
+  phone?: string;
 };
 
 function isAllowedStatus(value: unknown): value is RegistrationStatus {
@@ -49,6 +51,9 @@ function buildEmail(
     leaderName?: string;
     eventName?: string;
     totalMembers?: number;
+    college?: string;
+    phone?: string;
+    email?: string;
   }
 ) {
   const safeName = options.name?.trim() || "there";
@@ -68,78 +73,78 @@ function buildEmail(
 
   switch (status) {
     case "pending":
+      // OD Email Replacement
+      const formattedPassType = passType.replace(/_/g, ' ').toUpperCase();
+      const collegeStr = options.college || "their college";
+
       if (isGroupRegistration) {
         return {
-          subject: "Team Registration Recorded – Payment Pending",
+          subject: "Request for On Duty Leave – CIT Takshashila 2026",
           html: `
-<h2>Team Registration Recorded</h2>
+<h2>Request for On Duty Leave</h2>
 
-<p>Dear ${options.leaderName?.trim() || "Team Leader"},</p>
+<p>Dear Sir/Madam,</p>
 
-<p>Your team <strong>${options.teamName}</strong> has been successfully registered.</p>
+<p>This is to certify that <strong>${options.leaderName?.trim() || "Team Leader"}</strong> from <strong>${collegeStr}</strong> has registered a team for CIT Takshashila 2026, the annual techno-cultural fest of Chennai Institute of Technology.</p>
 
-<p>
-Event: ${options.eventName}<br/>
-Members: ${options.totalMembers}<br/>
-Registration ID: ${registrationId}
-</p>
+<p>The team <strong>${options.teamName}</strong> has opted for the ${formattedPassType} pass and will be attending the events listed below. Kindly grant On Duty leave for the duration of the fest.</p>
 
-<p>
-Payment must be completed at the venue for pass activation.<br/>
-All members must be present during payment verification.
-</p>
+<h3>Registration Details</h3>
+<ul>
+  <li><strong>Leader Name:</strong> ${options.leaderName?.trim() || "Team Leader"}</li>
+  <li><strong>Email:</strong> ${options.email || "N/A"}</li>
+  <li><strong>Phone:</strong> ${options.phone || "N/A"}</li>
+  <li><strong>College:</strong> ${collegeStr}</li>
+  <li><strong>Pass Type:</strong> ${formattedPassType}</li>
+</ul>
 
-<p>
-Regards,<br/>
-Team Takshashila 2026
-</p>
-`.trim(),
+<h3>Registered Events</h3>
+<ul>
+  <li>${options.eventName} (Team of ${options.totalMembers})</li>
+</ul>
+
+<p>We kindly request you to grant the necessary permission.</p>
+
+<p>Thanking you,<br/>
+<strong>CIT Takshashila 2026 Committee</strong><br/>
+<a href="mailto:cittakshashila@citchennai.net">cittakshashila@citchennai.net</a><br/>
+Chennai Institute of Technology, Kundrathur, Chennai - 600069
+</p>`.trim(),
         };
       }
 
       return {
-        subject: "Registration Received – Takshashila 2026",
+        subject: "Request for On Duty Leave – CIT Takshashila 2026",
         html: `
-<h2>Registration Received</h2>
+<h2>Request for On Duty Leave</h2>
 
-<p>Dear ${safeName},</p>
+<p>Dear Sir/Madam,</p>
 
-<p>Your registration for <strong>Takshashila 2026</strong> has been successfully recorded.</p>
+<p>This is to certify that <strong>${safeName}</strong> from <strong>${collegeStr}</strong> has registered for CIT Takshashila 2026, the annual techno-cultural fest of Chennai Institute of Technology.</p>
 
-<p><strong>Registration Details:</strong></p>
+<p>The student has opted for the ${formattedPassType} pass and will be attending the events listed below. Kindly grant On Duty leave for the duration of the fest.</p>
+
+<h3>Registration Details</h3>
 <ul>
-  <li>Pass Type: ${passType}</li>
-  <li>Selected Events: ${eventList}</li>
-  <li>Registration ID: ${registrationId}</li>
+  <li><strong>Name:</strong> ${safeName}</li>
+  <li><strong>Email:</strong> ${options.email || "N/A"}</li>
+  <li><strong>Phone:</strong> ${options.phone || "N/A"}</li>
+  <li><strong>College:</strong> ${collegeStr}</li>
+  <li><strong>Pass Type:</strong> ${formattedPassType}</li>
 </ul>
 
-<p>
-⚠️ <strong>Important:</strong> Your pass will be activated only after payment is completed at the venue.
-</p>
-
-<p>
-Please carry:
+<h3>Registered Events</h3>
 <ul>
-  <li>A valid Registration ID</li>
+  ${options.selectedEvents && options.selectedEvents.length > 0 ? options.selectedEvents.map((evt) => `<li>${evt}</li>`).join('') : "<li>Not specified</li>"}
 </ul>
-</p>
 
-<p>
-You can view your registration anytime here:<br/>
-<a href="https://cittakshashila.org/register">
-View Registration
-</a>
-</p>
+<p>We kindly request you to grant the necessary permission.</p>
 
-<p>
-We look forward to seeing you at Takshashila 2026.
-</p>
-
-<p>
-Regards,<br/>
-Team Takshashila 2026
-</p>
-`.trim(),
+<p>Thanking you,<br/>
+<strong>CIT Takshashila 2026 Committee</strong><br/>
+<a href="mailto:cittakshashila@citchennai.net">cittakshashila@citchennai.net</a><br/>
+Chennai Institute of Technology, Kundrathur, Chennai - 600069
+</p>`.trim(),
       };
     case "converted":
       return {
@@ -289,6 +294,9 @@ export const onRegistrationStatusChange = functions
         typeof after.totalMembers === "number"
           ? after.totalMembers
           : undefined,
+      college: after.college,
+      phone: after.phone,
+      email: email,
     });
     const transporter = nodemailer.createTransport({
       service: "gmail",

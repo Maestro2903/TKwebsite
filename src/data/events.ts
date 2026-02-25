@@ -342,7 +342,7 @@ export const NON_TECHNICAL_EVENTS: EventItem[] = [
 export const TECHNICAL_EVENTS: EventItem[] = [
   {
     id: 'upside-down-ctf',
-    name: 'UPSIDE DOWN – THE STRANGEST CTF EVER',
+    name: 'Episode Zero - Capture The Flag',
     description:
       'A 5-hour immersive Capture The Flag (CTF) competition designed to challenge participants beyond traditional problem-solving with unconventional twists and layered challenges.',
     image: TECH.upsideDownCtf,
@@ -357,7 +357,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     name: 'DEADLOCK',
     description:
       'A head-to-head coding battle across five progressive levels of logic, debugging, and algorithmic challenges. Speed, accuracy, and teamwork decide who breaks the deadlock and wins.',
-    image: TECH.deadlock,
+    image: '/images/event/tech/deadlock.webp',
     venue: 'Pega Lab',
     startTime: '10:00 AM',
     date: '2026-02-26',
@@ -388,7 +388,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
   {
     id: 'commit-kaaviyam',
     name: 'COMMIT KAAVIYAM',
-    description: 'A creative coding challenge that tests your ability to write clean, poetic code.',
+    description: 'A fast-paced technical challenge testing knowledge, memory, logic, and practical skills in Free and Open Source Software.',
     image: PLACEHOLDER_TECH,
     venue: 'CIT Classroom',
     startTime: '10:30 AM',
@@ -410,8 +410,8 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     id: 'astrotrack',
     name: 'ASTROTRACK',
     description:
-      'A hands-on astrophysics workshop to introduce participants to the real-world science of astrometry using the professional software Astrometrica. Participants work with actual astronomical image datasets to analyze star fields and detect moving celestial objects like asteroids and Near-Earth Objects.',
-    image: TECH.astrotrack,
+      'AstroTrack is an immersive astrophysics workshop where participants analyze real astronomical datasets using Astrometrica to detect and track asteroids and Near-Earth Objects, simulating real-world space research workflows.',
+    image: '/images/event/tech/astrotrack.webp',
     venue: 'Physics Lab',
     startTime: '9:00 AM',
     endTime: '10:30 AM',
