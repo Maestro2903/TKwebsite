@@ -460,7 +460,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     name: 'MOCK SUMMIT',
     description:
       'A high-intensity global policy simulation where you step into the shoes of world leaders to deliberate on the global economic and security consequences of disruptions to Taiwan’s semiconductor supply chain amid escalating tensions in the Taiwan Strait. This summit challenges you to negotiate under pressure, craft strategic alliances, and defend national interests in a rapidly shifting geopolitical landscape.',
-    image: PLACEHOLDER_TECH,
+    image: '/images/event/tech/mock-summit.png',
     venue: 'Auditorium',
     startTime: '9:00 AM',
     date: '2026-02-27',
