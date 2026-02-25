@@ -2,7 +2,6 @@ import * as functions from "firebase-functions/v1";
 import { defineSecret } from "firebase-functions/params";
 import * as admin from "firebase-admin";
 import * as nodemailer from "nodemailer";
-import { generatePassQRImage } from "./passQrUtil";
 
 type RegistrationStatus = "pending" | "converted" | "cancelled";
 
@@ -295,8 +294,8 @@ export const onRegistrationStatusChange = functions
       return;
     }
 
-    let qrCode: string | undefined = undefined;
-    if (afterStatus === "converted") {
+    let qrCode: string | undefined = after.qrCode;
+    if (afterStatus === "converted" && !qrCode) {
       const passId = after.passId || (after as any).convertedToPassId;
       if (passId) {
         try {
@@ -307,6 +306,12 @@ export const onRegistrationStatusChange = functions
         } catch (err) {
           functions.logger.error("Failed to fetch pass for QR code", { passId, error: err });
         }
+      }
+
+      // If still no QR code for a converted status, we wait for the doc to be updated with one
+      if (!qrCode) {
+        functions.logger.info("Converted registration missing QR code; skipping email until it is added.", { registrationId });
+        return;
       }
     }
 
@@ -640,14 +645,10 @@ export const onPaymentStatusConverted = functions
       .limit(1)
       .get();
 
-    let qrCode: string;
+    let qrCode: string | undefined = undefined;
 
     if (passSnap.empty) {
       functions.logger.info("Creating missing pass for converted payment", { paymentId });
-
-      const userSnap = await db.collection("users").doc(userId).get();
-      const userData = userSnap.data();
-      const userName = userData?.name || "Attendee";
 
       const passRef = db.collection("passes").doc();
       const passId = passRef.id;
@@ -658,16 +659,6 @@ export const onPaymentStatusConverted = functions
       const selectedEvents = (after.selectedEvents as string[]) || [];
       const selectedDays = (after.selectedDays as string[]) || [];
 
-      // Generate QR Code
-      const { qrDataUrl } = await generatePassQRImage({
-        passId,
-        name: userName,
-        passType: passType,
-        events: selectedEvents,
-        days: selectedDays,
-      });
-      qrCode = qrDataUrl;
-
       const passData: Record<string, unknown> = {
         userId,
         passType,
@@ -675,7 +666,6 @@ export const onPaymentStatusConverted = functions
         paymentId,
         registrationId: registrationId || null,
         status: "paid",
-        qrCode: qrCode,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         selectedEvents,
         selectedDays,
@@ -731,7 +721,22 @@ export const onPaymentStatusConverted = functions
     });
 
     try {
-      const base64Data = qrCode.split(",")[1];
+      // If pass exists but qrCode is not set yet in the variable, fetch it
+      if (!qrCode) {
+        const passRef = await db.collection("passes").where("paymentId", "==", paymentId).limit(1).get();
+        if (!passRef.empty) {
+          qrCode = passRef.docs[0].data().qrCode;
+        }
+      }
+
+      if (!qrCode) {
+        functions.logger.warn("QR code not found for converted payment email", { paymentId });
+        // Optionally return early or wait? The original logic for status change returns early.
+        // For payment converted, we might want to wait or just skip the attachment for now.
+        // Given the requirement, we should probably fetch it.
+      }
+
+      const base64Data = qrCode ? qrCode.split(",")[1] : undefined;
       await transporter.sendMail({
         from: `"CIT Takshashila" <${smtpUser}>`,
         to: email,
