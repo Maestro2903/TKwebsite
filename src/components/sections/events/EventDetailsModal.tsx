@@ -208,7 +208,13 @@ export default function EventDetailsModal({
               {event.date && (
                 <div className="flex flex-col gap-1">
                   <span className="text-white/40 text-[9px]">DATE</span>
-                  <span className="text-white">{event.date}</span>
+                  <span className="text-white">
+                    {new Date(event.date + 'T12:00:00').toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </span>
                 </div>
               )}
               {event.startTime && (

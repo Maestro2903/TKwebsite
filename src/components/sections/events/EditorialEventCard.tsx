@@ -84,8 +84,19 @@ function EditorialEventCard({ event, index = 0 }: EditorialEventCardProps) {
           </p>
         )}
 
-        {/* Event Meta - Venue & Time */}
+        {/* Event Meta - Date, Venue & Time */}
         <div className="flex flex-wrap gap-x-4 gap-y-1 mb-4 text-[11px] font-editorial uppercase tracking-wider text-[var(--editorial-blue,#0047FF)]">
+          {event.date && (
+            <div className="flex items-center gap-1">
+              <span className="opacity-60 text-white/50">DATE:</span>
+              <span>
+                {new Date(event.date + 'T12:00:00').toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'short',
+                })}
+              </span>
+            </div>
+          )}
           {event.venue && (
             <div className="flex items-center gap-1">
               <span className="opacity-60 text-white/50">LOC:</span>

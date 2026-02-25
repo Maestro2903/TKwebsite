@@ -13,6 +13,24 @@ import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 // Price will be fetched from backend
 const DEFAULT_PRICE_PER_PERSON = 250;
 
+/** Format event date for display; supports single date or multi-day (dates array). */
+function formatGroupEventDate(event: { date?: string; dates?: string[] }): string {
+  const fmt = (iso: string) => {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  };
+  if (event.dates && event.dates.length === 2) {
+    return `First 2 Days (${event.dates.map(fmt).join(' & ')})`;
+  }
+  if (event.dates && event.dates.length === 3) {
+    return `All 3 Days (${event.dates.map(fmt).join(', ')})`;
+  }
+  if (event.date) {
+    return fmt(event.date);
+  }
+  return '—';
+}
+
 interface TeamMember {
     id: string;
     name: string;
@@ -528,7 +546,7 @@ export default function GroupRegistrationModal({
                                                     )}
                                                     <div className="flex gap-2 mt-2 flex-wrap">
                                                         <span className="text-[10px] text-neutral-500 font-mono">
-                                                            {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                            {formatGroupEventDate(event)}
                                                         </span>
                                                         <span className="text-[10px] text-neutral-700">•</span>
                                                         <span className="text-[10px] text-neutral-500 font-mono">
