@@ -57,6 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const authInstance = getAuthSafe();
     if (!authInstance) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
       return;
     }
@@ -70,11 +71,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (result) {
           console.log('Sign-in successful');
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Redirect result error:', error);
-        if (error.code === 'auth/network-request-failed') {
+        const errorCode =
+          typeof error === 'object' &&
+          error !== null &&
+          'code' in error &&
+          typeof (error as { code: unknown }).code === 'string'
+            ? (error as { code: string }).code
+            : undefined;
+        if (errorCode === 'auth/network-request-failed') {
           alert('Network error. Please check your connection and try again.');
-        } else if (error.code !== 'auth/popup-closed-by-user') {
+        } else if (errorCode !== 'auth/popup-closed-by-user') {
           alert('Sign-in failed. Please try again.');
         }
       }

@@ -17,13 +17,12 @@ type RegistrationDoc = {
   emailSentForStatus?: RegistrationStatus | string;
   passType?: string;
   selectedEvents?: string[];
+  selectedDays?: string[];
   calculatedAmount?: number;
   teamName?: string;
   leaderName?: string;
   eventName?: string;
   totalMembers?: number;
-  college?: string;
-  phone?: string;
 };
 
 function isAllowedStatus(value: unknown): value is RegistrationStatus {
@@ -46,14 +45,12 @@ function buildEmail(
     registrationId: string;
     passType?: string;
     selectedEvents?: string[];
+    selectedDates?: string[];
     amount?: number;
     teamName?: string;
     leaderName?: string;
     eventName?: string;
     totalMembers?: number;
-    college?: string;
-    phone?: string;
-    email?: string;
   }
 ) {
   const safeName = options.name?.trim() || "there";
@@ -62,6 +59,10 @@ function buildEmail(
   const eventList =
     options.selectedEvents && options.selectedEvents.length > 0
       ? options.selectedEvents.join(", ")
+      : "Not specified";
+  const selectedDatesText =
+    options.selectedDates && options.selectedDates.length > 0
+      ? options.selectedDates.join(", ")
       : "Not specified";
   const formattedAmount =
     typeof options.amount === "number" && options.amount > 0
@@ -73,78 +74,256 @@ function buildEmail(
 
   switch (status) {
     case "pending":
-      // OD Email Replacement
-      const formattedPassType = passType.replace(/_/g, ' ').toUpperCase();
-      const collegeStr = options.college || "their college";
-
       if (isGroupRegistration) {
         return {
-          subject: "Request for On Duty Leave – CIT Takshashila 2026",
+          subject: "Team Registration Confirmation – Takshashila 2026",
           html: `
-<h2>Request for On Duty Leave</h2>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Team Registration Confirmation – Takshashila 2026</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5; padding:20px 0;">
+      <tr>
+        <td align="center">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; background-color:#ffffff; border:1px solid #e0e0e0;">
+            <tr>
+              <td style="padding:16px 20px; background-color:#111827; color:#ffffff; font-family:Arial, Helvetica, sans-serif;">
+                <div style="font-size:18px; font-weight:600; margin:0;">
+                  Takshashila 2026
+                </div>
+                <div style="font-size:12px; margin-top:2px; color:#d1d5db;">
+                  Chennai Institute of Technology
+                </div>
+              </td>
+            </tr>
 
-<p>Dear Sir/Madam,</p>
+            <tr>
+              <td style="padding:20px; font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#111827; line-height:1.5;">
+                <p style="margin:0 0 12px 0;">
+                  Dear ${options.leaderName?.trim() || "Team Leader"},
+                </p>
+                <p style="margin:0 0 12px 0;">
+                  This is to confirm that the registration of your team for participation in Takshashila 2026, organized by Chennai Institute of Technology, has been successfully recorded.
+                </p>
+              </td>
+            </tr>
 
-<p>This is to certify that <strong>${options.leaderName?.trim() || "Team Leader"}</strong> from <strong>${collegeStr}</strong> has registered a team for CIT Takshashila 2026, the annual techno-cultural fest of Chennai Institute of Technology.</p>
+            <tr>
+              <td style="padding:0 20px 16px 20px; font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#111827; line-height:1.5;">
+                <p style="margin:0 0 8px 0; font-weight:600;">
+                  Registration Details
+                </p>
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; font-size:14px;">
+                  <tr>
+                    <td style="padding:4px 0; width:150px; color:#4b5563;">Team Name</td>
+                    <td style="padding:4px 0; color:#111827;">${options.teamName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:4px 0; color:#4b5563;">Event</td>
+                    <td style="padding:4px 0; color:#111827;">${options.eventName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:4px 0; color:#4b5563;">Total Members</td>
+                    <td style="padding:4px 0; color:#111827;">${options.totalMembers}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:4px 0; color:#4b5563;">Registration ID</td>
+                    <td style="padding:4px 0; color:#111827;">${registrationId}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
 
-<p>The team <strong>${options.teamName}</strong> has opted for the ${formattedPassType} pass and will be attending the events listed below. Kindly grant On Duty leave for the duration of the fest.</p>
+            <tr>
+              <td style="padding:0 20px 16px 20px; font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#111827; line-height:1.5;">
+                <p style="margin:0 0 8px 0; font-weight:600;">
+                  Important Instructions
+                </p>
+                <ul style="margin:0 0 4px 20px; padding:0;">
+                  <li style="margin-bottom:6px;">
+                    Each team member is required to carry a valid College Identity Card. A government-issued identity document may also be carried, if available.
+                  </li>
+                  <li style="margin-bottom:6px;">
+                    Where applicable, payment for participation is to be completed at the designated registration or payment counter at the venue, as per the instructions issued by the organizers.
+                  </li>
+                  <li style="margin-bottom:6px;">
+                    Please retain the Registration ID (${registrationId}) for verification and for any future correspondence.
+                  </li>
+                  <li style="margin-bottom:6px;">
+                    Further information or changes, if any, will be communicated through the official channels of Takshashila 2026, including the registered contact details of the team.
+                  </li>
+                </ul>
+              </td>
+            </tr>
 
-<h3>Registration Details</h3>
-<ul>
-  <li><strong>Leader Name:</strong> ${options.leaderName?.trim() || "Team Leader"}</li>
-  <li><strong>Email:</strong> ${options.email || "N/A"}</li>
-  <li><strong>Phone:</strong> ${options.phone || "N/A"}</li>
-  <li><strong>College:</strong> ${collegeStr}</li>
-  <li><strong>Pass Type:</strong> ${formattedPassType}</li>
-</ul>
+            <tr>
+              <td style="padding:0 20px 20px 20px; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#111827; line-height:1.5;">
+                <p style="margin:0 0 12px 0;">
+                  Should you require any clarification, please contact the organizing committee of Takshashila 2026 through the official communication channels.
+                </p>
+                <p style="margin:0 0 4px 0;">
+                  Sincerely,
+                </p>
+                <p style="margin:4px 0 0 0;">
+                  Team Takshashila 2026<br />
+                  Chennai Institute of Technology<br />
+                  <a href="https://cittakshashila.org/register" style="color:#1d4ed8; text-decoration:none;">
+                    https://cittakshashila.org/register
+                  </a>
+                </p>
+              </td>
+            </tr>
 
-<h3>Registered Events</h3>
-<ul>
-  <li>${options.eventName} (Team of ${options.totalMembers})</li>
-</ul>
-
-<p>We kindly request you to grant the necessary permission.</p>
-
-<p>Thanking you,<br/>
-<strong>CIT Takshashila 2026 Committee</strong><br/>
-<a href="mailto:cittakshashila@citchennai.net">cittakshashila@citchennai.net</a><br/>
-Chennai Institute of Technology, Kundrathur, Chennai - 600069
-</p>`.trim(),
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+`.trim(),
         };
       }
 
       return {
-        subject: "Request for On Duty Leave – CIT Takshashila 2026",
+        subject: "Registration Confirmation – Takshashila 2026",
         html: `
-<h2>Request for On Duty Leave</h2>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Registration Confirmation – Takshashila 2026</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5; padding:20px 0;">
+      <tr>
+        <td align="center">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; background-color:#ffffff; border:1px solid #e0e0e0;">
+            <tr>
+              <td style="padding:16px 20px; background-color:#111827; color:#ffffff; font-family:Arial, Helvetica, sans-serif;">
+                <div style="font-size:18px; font-weight:600; margin:0;">
+                  Takshashila 2026
+                </div>
+                <div style="font-size:12px; margin-top:2px; color:#d1d5db;">
+                  Chennai Institute of Technology
+                </div>
+              </td>
+            </tr>
 
-<p>Dear Sir/Madam,</p>
+            <tr>
+              <td style="padding:20px; font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#111827; line-height:1.5;">
+                <p style="margin:0 0 12px 0;">
+                  Dear ${safeName},
+                </p>
+                <p style="margin:0 0 12px 0;">
+                  This is to confirm that your registration for participation in Takshashila 2026, organized by Chennai Institute of Technology, has been successfully recorded.
+                </p>
+              </td>
+            </tr>
 
-<p>This is to certify that <strong>${safeName}</strong> from <strong>${collegeStr}</strong> has registered for CIT Takshashila 2026, the annual techno-cultural fest of Chennai Institute of Technology.</p>
+            <tr>
+              <td style="padding:0 20px 16px 20px; font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#111827; line-height:1.5;">
+                <p style="margin:0 0 8px 0; font-weight:600;">
+                  Registration Details
+                </p>
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; font-size:14px;">
+                  <tr>
+                    <td style="padding:4px 0; width:130px; color:#4b5563;">Registration ID</td>
+                    <td style="padding:4px 0; color:#111827;">${registrationId}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:4px 0; color:#4b5563;">Event(s)</td>
+                    <td style="padding:4px 0; color:#111827;">${eventList}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:4px 0; color:#4b5563;">Event Date(s)</td>
+                    <td style="padding:4px 0; color:#111827;">${selectedDatesText}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
 
-<p>The student has opted for the ${formattedPassType} pass and will be attending the events listed below. Kindly grant On Duty leave for the duration of the fest.</p>
+            <tr>
+              <td style="padding:0 20px 16px 20px; font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#111827; line-height:1.5;">
+                <p style="margin:0 0 8px 0; font-weight:600;">
+                  Important Instructions
+                </p>
+                <ul style="margin:0 0 4px 20px; padding:0;">
+                  <li style="margin-bottom:6px;">
+                    Please carry a valid College Identity Card. A government-issued identity document may also be carried, if available.
+                  </li>
+                  <li style="margin-bottom:6px;">
+                    Where applicable, payment for participation is to be completed at the designated registration or payment counter at the venue, as per the instructions issued by the organizers.
+                  </li>
+                  <li style="margin-bottom:6px;">
+                    Kindly retain your Registration ID (${registrationId}) for reference during verification and for any future correspondence.
+                  </li>
+                  <li style="margin-bottom:6px;">
+                    Further information or changes, if any, will be communicated through the official channels of Takshashila 2026, including your registered email address.
+                  </li>
+                </ul>
+              </td>
+            </tr>
 
-<h3>Registration Details</h3>
-<ul>
-  <li><strong>Name:</strong> ${safeName}</li>
-  <li><strong>Email:</strong> ${options.email || "N/A"}</li>
-  <li><strong>Phone:</strong> ${options.phone || "N/A"}</li>
-  <li><strong>College:</strong> ${collegeStr}</li>
-  <li><strong>Pass Type:</strong> ${formattedPassType}</li>
-</ul>
+            <tr>
+              <td style="padding:0 20px 20px 20px; font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#111827; line-height:1.5;">
+                <p style="margin:0 0 8px 0; font-weight:600;">
+                  Next Steps
+                </p>
+                <ul style="margin:0 0 4px 20px; padding:0;">
+                  <li style="margin-bottom:6px;">
+                    Review the schedule and venue information for the event(s) for which you have registered on the official website.
+                  </li>
+                  <li style="margin-bottom:6px;">
+                    Report to the venue on the scheduled date(s) ${selectedDatesText} and allow adequate time for entry and on-site formalities.
+                  </li>
+                  <li style="margin-bottom:6px;">
+                    In case of any discrepancy in the above details, please contact the organizing committee at the earliest.
+                  </li>
+                </ul>
+              </td>
+            </tr>
 
-<h3>Registered Events</h3>
-<ul>
-  ${options.selectedEvents && options.selectedEvents.length > 0 ? options.selectedEvents.map((evt) => `<li>${evt}</li>`).join('') : "<li>Not specified</li>"}
-</ul>
+            <tr>
+              <td style="padding:0 20px 20px 20px; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#111827; line-height:1.5;">
+                <p style="margin:0 0 4px 0;">
+                  You may review your registration and related information on the official portal:
+                </p>
+                <p style="margin:0;">
+                  <a href="https://cittakshashila.org/register" style="color:#1d4ed8; text-decoration:none;">
+                    https://cittakshashila.org/register
+                  </a>
+                </p>
+              </td>
+            </tr>
 
-<p>We kindly request you to grant the necessary permission.</p>
+            <tr>
+              <td style="padding:0 20px 20px 20px; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#111827; line-height:1.5;">
+                <p style="margin:0 0 12px 0;">
+                  Should you require any clarification, please contact the organizing committee of Takshashila 2026 through the official communication channels.
+                </p>
+                <p style="margin:0 0 4px 0;">
+                  Sincerely,
+                </p>
+                <p style="margin:4px 0 0 0;">
+                  Team Takshashila 2026<br />
+                  Chennai Institute of Technology<br />
+                  <a href="https://cittakshashila.org/register" style="color:#1d4ed8; text-decoration:none;">
+                    https://cittakshashila.org/register
+                  </a>
+                </p>
+              </td>
+            </tr>
 
-<p>Thanking you,<br/>
-<strong>CIT Takshashila 2026 Committee</strong><br/>
-<a href="mailto:cittakshashila@citchennai.net">cittakshashila@citchennai.net</a><br/>
-Chennai Institute of Technology, Kundrathur, Chennai - 600069
-</p>`.trim(),
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+`.trim(),
       };
     case "converted":
       return {
@@ -283,6 +462,9 @@ export const onRegistrationStatusChange = functions
       selectedEvents: Array.isArray(after.selectedEvents)
         ? after.selectedEvents
         : undefined,
+      selectedDates: Array.isArray(after.selectedDays)
+        ? (after.selectedDays as string[])
+        : undefined,
       amount:
         typeof after.calculatedAmount === "number"
           ? after.calculatedAmount
@@ -294,9 +476,6 @@ export const onRegistrationStatusChange = functions
         typeof after.totalMembers === "number"
           ? after.totalMembers
           : undefined,
-      college: after.college,
-      phone: after.phone,
-      email: email,
     });
     const transporter = nodemailer.createTransport({
       service: "gmail",
