@@ -3,7 +3,6 @@
 import { useAuth } from '@/features/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AwardBadge } from '@/components/decorative/AwardBadge';
 
 export default function LoginPage() {
   const { signIn, user, loading } = useAuth();
@@ -14,14 +13,30 @@ export default function LoginPage() {
     setSigningIn(true);
     try {
       await signIn();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Google Sign-In Error:", err);
+      const errorCode =
+        typeof err === "object" &&
+        err !== null &&
+        "code" in err &&
+        typeof (err as { code: unknown }).code === "string"
+          ? (err as { code: string }).code
+          : undefined;
+      const errorMessage =
+        typeof err === "object" &&
+        err !== null &&
+        "message" in err &&
+        typeof (err as { message: unknown }).message === "string"
+          ? (err as { message: string }).message
+          : err instanceof Error
+          ? err.message
+          : "Unknown error";
       // Only show alert for errors other than user closing the popup
       if (
-        err.code !== "auth/popup-closed-by-user" &&
-        err.code !== "auth/cancelled-by-user"
+        errorCode !== "auth/popup-closed-by-user" &&
+        errorCode !== "auth/cancelled-by-user"
       ) {
-        alert(`Sign-in failed: ${err.message || "Unknown error"}`);
+        alert(`Sign-in failed: ${errorMessage}`);
       }
     } finally {
       setSigningIn(false);

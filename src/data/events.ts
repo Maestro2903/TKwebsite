@@ -388,22 +388,26 @@ export const TECHNICAL_EVENTS: EventItem[] = [
   {
     id: 'commit-kaaviyam',
     name: 'COMMIT KAAVIYAM',
-    description: 'A fast-paced technical challenge testing knowledge, memory, logic, and practical skills in Free and Open Source Software.',
+    description:
+      'Commit Kaaviyam is a high-intensity, time-driven technical challenge organized by the FOSS Club, designed to test participants’ knowledge, memory, logical thinking, and practical development skills in the world of Free and Open Source Software. This three-round competition blends creativity, strategy, and technical expertise — taking participants on a journey from solving FOSS-based puzzles to applying real-world Git and cybersecurity practices.',
+    fullDescription:
+      'Commit Kaaviyam is a high-intensity, time-driven technical challenge organized by the FOSS Club, designed to test participants’ knowledge, memory, logical thinking, and practical development skills in the world of Free and Open Source Software. This three-round competition blends creativity, strategy, and technical expertise — taking participants on a journey from solving FOSS-based puzzles to applying real-world Git and cybersecurity practices.',
     image: PLACEHOLDER_TECH,
-    venue: 'CIT Classroom',
+    venue: 'F8',
     startTime: '10:30 AM',
     endTime: '12:30 PM',
     date: '2026-02-26',
-    prizePool: 0,
+    prizePool: 6000,
   },
   {
     id: 'big-data-cse',
-    name: 'BIG DATA (CSE)',
+    name: 'BIG DATA',
     description: 'Explore the vast landscape of data processing and analytics at scale.',
     image: '/images/event/tech/BIG-DATA.png',
     venue: 'ILP Lab Pega',
-    startTime: '1:00 PM',
-    date: '2026-02-26',
+    startTime: '9:30 AM',
+    endTime: '12:00 PM',
+    date: '2026-02-28',
     prizePool: 0,
   },
   {
