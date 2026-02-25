@@ -556,7 +556,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     name: 'BUILDING GAMES ON WEB3',
     description:
       'A hands-on workshop that walks participants through building a simple blockchain-powered game from scratch using modern Web3 development tools. Participants will build a playable mini-game that interacts with the blockchain, including minting in-game NFTs.',
-    image: PLACEHOLDER_TECH,
+    image: '/images/event/tech/building-games-web3.png',
     venue: 'ILP Lab pega',
     startTime: '12:30 PM',
     date: '2026-02-28',
@@ -579,16 +579,6 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     image: '/images/event/tech/soc-investigation.webp',
     venue: 'Python Lab',
     startTime: '10:30 AM',
-    date: '2026-02-28',
-    prizePool: 0,
-  },
-  {
-    id: 'the-90-minute-ceo',
-    name: 'THE 90 MINUTE CEO',
-    description:
-      'A rapid-fire strategy masterclass where students learn to validate startup ideas and pitch them without writing a single line of code. The session teaches a reverse approach: "Find the Pain, Then Sell the Cure" through modules like "Painkillers vs. Vitamins" and a "Problem Roulette" activity.',
-    image: PLACEHOLDER_TECH,
-    venue: 'Auditorium',
     date: '2026-02-28',
     prizePool: 0,
   },
