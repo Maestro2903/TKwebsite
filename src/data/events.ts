@@ -365,7 +365,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
   },
   {
     id: 'borderland-protocol',
-    name: 'BORDERLAND PROTOCOL',
+    name: 'BORDERLAND ARENA',
     description:
       'A card-based tech survival event inspired by Alice in Borderland, where card suits represent difficulty (Clubs, Diamonds, Hearts, Spades). Teams face multi-round challenges, and survival depends on performance, strategy, and teamwork, with poor performance leading to eliminations.',
     image: '/images/event/tech/borderland.webp',
@@ -483,6 +483,19 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     image: PLACEHOLDER_TECH,
     venue: 'CITIL',
     startTime: '11:30 AM',
+    date: '2026-02-27',
+    prizePool: 0,
+  },
+  {
+    id: 'finverse',
+    name: 'FINVERSE',
+    description:
+      'FINVERSE highlights how fintech, blockchain, and AI are revolutionizing the financial ecosystem by enhancing accessibility, transparency, and efficiency. It emphasizes inclusive finance through digital payments, microloans, and SME empowerment, especially for underserved communities. Blockchain introduces secure, decentralized, and transparent systems, while AI enables fraud detection, predictive insights, and personalized banking.',
+    fullDescription:
+      'FINVERSE highlights how fintech, blockchain, and AI are revolutionizing the financial ecosystem by enhancing accessibility, transparency, and efficiency. It emphasizes inclusive finance through digital payments, microloans, and SME empowerment, especially for underserved communities. Blockchain introduces secure, decentralized, and transparent systems, while AI enables fraud detection, predictive insights, and personalized banking.',
+    image: '/images/event/tech/finverse.png',
+    venue: 'CITIL',
+    startTime: '2:00 PM',
     date: '2026-02-27',
     prizePool: 0,
   },

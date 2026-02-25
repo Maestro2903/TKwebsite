@@ -466,7 +466,7 @@ const events = [
   },
   {
     id: 'borderland-protocol',
-    name: 'BORDERLAND PROTOCOL',
+    name: 'BORDERLAND ARENA',
     category: 'technical',
     type: 'group',
     date: '2026-02-26',
@@ -625,6 +625,21 @@ const events = [
     isActive: true,
     description: 'Master the art of e-commerce and digital marketing to drive revenue.',
     image: '/images/event/tech/tech%20quest.jpg',
+  },
+  {
+    id: 'finverse',
+    name: 'FINVERSE',
+    category: 'technical',
+    type: 'individual',
+    date: '2026-02-27',
+    venue: 'CITIL',
+    startTime: '2:00 PM',
+    prizePool: 0,
+    allowedPassTypes: ['day_pass', 'sana_concert'],
+    isActive: true,
+    description:
+      'FINVERSE highlights how fintech, blockchain, and AI are revolutionizing the financial ecosystem by enhancing accessibility, transparency, and efficiency. It emphasizes inclusive finance through digital payments, microloans, and SME empowerment, especially for underserved communities. Blockchain introduces secure, decentralized, and transparent systems, while AI enables fraud detection, predictive insights, and personalized banking.',
+    image: '/images/event/tech/finverse.png',
   },
   {
     id: 'industrial-automation',
