@@ -28,11 +28,11 @@ const PLACEHOLDER_TECH = '/images/event/tech/tech%20quest.jpg';
 /** Tech poster paths (from public/images/event/tech) */
 const TECH = {
   deadlock: '/images/event/tech/deadlock.webp',
-  astrotrack: '/images/event/tech/astrotrack.webp',
+  astrotrack: '/images/event/tech/astrotrack.png',
   chainOfLies: '/images/event/tech/chain-of-lies.webp',
   promptPixel: '/images/event/tech/prompt-pixel.webp',
   exchangeEffect: '/images/event/tech/exchange-effect.webp',
-  upsideDownCtf: '/images/event/tech/upside-down-ctf.webp',
+  upsideDownCtf: '/images/event/tech/episode-zero2.png',
   final: '/images/event/tech/final.webp',
 } as const;
 
@@ -392,7 +392,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
       'Commit Kaaviyam is a high-intensity, time-driven technical challenge organized by the FOSS Club, designed to test participants’ knowledge, memory, logical thinking, and practical development skills in the world of Free and Open Source Software. This three-round competition blends creativity, strategy, and technical expertise — taking participants on a journey from solving FOSS-based puzzles to applying real-world Git and cybersecurity practices.',
     fullDescription:
       'Commit Kaaviyam is a high-intensity, time-driven technical challenge organized by the FOSS Club, designed to test participants’ knowledge, memory, logical thinking, and practical development skills in the world of Free and Open Source Software. This three-round competition blends creativity, strategy, and technical expertise — taking participants on a journey from solving FOSS-based puzzles to applying real-world Git and cybersecurity practices.',
-    image: PLACEHOLDER_TECH,
+    image: '/images/event/tech/commit-kaaviyam-final.png',
     venue: 'F8',
     startTime: '10:30 AM',
     endTime: '12:30 PM',
@@ -415,7 +415,7 @@ export const TECHNICAL_EVENTS: EventItem[] = [
     name: 'ASTROTRACK',
     description:
       'AstroTrack is an immersive astrophysics workshop where participants analyze real astronomical datasets using Astrometrica to detect and track asteroids and Near-Earth Objects, simulating real-world space research workflows.',
-    image: '/images/event/tech/astrotrack.webp',
+    image: '/images/event/tech/astrotrack.png',
     venue: 'Physics Lab',
     startTime: '9:00 AM',
     endTime: '10:30 AM',
@@ -457,9 +457,9 @@ export const TECHNICAL_EVENTS: EventItem[] = [
   },
   {
     id: 'mock-global-summit',
-    name: 'MOCK GLOBAL SUMMIT: VENEZUELA–GREENLAND CRISIS',
+    name: 'MOCK SUMMIT',
     description:
-      'Discussing the geopolitical tensions over the world after the takeover of Venezuela.',
+      'A high-intensity global policy simulation where you step into the shoes of world leaders to deliberate on the global economic and security consequences of disruptions to Taiwan’s semiconductor supply chain amid escalating tensions in the Taiwan Strait. This summit challenges you to negotiate under pressure, craft strategic alliances, and defend national interests in a rapidly shifting geopolitical landscape.',
     image: PLACEHOLDER_TECH,
     venue: 'Auditorium',
     startTime: '9:00 AM',
